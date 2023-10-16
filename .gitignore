@@ -24,7 +24,6 @@
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
@@ -47,7 +46,6 @@
 .vscode
 build
 Logs/*
-Dependencies/*
 .clang-format
 res/models
 docs/sections/*.pdf
@@ -55,3 +53,5 @@ docs/sections/classes/*.pdf
 CMakeFiles
 justCode
 docs/doxygen
+dependencies/glew/bin
+dependencies/glew/doc
