@@ -75,7 +75,8 @@ class Maze : public Level
 	void moveEast();
 	void moveWest();
 
-	Room *          get(int y, int x);
-	virtual Tile *  getTile(int x, int y) override;
-	virtual Player *getPlayer() override { return &m_Player; }
+	Room *                      get(int y, int x);
+	virtual Tile *              getTile(int x, int y) override;
+	virtual Player *            getPlayer() override { return &m_Player; }
+	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox) override;
 };

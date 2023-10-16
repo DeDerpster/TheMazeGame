@@ -19,6 +19,7 @@ class Mob : public Entity
 	virtual ~Mob();
 
 	void move(float xa, float ya);
+	void move(Vec2f ratio);
 
 	virtual void render()                             = 0;
 	virtual void update()                             = 0;

@@ -14,7 +14,7 @@ class Player;
 
 class Level : public Layer
 {
-  private:
+  protected:
 	int width, height;
 
 	bool collisionPointDetection(float nextX, float nextY);
@@ -36,8 +36,8 @@ class Level : public Layer
 	virtual bool eventCallback(const Application::Event &e) = 0;
 	virtual bool setEffect(const Effect::RenderEffect &e)   = 0;
 
-	virtual Tile *     getTile(int x, int y) = 0;
-	virtual Player *   getPlayer() { return nullptr; }
-	std::vector<Vec2f> getPath(Vec2f start, Vec2f destination, CollisionBox collisionBox);
-	bool               collisionDetection(float nextX, float nextY, CollisionBox collisionBox);
+	virtual Tile *              getTile(int x, int y) = 0;
+	virtual Player *            getPlayer() { return nullptr; }
+	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox);
+	bool                        collisionDetection(float nextX, float nextY, CollisionBox collisionBox);
 };

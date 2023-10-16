@@ -2,6 +2,8 @@
 
 #include "ImGui.h"
 
+#include <algorithm>
+
 #include "Application.h"
 #include "Log.h"
 #include "RandomGen.h"
@@ -226,25 +228,8 @@ int Maze::coordsToIndex(int x, int y)
 void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west, bool isInSubThread)
 {
 	// TODO: Add more randomization for the different types of rooms as well as entities and objects
-	/*if(false)
-	{
-		addRoomEntrances[NORTH_ENTRANCE] = north;   // This sets the variables that can be accessed by the main thread, because they are static
-		addRoomEntrances[SOUTH_ENTRANCE] = south;
-		addRoomEntrances[EAST_ENTRANCE]  = east;
-		addRoomEntrances[WEST_ENTRANCE]  = west;
-		addRoomAtX                       = x;
-		addRoomAtY                       = y;
-		using namespace std::literals::chrono_literals;
-		while(addRoomAtX != -1)   // NOTE: This checks if the main thread has finished creating the last tile before moving on - this also slows the thread so it's not at full capacity all the time
-		{
-			std::this_thread::sleep_for(2ms);
-		}
-	}
-	else
-	{   // If in the main thread (And not in a sub thread) then it will do it normally */
 	bool entrances[4]          = {north, south, east, west};
 	board[coordsToIndex(x, y)] = new EmptyRoom(entrances);
-	// }
 }
 
 void Maze::removeRoom(int y, int x)
@@ -257,6 +242,115 @@ void Maze::removeRoom(int y, int x)
 	}
 	delete board[coordsToIndex(x, y)];
 	board[coordsToIndex(x, y)] = nullptr;
+}
+std::vector<Vec2f> *Maze::getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox)
+{
+	if(collisionDetection(dest.x, dest.y, collisionBox))
+	{
+		std::vector<Vec2f> *path = new std::vector<Vec2f>();
+		path->push_back(dest);
+		return path;
+	}
+
+	if(startPos.x / ROOM_SIZE != dest.x / ROOM_SIZE || startPos.y / ROOM_SIZE != dest.y / ROOM_SIZE)
+	{   // TODO: Make this check if rooms are used in the level
+		std::vector<Vec2i> openList;
+
+		// NOTE: This is hard coded, might need to change this
+		bool closedList[BOARD_SIZE][BOARD_SIZE];
+		memset(closedList, false, sizeof(closedList));
+
+		std::array<std::array<Node, BOARD_SIZE>, BOARD_SIZE> nodeMap;
+
+		Vec2i startVec = {(int) startPos.x / (ROOM_SIZE * Tile::TILE_SIZE), (int) startPos.y / (ROOM_SIZE * Tile::TILE_SIZE)};
+		Vec2i destVec  = {(int) dest.x / (ROOM_SIZE * Tile::TILE_SIZE), (int) dest.y / (ROOM_SIZE * Tile::TILE_SIZE)};
+
+		{
+			float hCost                            = distBetweenVec2i(startVec, destVec);
+			nodeMap[startVec.x][startVec.y].vec    = startVec;
+			nodeMap[startVec.x][startVec.y].parent = {-1, -1};
+			nodeMap[startVec.x][startVec.y].fCost  = hCost;
+			nodeMap[startVec.x][startVec.y].gCost  = 0.0f;
+			nodeMap[startVec.x][startVec.y].hCost  = hCost;
+
+			openList.push_back(startVec);
+		}
+
+		while(openList.back() != destVec)
+		{
+			Vec2i currentPos  = openList.back();
+			Node *currentNode = &nodeMap[currentPos.x][currentPos.y];
+			openList.pop_back();
+			closedList[currentPos.x][currentPos.y] = true;
+			for(int i = 0; i < 4; i++)
+			{
+				if(!get(currentPos.y, currentPos.x) || !get(currentPos.y, currentPos.x)->isOpen(i))
+					continue;
+
+				Vec2i dirVec = {0, 0};
+				if(i == Direction::NORTH)
+					dirVec.y = 1;
+				else if(i == Direction::SOUTH)
+					dirVec.y = -1;
+				else if(i == Direction::EAST)
+					dirVec.x = 1;
+				else if(i == Direction::WEST)
+					dirVec.x = -1;
+				Vec2i nextPos {currentPos.x + dirVec.x, currentPos.y + dirVec.y};
+
+				if(closedList[nextPos.x][nextPos.y])
+					continue;
+
+				float gCost = currentNode->gCost + distBetweenVec2i(currentPos, nextPos);
+				float hCost = distBetweenVec2i(nextPos, destVec);
+				float fCost = gCost + hCost;
+				if(nodeMap[nextPos.x][nextPos.y].vec.x != -1)
+				{
+					if(fCost >= nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].fCost)
+						continue;
+					nodeMap[nextPos.x][nextPos.y].parent = currentPos;
+					nodeMap[nextPos.x][nextPos.y].fCost  = fCost;
+					nodeMap[nextPos.x][nextPos.y].gCost  = gCost;
+					nodeMap[nextPos.x][nextPos.y].hCost  = hCost;
+					openList.erase(std::remove(openList.begin(), openList.end(), nextPos), openList.end());
+				}
+				else
+				{
+					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].vec    = nextPos;
+					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].parent = currentPos;
+					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].fCost  = fCost;
+					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].gCost  = gCost;
+					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].hCost  = hCost;
+				}
+
+				int insertIndex = getIndexOfInsertion(openList, nodeMap, nextPos);
+
+				openList.insert(openList.begin() + insertIndex, nextPos);
+			}
+			if(openList.size() == 0 /*|| openList.size() > BOARD_SIZE * BOARD_SIZE / 4*/)
+			{
+				Log::warning("Cannot find route to destination");
+				std::vector<Vec2f> *path = new std::vector<Vec2f>();
+				path->push_back(dest);
+				return path;
+			}
+		}
+		std::vector<Vec2i> path;
+		Vec2i              currentPos = openList.back();
+		while(currentPos != startVec)
+		{
+			Node *currentNode = &nodeMap[currentPos.x][currentPos.y];
+			path.push_back({currentNode->vec.x, currentNode->vec.y});
+			currentPos = currentNode->parent;
+		}
+		if(path.size() > 2)
+		{
+			float mid = ((float) Tile::TILE_SIZE * ROOM_SIZE) / 2;
+			dest      = {(float) path[path.size() - 2].x * Tile::TILE_SIZE * ROOM_SIZE + mid, (float) path[path.size() - 2].y * Tile::TILE_SIZE * ROOM_SIZE + mid};
+		}
+	}
+	std::vector<Vec2f> *path = Level::getPath(startPos, dest, collisionBox);
+	return path;
 }
 // !SECTION
 

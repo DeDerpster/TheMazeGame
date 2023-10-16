@@ -49,27 +49,27 @@ void Player::update()
 {
 	if(isInControl)
 	{
-		float tempX = 0;
-		float tempY = 0;
+		Vec2f ratio = {0, 0};
 		if(Application::isKeyPressed(GLFW_KEY_W) || Application::isKeyPressed(GLFW_KEY_UP))
 		{
-			tempY += m_Speed;
+			ratio.y += 1.0f;
 		}
 		if(Application::isKeyPressed(GLFW_KEY_S) || Application::isKeyPressed(GLFW_KEY_DOWN))
 		{
-			tempY -= m_Speed;
+			ratio.y -= 1.0f;
 		}
 		if(Application::isKeyPressed(GLFW_KEY_A) || Application::isKeyPressed(GLFW_KEY_LEFT))
 		{
-			tempX -= m_Speed;
+			ratio.x -= 1.0f;
 		}
 		if(Application::isKeyPressed(GLFW_KEY_D) || Application::isKeyPressed(GLFW_KEY_RIGHT))
 		{
-			tempX += m_Speed;
+			ratio.x += 1.0f;
 		}
-		if(tempX != 0 || tempY != 0)
+
+		if(ratio.x != 0 || ratio.y != 0)
 		{
-			move(tempX, tempY);
+			move(ratio);
 		}
 		else
 			isMoving = false;

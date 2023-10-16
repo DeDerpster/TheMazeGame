@@ -52,60 +52,39 @@ void Follower::findPath()
 	Vec2f start = {x, y};
 	if(!m_Level)
 		Log::critical("Level is null", LOGINFO);
-	std::vector<Vec2f> path = m_Level->getPath(start, dest, m_CollisionBox);
+	std::vector<Vec2f> *path = m_Level->getPath(start, dest, m_CollisionBox);
 
-	if(path.size() == 0)
+	if(path->size() == 0)
 	{
 		Log::error("Path is empty!", LOGINFO);
 		return;
 	}
 
-	float tempX = 0;
-	float tempY = 0;
+	// float tempX = 0;
+	// float tempY = 0;
+	// Vec2f ratio = {0.0f, 0.0f};
 
 	// for(Vec2f vec : path)
 	// Sprite::Sprite::getSprite(DEBUG_CIRCLE)->render(vec.x, vec.y, 0.0f, Tile::TILE_SIZE * ((float) X_STEP / 100.0f));
 	// Application::renderBuffers();
-	if(path.back().y > y)
+	float availiableDist = m_Speed;
+	while(availiableDist > 0.0f && path->size() > 0)
 	{
-		if((float) path.back().y - y > m_Speed)
-			tempY += m_Speed;
-		else
-			tempY += path.back().y - y;
-	}
-	if(path.back().y < y)
-	{
-		if(y - (float) path.back().y > m_Speed)
-			tempY -= m_Speed;
-		else
-			tempY -= y - path.back().y;
-	}
-	if(path.back().x < x)
-	{
-		if(x - path.back().x > m_Speed)
-			tempX -= m_Speed;
-		else
-			tempX -= x - path.back().x;
-	}
-	if(path.back().x > x)
-	{
-		if(path.back().x - x > m_Speed)
-			tempX += m_Speed;
-		else
-			tempX += path.back().x - x;
-	}
-
-	if(tempX != 0 || tempY != 0)
-	{
-		move(tempX, tempY);
-		if(x == path.back().x && y == path.back().y)
+		float distToNext = distBetweenVec2f({x, y}, path->back());
+		Vec2f distVec    = {path->back().x - x, path->back().y - y};
+		if(distToNext < availiableDist)
 		{
-			// Log::info("Removing last vec in list");
-			path.pop_back();
+			availiableDist -= distToNext;
+			move(distVec.x, distVec.y);
+			path->pop_back();
+		}
+		else
+		{
+			availiableDist = 0.0f;
+			float timesBy  = m_Speed / distToNext;
+			move(distVec.x * timesBy, distVec.y * timesBy);
 		}
 	}
-	else
-		isMoving = false;
 
 	if(isMoving)
 	{
@@ -126,6 +105,7 @@ void Follower::findPath()
 		}
 	}
 	findingPath = false;
+	delete path;
 }
 
 void Follower::update()
@@ -138,9 +118,9 @@ void Follower::update()
 		if(xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway)
 		{
 			findingPath = true;
-			std::thread pathThread(&Follower::findPath, this);
-			// findPath();
-			pathThread.detach();
+			// std::thread pathThread(&Follower::findPath, this);
+			findPath();
+			// pathThread.detach();
 		}
 		else
 			isMoving = false;
