@@ -7,12 +7,13 @@
 #include "RandomGen.h"
 
 #include "EmptyRoom.h"
+#include "Follower.h"
 #include "Tile.h"
 
 #define LAYER_MAX_FOR_DIRECTIONS 4
 
 Maze::Maze()
-	: m_Player(4500.0f, 4500.0f, this)
+	: Level(BOARD_SIZE * ROOM_SIZE, BOARD_SIZE * ROOM_SIZE), m_Player(4500.0f, 4500.0f, this)
 {
 	// NOTE: Because of how it is rendering the coords (0,0) on the board is the bottom left, not the top left!!
 
@@ -33,6 +34,10 @@ Maze::Maze()
 
 	Application::getCamera()->setAnchor(&m_Player);
 
+	Follower *follower = new Follower(3800.0f, 4500.0f, this);
+	follower->setFollower(&m_Player);
+	m_Entities.push_back(follower);
+
 	Log::info("Maze initialised");
 }
 
@@ -44,6 +49,8 @@ Maze::~Maze()
 		if(board[i])
 			delete board[i];
 	}
+	for(Entity *entity : m_Entities)
+		delete entity;
 	Log::info("Maze destroyed");
 }
 
@@ -95,46 +102,70 @@ void Maze::render()
 		get(midpoint, midpoint - 1)->render((midpoint - 1) * multiple, midpoint * multiple);
 
 #endif
+	Application::renderBuffers();
+	for(Entity *entity : m_Entities)
+		entity->render();
+	Application::renderBuffers();
 	m_Player.render();
 	m_Shader->bind();
 }
 
 void Maze::update()
 {
-	bool movedPlayer = false;
+	bool  movedPlayer = false;
+	float changeXBy   = 0;
+	float changeYBy   = 0;
 	if(m_Player.getY() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved North");
-		m_Player.changeY(-Tile::TILE_SIZE * ROOM_SIZE);
+		changeYBy = -Tile::TILE_SIZE * ROOM_SIZE;
+		m_Player.changeY(changeYBy);
 		moveNorth();
 		movedPlayer = true;
 	}
-	if(m_Player.getY() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
+	else if(m_Player.getY() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved South");
-		m_Player.changeY(Tile::TILE_SIZE * ROOM_SIZE);
+		changeYBy = Tile::TILE_SIZE * ROOM_SIZE;
+		m_Player.changeY(changeYBy);
 		moveSouth();
 		movedPlayer = true;
 	}
 	if(m_Player.getX() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved East");
-		m_Player.changeX(-Tile::TILE_SIZE * ROOM_SIZE);
+		changeXBy = -Tile::TILE_SIZE * ROOM_SIZE;
+		m_Player.changeX(changeXBy);
 		moveEast();
 		movedPlayer = true;
 	}
-	if(m_Player.getX() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
+	else if(m_Player.getX() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved West");
-		m_Player.changeX(Tile::TILE_SIZE * ROOM_SIZE);
+		changeXBy = Tile::TILE_SIZE * ROOM_SIZE;
+		m_Player.changeX(changeXBy);
 		moveWest();
 		movedPlayer = true;
+	}
+	if(changeXBy != 0)
+	{
+		for(Entity *entity : m_Entities)
+			entity->changeX(changeXBy);
+	}
+	if(changeYBy != 0)
+	{
+		for(Entity *entity : m_Entities)
+			entity->changeY(changeYBy);
 	}
 	m_Player.update();
 	if(movedPlayer)
 	{
 		Application::getCamera()->changeUpdateView();
 	}
+
+	for(Entity *entity : m_Entities)
+		entity->update();
+
 	// TODO: Add check to see if all of the pathsNorth... are all false - so will need to reset the maze
 	for(int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
 	{
@@ -227,8 +258,8 @@ void Maze::removeRoom(int y, int x)
 	delete board[coordsToIndex(x, y)];
 	board[coordsToIndex(x, y)] = nullptr;
 }
-
 // !SECTION
+
 // SECTION: Generation
 void Maze::generatePaths(int layerMax, int startMax, bool isInSubThread)
 {
@@ -531,8 +562,8 @@ void Maze::updatePaths()
 			pathsWest[i] = true;
 	}
 }
-
 // !SECTION
+
 // SECTION: Getters
 Room *Maze::get(int y, int x)
 {
@@ -548,5 +579,13 @@ Tile *Maze::getTile(int x, int y)
 	int roomY = y / ROOM_SIZE;
 	int tileY = y % ROOM_SIZE;
 
-	return get(roomY, roomX)->getTile(tileX, tileY);
+	Room *room = get(roomY, roomX);
+	if(!room)
+	{
+		Log::warning("Trying to access room that doesn't exist!");
+		return nullptr;
+	}
+
+	return room->getTile(tileX, tileY);
 }
+// !SECTION

@@ -138,9 +138,6 @@ void Player::render()
 
 void Player::eventCallback(Application::Event &e)
 {
-	if(e.getType() == Application::EventType::keyInput)
-	{
-	}
 }
 
 #ifdef DEBUG

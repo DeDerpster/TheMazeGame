@@ -55,6 +55,8 @@ namespace Sprite
 			sprites.push_back(std::make_unique<Sprite>("res/textures/Entities/Player-heir-west.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/Entities/Player-heir-west-1.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/Entities/Player-heir-west-2.png"));
+
+			sprites.push_back(std::make_unique<Sprite>("res/textures/DebugCircle.png"));
 		}
 	};
 }   // namespace Sprite
@@ -76,4 +78,5 @@ namespace Sprite
 #define PLAYER_WEST           13
 #define PLAYER_WEST_1         14
 #define PLAYER_WEST_2         15
-#define NUM_OF_SPRITES        16
+#define DEBUG_CIRCLE          16
+#define NUM_OF_SPRITES        17

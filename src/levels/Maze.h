@@ -38,7 +38,8 @@ class Maze : public Level
 	bool pathsEast[BOARD_SIZE];
 	bool pathsWest[BOARD_SIZE];
 
-	Player m_Player;
+	Player                m_Player;
+	std::vector<Entity *> m_Entities;
 
 #ifdef DEBUG
 	bool renderAll = false;

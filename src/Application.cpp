@@ -23,8 +23,8 @@ namespace Application   // I've used a namespace here as I know there will only 
 
 	int                  overlayStart;
 	std::vector<Layer *> layers;   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time)
-
 	// !SECTION
+
 	// SECTION: Initialises
 	bool init()
 	{   // This initialises everything
@@ -44,6 +44,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+		Log::info("THIS BETTER WORK!");
 		window = glfwCreateWindow(windowWidth, windowHeight, "MazeGame", NULL, NULL);
 		if(!window)   // Checks window is not a nullpointer
 		{
@@ -99,7 +100,6 @@ namespace Application   // I've used a namespace here as I know there will only 
 	}
 
 #ifdef DEBUG
-	// ImGuiIO &io;
 	bool setupImGui()   // Sets up ImGui
 	{
 		ImGui::CreateContext();   // Creates ImGui context
@@ -176,6 +176,11 @@ namespace Application   // I've used a namespace here as I know there will only 
 		}
 	}
 
+	void renderBuffers()
+	{
+		renderer->render();
+	}
+
 #ifdef DEBUG
 	void imGuiRender()   // Renders ImGui in all the layers
 	{
@@ -187,8 +192,8 @@ namespace Application   // I've used a namespace here as I know there will only 
 		camera.imGuiRender();
 	}
 #endif
-
 	// !SECTION
+
 	// SECTION: Layers
 	void addLayer(Layer *layer)   // Inserts a layer before the background
 	{
@@ -226,8 +231,8 @@ namespace Application   // I've used a namespace here as I know there will only 
 			}
 		}
 	}
-
 	// !SECTION
+
 	// SECTION: Events & Effects
 	void callEvent(const Event &e, bool includeOverlay)   // Sends event through the layers
 	{
@@ -260,8 +265,8 @@ namespace Application   // I've used a namespace here as I know there will only 
 				layers[i]->setEffect(e);
 		}
 	}
-
 	// !SECTION
+
 	// SECTION: Window stuff
 	void updateWindowSize(int width, int height)   // updates the window size and projection matrix
 	{
@@ -284,12 +289,13 @@ namespace Application   // I've used a namespace here as I know there will only 
 	{
 		return camera.isInFrame(x, y);
 	}
-
 	// !SECTION
+
 	// SECTION: Getters
 	int       getWidth() { return windowWidth; }
 	int       getHeight() { return windowHeight; }
 	void *    getWindow() { return window; }
 	Camera *  getCamera() { return &camera; }
 	glm::mat4 getProj() { return proj; }
+	// !SECTION
 };   // namespace Application

@@ -19,6 +19,7 @@ namespace Application
 
 	void update();
 	void render();
+	void renderBuffers();
 #ifdef DEBUG
 	void imGuiRender();
 #endif

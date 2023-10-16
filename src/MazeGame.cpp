@@ -16,6 +16,8 @@
 
 #include "Camera.h"
 
+#include <thread>
+
 // This is the game loop that keeps the game running
 void gameLoop()
 {
@@ -30,6 +32,7 @@ void gameLoop()
 		Application::addLayer(maze);   // Adds it to the layers
 	}
 
+	// Application::update();
 	while(Application::isWindowOpen())
 	{
 #ifdef DEBUG
@@ -38,8 +41,10 @@ void gameLoop()
 		glClear(GL_COLOR_BUFFER_BIT);   // Resets the screen
 
 		// Updates and renders the application
+		// std::thread updateThread(&Application::update);
 		Application::update();
 		Application::render();
+		// updateThread.join();
 
 #ifdef DEBUG   // Renders all the ImGui interface to make it easier while debugging
 		ImGui_ImplOpenGL3_NewFrame();

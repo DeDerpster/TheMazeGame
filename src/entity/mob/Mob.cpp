@@ -24,18 +24,19 @@ void Mob::move(float xa, float ya)
 {
 	if(!isGhost)
 	{
-		if(collision(xa, ya))
-		{
-			isMoving = false;
-			return;
-		}
 		if(collision(xa, 0))
 			xa = 0;
 		if(collision(0, ya))
 			ya = 0;
 		if(xa == 0 && ya == 0)
 		{
-			Log::info("I have no words at this point");
+			isMoving = false;
+			return;
+		}
+		if(collision(xa, ya))
+		{
+			isMoving = false;
+			return;
 		}
 	}
 	isMoving = true;
