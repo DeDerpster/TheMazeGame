@@ -62,7 +62,7 @@ void Chest::update()
 
 bool Chest::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Event::EventType::mouseClicked && m_Level && !m_IsDud)
+	if(e.getType() == Event::EventType::mouseClicked && !m_IsDud)
 	{
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
@@ -71,7 +71,11 @@ bool Chest::eventCallback(const Event::Event &e)
 		Player *player = m_Level->getPlayer();
 		if(doesPointIntersectWithBox(Application::getCamera()->convertWindowToLevel(ne.pos), {x, y}, getCollisionBox()) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
 		{
-			m_Level->openChest(m_Inventory);
+			Event::ChangeGUIActiveLayer e1(InGameGUILayer::chestInventory);
+			Application::callEvent(e1, true);
+
+			Event::ChestOpenedEvent e2(&m_Inventory);
+			Application::callEvent(e2, true);
 			return true;
 		}
 	}

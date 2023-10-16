@@ -40,7 +40,7 @@ namespace Event
 	static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 	{
 		if(mouseClickedDelay == 0)
-		{
+		{   // TODO: Make this so it knows the action and mods and get rid of the mouse delay
 			MouseButton       mButton = static_cast<MouseButton>(button);
 			MouseClickedEvent e(mButton, getMousePos());
 			Application::callEvent(e, true);

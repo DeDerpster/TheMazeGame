@@ -33,7 +33,8 @@ namespace Event
 		mazeMovedEvent,
 		showAltTileEvent,
 		itemTransfer,
-		exitGUIMenu
+		changeGUILayer,
+		chestOpened
 	};
 
 	struct Event
@@ -115,10 +116,26 @@ namespace Event
 		virtual bool            ignoreIfPaused() const override { return false; }
 	};
 
-	struct ExitGUIMenuEvent : Event
+	struct ChangeGUIActiveLayer : Event
 	{
-		ExitGUIMenuEvent() {}
-		virtual EventType const getType() const override { return EventType::exitGUIMenu; }
+		InGameGUILayer layer;
+
+		ChangeGUIActiveLayer(InGameGUILayer layer)
+			: layer(layer)
+		{
+		}
+		virtual EventType const getType() const override { return EventType::changeGUILayer; }
+		virtual bool            ignoreIfPaused() const override { return false; }
+	};
+
+	struct ChestOpenedEvent : Event
+	{
+		IContainer *container;
+
+		ChestOpenedEvent(IContainer *container)
+			: container(container) {}
+
+		virtual EventType const getType() const override { return EventType::chestOpened; }
 		virtual bool            ignoreIfPaused() const override { return true; }
 	};
 

@@ -10,12 +10,7 @@
 #include "RandomGen.h"
 #include "VertexBufferLayout.h"
 
-#include "Button.h"
-#include "GUILayer.h"
-#include "MenuBackgroundObject.h"
-#include "MenuItemHolderManager.h"
-#include "StatBar.h"
-#include "TransferObject.h"
+#include "GUIStack.h"
 
 #include "NPC.h"
 #include "Room.h"
@@ -34,10 +29,7 @@
 
 Maze::Maze()
 	: Level(MAZE_MIDPOINT, MAZE_MIDPOINT, MAZE_SIZE, MAZE_SIZE, {0, 0}),
-	  finishedGenerating(true),
-	  m_OverlayGUI(new GUILayer(GUILayer::Type::GameOverlay, this)),
-	  m_InventoryGUI(new GUILayer(GUILayer::Type::PlayerInventory, this)),
-	  m_ChestGUI(new GUILayer(GUILayer::Type::ChestInventory, this))
+	  finishedGenerating(true)
 {
 	// NOTE: Because of how it is rendering the coords (0,0) on the m_Board is the bottom left, not the top left!!
 
@@ -45,11 +37,9 @@ Maze::Maze()
 
 	NPC *enemy = new NPC(3100.0f, 3800.0f, this);
 	enemy->setFollower(&m_Player);
-	// follower->setFollower(&m_Player);
 	m_Entities.push_back(enemy);
 
-	Application::addOverlay(m_OverlayGUI);
-	activeGUI = m_OverlayGUI;
+	Application::addOverlay(new GUIStack(this));
 
 	Log::info("Maze initialised");
 }
@@ -57,12 +47,6 @@ Maze::Maze()
 Maze::~Maze()
 {
 	// NOTE: This needs to be caused before the progam ends as it frees up the memory
-	// for(Entity *entity : m_Entities)
-	// delete entity;
-	if(activeGUI != m_OverlayGUI)
-		delete m_OverlayGUI;
-	if(activeGUI != m_InventoryGUI)
-		delete m_InventoryGUI;
 	Log::info("Maze destroyed");
 }
 
@@ -134,28 +118,21 @@ void Maze::imGuiRender()
 
 bool Maze::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Event::EventType::exitGUIMenu)
-	{
-		returnToGame();
-	}
-	else if(e.getType() == Event::EventType::keyInput)
+	if(e.getType() == Event::EventType::keyInput)
 	{
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
-		if(activeGUI != m_InventoryGUI && ne.key == GLFW_KEY_E && ne.action == GLFW_PRESS)
+		if(ne.key == GLFW_KEY_E && ne.action == GLFW_PRESS)
 		{
-			Application::removeLayer(activeGUI);
-			Application::addOverlay(m_InventoryGUI);
-			activeGUI = m_InventoryGUI;
+			Event::ChangeGUIActiveLayer e(InGameGUILayer::playerInventory);
+			Application::callEvent(e, true);
 
-			Application::setIsPaused(true);
 			return true;
 		}
-		else if(activeGUI != m_OverlayGUI && ne.key == GLFW_KEY_ESCAPE && ne.action == GLFW_PRESS)
+		else if(ne.key == GLFW_KEY_ESCAPE && ne.action == GLFW_PRESS)
 		{
-			Application::removeLayer(activeGUI);
-			Application::addOverlay(m_OverlayGUI);
-			activeGUI = m_OverlayGUI;
-			Application::setIsPaused(false);
+			Event::ChangeGUIActiveLayer e(InGameGUILayer::overlay);
+			Application::callEvent(e, true);
+
 			return true;
 		}
 	}
@@ -218,17 +195,13 @@ bool Maze::eventCallback(const Event::Event &e)
 			}
 		}
 	}
-	else if(e.getType() == Event::EventType::windowResize)
-	{
-		if(activeGUI != m_OverlayGUI)
-			m_OverlayGUI->eventCallback(e);
-		if(activeGUI != m_InventoryGUI)
-			m_InventoryGUI->eventCallback(e);
-		if(activeGUI != m_ChestGUI)
-			m_ChestGUI->eventCallback(e);
-	}
 
 	return Level::eventCallback(e);
+}
+
+void Maze::endLevel()
+{
+	playerDeath();
 }
 
 void Maze::playerDeath()
@@ -579,26 +552,3 @@ void Maze::updatePaths()
 }
 
 // !SECTION
-
-void Maze::openChest(ItemContainer &items)
-{
-	Application::removeLayer(activeGUI);
-	Application::addOverlay(m_ChestGUI);
-	setChestToMenu(items);
-	activeGUI = m_ChestGUI;
-	Application::setIsPaused(true);
-}
-
-void Maze::endLevel()
-{
-	// TODO: Change this so it actually does something
-	playerDeath();
-}
-
-void Maze::returnToGame()
-{
-	Application::removeLayer(activeGUI);
-	Application::addOverlay(m_OverlayGUI);
-	activeGUI = m_OverlayGUI;
-	Application::setIsPaused(false);
-}

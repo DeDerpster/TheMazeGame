@@ -35,14 +35,6 @@ class Maze : public Level
 	bool pathsEast[MAZE_SIZE];
 	bool pathsWest[MAZE_SIZE];
 
-	// TODO: Change this to application?
-	// Menu layers - these are the layers that are involved in the menu system and can be quickly pushed to the layer stack if needed
-	GUILayer *activeGUI;   // This stores the current GUI layer in the application stack, so that when deleting layers, it does not cause an error
-	GUILayer *m_OverlayGUI;
-	GUILayer *m_InventoryGUI;
-	GUILayer *m_ChestGUI;
-
-
 	void addRoom(int x, int y, bool north, bool south, bool east, bool west);
 	void updatePaths();
 
@@ -53,6 +45,7 @@ class Maze : public Level
 	void          forceEntrance(EntranceState *north, EntranceState *south, EntranceState *east, EntranceState *west);
 
 	// TODO: Make this a event
+	virtual void endLevel() override;
 	virtual void playerDeath() override;
 	void resetMaze();
 
@@ -71,9 +64,4 @@ class Maze : public Level
 	void moveSouth();
 	void moveEast();
 	void moveWest();
-
-	// Functions for interaction with gui layers
-	virtual void openChest(ItemContainer &items) override;
-	virtual void endLevel() override;
-	void         returnToGame();
 };

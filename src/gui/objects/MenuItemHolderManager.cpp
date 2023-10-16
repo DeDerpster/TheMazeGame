@@ -9,7 +9,7 @@
 #include "ItemContainer.h"
 #include "WeaponContainer.h"
 
-MIHManager::MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem)
+MIHManager::MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem, bool listenForChestOpening)
 	: MenuObject(x, y, width, height, layer),
 	  m_BlockSize(blockSize),
 	  m_Items(items),
@@ -18,10 +18,11 @@ MIHManager::MIHManager(float x, float y, float width, float height, float blockS
 	  m_BackgroundColour({0.6f, 0.6f, 0.6f, 1.0f}),
 	  m_BorderColour({0.0f, 0.0f, 0.0f, 1.0f}),
 	  m_HoverBorderColour({0.0f, 1.0f, 0.0f, 1.0f}),
-	  m_ActiveBorderColour({1.0f, 0.0f, 0.0f, 1.0f})
+	  m_ActiveBorderColour({1.0f, 0.0f, 0.0f, 1.0f}),
+	  listenForChestOpening(listenForChestOpening)
 {
 }
-MIHManager::MIHManager(std::function<void(float *, float *, float *, float *)> posFunc, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem)
+MIHManager::MIHManager(std::function<void(float *, float *, float *, float *)> posFunc, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem, bool listenForChestOpening)
 	: MenuObject(posFunc, layer),
 	  m_BlockSize(blockSize),
 	  m_Items(items),
@@ -30,12 +31,14 @@ MIHManager::MIHManager(std::function<void(float *, float *, float *, float *)> p
 	  m_BackgroundColour({0.6f, 0.6f, 0.6f, 1.0f}),
 	  m_BorderColour({0.0f, 0.0f, 0.0f, 1.0f}),
 	  m_HoverBorderColour({0.0f, 1.0f, 0.0f, 1.0f}),
-	  m_ActiveBorderColour({1.0f, 0.0f, 0.0f, 1.0f})
+	  m_ActiveBorderColour({1.0f, 0.0f, 0.0f, 1.0f}),
+	  listenForChestOpening(listenForChestOpening)
+
 {
 
 }
 // TODO: Clean up the parameter order
-MIHManager::MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, glm::vec4 backgroundColour, glm::vec4 borderColour, glm::vec4 hoverColour, glm::vec4 activeColour, std::function<void(int, Level *)> clickedFunc, int *activeItem)
+MIHManager::MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, glm::vec4 backgroundColour, glm::vec4 borderColour, glm::vec4 hoverColour, glm::vec4 activeColour, std::function<void(int, Level *)> clickedFunc, int *activeItem, bool listenForChestOpening)
 	: MenuObject(x, y, width, height, layer),
 	  m_BlockSize(blockSize),
 	  m_Items(items),
@@ -44,10 +47,12 @@ MIHManager::MIHManager(float x, float y, float width, float height, float blockS
 	  m_BackgroundColour(backgroundColour),
 	  m_BorderColour(borderColour),
 	  m_HoverBorderColour(hoverColour),
-	  m_ActiveBorderColour(activeColour)
+	  m_ActiveBorderColour(activeColour),
+	  listenForChestOpening(listenForChestOpening)
+
 {
 }
-MIHManager::MIHManager(std::function<void(float *, float *, float *, float *)> posFunc, float blockSize, Layer *layer, IContainer *items, glm::vec4 backgroundColour, glm::vec4 borderColour, glm::vec4 hoverColour, glm::vec4 activeColour, std::function<void(int, Level *)> clickedFunc, int *activeItem)
+MIHManager::MIHManager(std::function<void(float *, float *, float *, float *)> posFunc, float blockSize, Layer *layer, IContainer *items, glm::vec4 backgroundColour, glm::vec4 borderColour, glm::vec4 hoverColour, glm::vec4 activeColour, std::function<void(int, Level *)> clickedFunc, int *activeItem, bool listenForChestOpening)
 	: MenuObject(posFunc, layer),
 	  m_BlockSize(blockSize),
 	  m_Items(items),
@@ -56,7 +61,9 @@ MIHManager::MIHManager(std::function<void(float *, float *, float *, float *)> p
 	  m_BackgroundColour(backgroundColour),
 	  m_BorderColour(borderColour),
 	  m_HoverBorderColour(hoverColour),
-	  m_ActiveBorderColour(activeColour)
+	  m_ActiveBorderColour(activeColour),
+	  listenForChestOpening(listenForChestOpening)
+
 {
 }
 
@@ -162,6 +169,16 @@ bool MIHManager::eventCallback(const Event::Event &e)
 			}
 		}
 	}
+
+	if(listenForChestOpening && e.getType() == Event::EventType::chestOpened)
+	{
+		const Event::ChestOpenedEvent &ne = static_cast<const Event::ChestOpenedEvent &>(e);
+
+		m_Items = ne.container;
+
+		return true;
+	}
+
 	return MenuObject::eventCallback(e);
 }
 

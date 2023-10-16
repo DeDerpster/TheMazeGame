@@ -27,8 +27,6 @@ class Level : public Layer
 	std::vector<Entity *>     m_Entities;
 	std::vector<Projectile *> m_Projectiles;
 
-	std::function<void(ItemContainer &)> setChestToMenu;
-
 #ifdef DEBUG
 	bool renderAll = false;
 #endif
@@ -80,8 +78,5 @@ class Level : public Layer
 	bool            directionalCollision(float x, float y, float xs, float ys, CollisionBox box);
 	virtual Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox box);
 
-	virtual void openChest(ItemContainer &items)           = 0;
-	virtual void endLevel()                            = 0;
-
-	void setChestMenuFunc(std::function<void(ItemContainer &)> func) { setChestToMenu = func; }
+	virtual void endLevel() = 0;
 };

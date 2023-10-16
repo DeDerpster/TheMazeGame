@@ -18,6 +18,14 @@ enum class RoomType
 	Exit
 };
 
+enum InGameGUILayer
+{
+	overlay,
+	playerInventory,
+	chestInventory,
+	exitMenu
+};
+
 struct Vec2i
 {
 	int x, y;

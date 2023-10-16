@@ -56,7 +56,7 @@ GUILayer::GUILayer(GUILayer::Type genType, Level *connectedLevel)
 		};
 
 		auto exitFunc = []() {
-			Event::ExitGUIMenuEvent e;
+			Event::ChangeGUIActiveLayer e(InGameGUILayer::overlay);
 			Application::callEvent(e, true);
 		};
 
@@ -99,13 +99,12 @@ GUILayer::GUILayer(GUILayer::Type genType, Level *connectedLevel)
 			*y      = Application::getHeight() / 2 + 75.0f / 2.0f;
 		};
 		auto exitFunc = []() {
-			Event::ExitGUIMenuEvent e;
+			Event::ChangeGUIActiveLayer e(InGameGUILayer::overlay);
 			Application::callEvent(e, true);
 		};
 		addMenuObject(new MenuBackground(backgroundPosFunc, this, {0.3f, 0.3f, 0.3f, 0.9f}, exitFunc));
 
-		auto clickedFunc = [](int index, Level *level) {   // TODO: remove the level *
-														   // this->m_ConnectedLevel->getPlayer().useItemInInventory(index);
+		auto clickedFunc = [](int index, Level *level) {   // TODO: remove the level * and do something here
 		};
 
 		auto posFuncForPlayerInventory = [](float *x, float *y, float *width, float *height) {
@@ -122,14 +121,8 @@ GUILayer::GUILayer(GUILayer::Type genType, Level *connectedLevel)
 			*x      = Application::getWidth() / 2 + 10.0f;
 			*y      = Application::getHeight() / 2 + *height / 2 - 112.5f;
 		};
-		MIHManager *chestSection = new MIHManager(posFuncForChestInventory, 100, this, nullptr, clickedFunc);
+		MIHManager *chestSection = new MIHManager(posFuncForChestInventory, 100, this, nullptr, clickedFunc, nullptr, true);
 		addMenuObject(chestSection);
-
-		auto setChestToMenu = [chestSection](ItemContainer &items) {
-			chestSection->setInventory(&items);
-		};
-
-		m_ConnectedLevel->setChestMenuFunc(setChestToMenu);
 
 		auto clickedWeaponFunc = [this](int index, Level *level) {
 			m_ConnectedLevel->getPlayer()->setCurrentWeapon(index);
