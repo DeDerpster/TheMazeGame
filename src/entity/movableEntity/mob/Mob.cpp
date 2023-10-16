@@ -1,12 +1,16 @@
 #include "Mob.h"
 
-#include "Potion.h"
-#include "Weapon.h"
+#include "item/potion/Potion.h"
+#include "item/weapon/Weapon.h"
 
 #include "Application.h"
 #include "KeyDefinitions.h"
-#include "Level.h"
-#include "Renderer.h"
+#include "level/Level.h"
+#include "rendering/Renderer.h"
+
+#include "event/game/MobDied.h"
+#include "event/game/ShowAlternatives.h"
+#include "event/menu/Transfer.h"
 
 #include <math.h>
 
@@ -128,16 +132,18 @@ void Mob::update()
 	}
 	else
 	{
-		Event::MobDied *e = new Event::MobDied(this);
+		Event::MobDiedEvent *e = new Event::MobDiedEvent(this);
 		Application::callEventLater(e);
 	}
 }
 
 bool Mob::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Event::EventType::mobDied)
+	switch(e.getType())
 	{
-		const Event::MobDied &ne = static_cast<const Event::MobDied &>(e);
+	case Event::EventType::MobDied:
+	{
+		const Event::MobDiedEvent &ne = static_cast<const Event::MobDiedEvent &>(e);
 
 		if(ne.mob == m_Following)
 			m_Following = nullptr;
@@ -155,9 +161,15 @@ bool Mob::eventCallback(const Event::Event &e)
 			setFollowersEnemy(m_Enemy);
 			m_Level->getPlayer()->setFollowersEnemy(this);
 		}
+
+		return false;
 	}
-	else if(!m_Following && e.getType() == Event::EventType::showAltTileEvent)
+
+	case Event::EventType::ShowAltTile:
 	{
+		if(m_Following)
+			return false;
+
 		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
 		if(ne.showAlt)
 		{
@@ -167,8 +179,13 @@ bool Mob::eventCallback(const Event::Event &e)
 				m_Level->getPlayer()->setFollowersEnemy(this);
 			}
 		}
+
+		return false;
 	}
-	return MovableEntity::eventCallback(e);
+
+	default:
+		return MovableEntity::eventCallback(e);
+	}
 }
 
 void Mob::useItemInInventory(uint16_t index)
@@ -183,8 +200,8 @@ void Mob::useItemInInventory(uint16_t index)
 	Weapon *wp   = dynamic_cast<Weapon *>(item);
 	if(wp)
 	{
-		Event::ItemTransfer e(index, &m_Inventory);
-		Application::callEvent(e, true);
+		Event::ItemTransferEvent e(index, &m_Inventory);
+		Application::callEvent(e, Event::CallType::Overlay);
 		return;
 	}
 

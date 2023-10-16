@@ -4,8 +4,8 @@
 #include <array>
 
 #include "RenderVertex.h"
-#include "Sprite.h"
-#include "Texture.h"
+#include "rendering/glInterface/Texture.h"
+#include "rendering/sprite/Sprite.h"
 
 // Text rendering objects
 struct Character

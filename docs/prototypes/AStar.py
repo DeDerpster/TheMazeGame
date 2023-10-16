@@ -67,7 +67,7 @@ def getPath(board : list, startPos : tuple, destPos : tuple) -> list:
             hCost = getDistance(nextPos, destPos)
 
             # Checks if is open
-            if(nodeMap[nextPos[1]][nextPos[0]] != None):
+            if(nodeMap[nextPos[1]][nextPos[0]] is not):
                 if nodeMap[nextPos[1]][nextPos[0]].fCost < gCost + hCost: # If it has a higher fCost it continues
                     continue
                 # Deletes the position from the open list (so it can be later added in the correct position)

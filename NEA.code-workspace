@@ -119,7 +119,9 @@
             "lesu",
             "prophetam",
             "resurrectionem",
-            "stbi"
+            "stbi",
+            "titlefont",
+            "titlepagedecoration"
         ],
         "editor.defaultFormatter": "ms-vscode.cpptools",
         "commentAnchors.tagHighlights.enabled": true,

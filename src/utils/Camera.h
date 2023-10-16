@@ -2,21 +2,27 @@
 
 #include <GLM.h>
 
-#include "Layer.h"
-#include "Mob.h"
+#include "entity/movableEntity/mob/Mob.h"
+#include "layer/Layer.h"
 
 class Camera
 {
   private:
+	// All the variables for the camera
 	float x, y;
-	float zoomPercentage;
-	float moveSpeed;
-	bool  moveLock;
-	bool  updateView;
+	float zoomPercentage;   // Stores the zoom level
+	float moveSpeed;        // This is for when it is not following a character
+	bool  moveLock;         // Locks the movement
+	// Information for the following a mob e.g. the player
 	bool  lockOnAnchor;
 	Mob * m_Anchor;
+	// Stores information about its effect
 	uint16_t m_ZoomEffectID;
 	uint16_t m_PositionEffectID;
+	bool     updateView;   // Variable to tell it to update its effect
+
+	void updatePositionEffect();
+	void updateZoomEffect();
 
   public:
 	Camera();
@@ -29,26 +35,20 @@ class Camera
 #endif
 
 	bool eventCallback(const Event::Event &e);
-	bool setEffect(const Effect::Effect &e);
 
-	// TODO: Sort this out
+	float     getX() { return x; }
+	float     getY() { return y; }
+	float     getZoom();
 	uint16_t  getPositionEffectID();
 	uint16_t  getZoomEffectID();
-	void      setShaderEffects();
-	void      updatePositionEffect();
-	void      updateZoomEffect();
+	Vec2f     convertWindowToLevel(Vec2f inp);
 	bool      isInFrame(float x, float y, CollisionBox &box);
+
+	void      setShaderEffects();
 	void      setLock(bool locked);
 	void      setX(float newX);
 	void      setY(float newY);
 	void      setAnchor(Mob *e);
 	void      clearAnchor();
-	float     getZoom();
-	void      keyCallback(int key, int scancode, int action, int mods);
 	void      changeUpdateView();
-
-	float getX() { return x; }
-	float getY() { return y; }
-
-	Vec2f convertWindowToLevel(Vec2f inp);
 };

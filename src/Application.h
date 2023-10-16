@@ -2,12 +2,10 @@
 
 #include <GLM.h>
 
+#include "event/Event.h"
+#include "layer/Layer.h"
 #include "Camera.h"
-#include "Effect.h"
-#include "Layer.h"
 #include "Log.h"
-
-#include "Event.h"
 
 class Application
 {
@@ -22,20 +20,7 @@ class Application
 		return instance;
 	}
 
-#ifdef DEBUG
-	static ImGuiIO *getImGuiContext()
-	{
-		return get().getImGuiContextImpl();
-	}
-	static bool setupImGui() { return get().setupImGuiImpl(); }
-	static void imGuiRender() { get().imGuiRenderImpl(); }
-#endif
-
-	static void update()
-	{
-		get().updateImpl();
-	}
-	static void render() { get().renderImpl(); }
+	static void gameLoop() { get().gameLoopImpl();  }
 
 	static void setupLayers() { get().setupLayersImpl(); }
 	static void exitGame() { get().setupLayersImpl(); }
@@ -47,10 +32,8 @@ class Application
 	static void removeLayer(int index) { get().removeLayerImpl(index); }
 	static void removeLayer(Layer *layer, bool deleteLayer = false) { get().removeLayerImpl(layer, deleteLayer); }
 
-	static void callEvent(const Event::Event &e, bool includeOverlay = false) { get().callEventImpl(e, includeOverlay); }
+	static void callEvent(const Event::Event &e, Event::CallType callType = Event::CallType::Normal) { get().callEventImpl(e, callType); }
 	static void callEventLater(const Event::Event *e) { get().eventBuffer.push_back(e); }
-	static void setEffect(Effect::Effect *e, bool includeOverlay = false) { get().setEffectImpl(e, includeOverlay); }
-	static void setOverlayEffect(Effect::Effect *e) { get().setOverlayEffectImpl(e); }
 
 	static void updateWindowSize(int width, int height) { get().updateWindowSizeImpl(width, height); }
 	static bool isWindowOpen() { return get().isWindowOpenImpl(); }
@@ -89,13 +72,15 @@ class Application
 	Application();
 
 #ifdef DEBUG
-	ImGuiIO *getImGuiContextImpl();
-	bool     setupImGuiImpl();
-	void     imGuiRenderImpl();
+	ImGuiIO *getImGuiContext();
+	bool     setupImGui();
+	void     imGuiRender();
 #endif
 
-	void updateImpl();
-	void renderImpl();
+	void update();
+	void render();
+
+	void gameLoopImpl();
 
 	void setupLayersImpl();
 	void startGameImpl();
@@ -105,9 +90,7 @@ class Application
 	void removeLayerImpl(int index);
 	void removeLayerImpl(Layer *layer, bool deleteLayer);
 
-	void callEventImpl(const Event::Event &e, bool includeOverlay = false);
-	void setEffectImpl(Effect::Effect *e, bool includeOverlay = false);
-	void setOverlayEffectImpl(Effect::Effect *e);
+	void callEventImpl(const Event::Event &e, Event::CallType callType);
 
 	void updateWindowSizeImpl(int width, int height);
 	bool isWindowOpenImpl();

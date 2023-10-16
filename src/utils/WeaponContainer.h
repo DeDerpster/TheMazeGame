@@ -2,7 +2,7 @@
 
 #include "Container.h"
 
-#include "Weapon.h"
+#include "item/weapon/Weapon.h"
 
 class WeaponContainer : public IContainer, public Container<Weapon *>
 {

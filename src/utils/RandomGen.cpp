@@ -4,16 +4,16 @@
 
 #include "Log.h"
 
-#include "Boomerang.h"
-#include "Bow.h"
-#include "Crossbow.h"
-#include "DarkStaff.h"
-#include "EarthStaff.h"
-#include "FireStaff.h"
-#include "FrostStaff.h"
-#include "GoldStaff.h"
-#include "Potion.h"
-#include "Sling.h"
+#include "item/potion/Potion.h"
+#include "item/weapon/general/Boomerang.h"
+#include "item/weapon/general/Bow.h"
+#include "item/weapon/general/Crossbow.h"
+#include "item/weapon/general/Sling.h"
+#include "item/weapon/staff/DarkStaff.h"
+#include "item/weapon/staff/EarthStaff.h"
+#include "item/weapon/staff/FireStaff.h"
+#include "item/weapon/staff/FrostStaff.h"
+#include "item/weapon/staff/GoldStaff.h"
 
 Random::Random()
 {

@@ -1,15 +1,16 @@
 #pragma once
 
-#include "MovableEntity.h"
+#include "../MovableEntity.h"
 
-#include "AnimatedSprite.h"
 #include "Container.h"
-#include "Item.h"
+#include "item/Item.h"
+#include "item/weapon/Weapon.h"
 #include "ItemContainer.h"
+#include "WeaponContainer.h"
+
 #include "StatsMob.h"
 #include "Utils.h"
-#include "Weapon.h"
-#include "WeaponContainer.h"
+#include "rendering/sprite/AnimatedSprite.h"
 
 class Mob : public MovableEntity, public StatsMob
 {

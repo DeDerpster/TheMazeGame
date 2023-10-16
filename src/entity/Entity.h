@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Event.h"
 #include "Log.h"
-#include "Sprite.h"
+#include "rendering/sprite/Sprite.h"
 #include "Utils.h"
+#include "event/Event.h"
 
 class Level;
 class Entity

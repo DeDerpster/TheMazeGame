@@ -1,6 +1,6 @@
 #include "Item.h"
 
-#include "Renderer.h"
+#include "rendering/Renderer.h"
 
 Item::Item()
 	: m_SpriteID(Sprite::ID::errorID), m_Name("I am an item"), forceRenderOnly(false)

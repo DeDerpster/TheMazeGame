@@ -13,23 +13,16 @@ target_precompile_headers(${PROJECT_NAME} PUBLIC
 add_subdirectory(maze)
 add_subdirectory(rendering)
 add_subdirectory(vendor/imgui)
-add_subdirectory(layers)
+add_subdirectory(layer)
 add_subdirectory(entity)
-add_subdirectory(levels)
+add_subdirectory(level)
 add_subdirectory(utils)
 add_subdirectory(item)
 add_subdirectory(gui)
 add_subdirectory(particle)
+add_subdirectory(event)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                            maze
-                            rendering
                             headers
                             vendor
-                            entity
-                            layers
-                            levels
-                            utils
-                            item
-                            gui
-                            particle)
+                            utils)

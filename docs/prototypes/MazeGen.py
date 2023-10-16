@@ -2,26 +2,26 @@ from random import randint
 
 class Sector: # This is a simple sector that represents a room in the game
     #             North  South  East   West
-    enterences = [False, False, False, False] # Stores which entrances are open
+    entrances = [False, False, False, False] # Stores which entrances are open
 
     def __init__(self, north : bool, south : bool, east : bool, west : bool): # Simple initialiser
-        self.enterences = [north, south, east, west]
+        self.entrances = [north, south, east, west]
 
     def __repr__(self) -> str: # Returns a string representation of the room, using 'X' to represent walls
         printStr = ""
-        if self.enterences[0]:
+        if self.entrances[0]:
             printStr += "X X\n"
         else:
             printStr += "XXX\n"
-        if self.enterences[3]:
+        if self.entrances[3]:
             printStr += "  "
         else:
             printStr += "X "
-        if self.enterences[2]:
+        if self.entrances[2]:
             printStr += " \n"
         else:
             printStr += "X\n"
-        if self.enterences[1]:
+        if self.entrances[1]:
             printStr += "X X\n"
         else:
             printStr += "XXX\n"
@@ -29,16 +29,16 @@ class Sector: # This is a simple sector that represents a room in the game
 
     # These functions just switch the each entrance from being open to close and close to open
     def switchNorth(self):
-        self.enterences[0] = not self.enterences[0]
+        self.entrances[0] = not self.entrances[0]
 
     def switchSouth(self):
-        self.enterences[1] = not self.enterences[1]
+        self.entrances[1] = not self.entrances[1]
 
     def switchEast(self):
-        self.enterences[2] = not self.enterences[2]
+        self.entrances[2] = not self.entrances[2]
 
     def switchWest(self):
-        self.enterences[3] = not self.enterences[3]
+        self.entrances[3] = not self.entrances[3]
 
     def __eq__(self, o) -> bool:
         if not isinstance(o, Sector):
@@ -61,7 +61,7 @@ def printBoard(board : list): # This function prints the board into the console
     printList += ["-" * (len(board) * 3)]
     for i in range(len(board)):
         for j in range(len(board[i])):
-            if board[i][j] != None:
+            if board[i][j] is not:
                 printSector = str(board[i][j]).split("\n")
             else:
                 printSector = ["XXX", "XXX", "XXX"]
@@ -81,14 +81,14 @@ def generatePaths(board : list, current : list, layerMax : int) -> tuple: # This
         newCurrent = []
         for pos in current:
             north = False
-            if board[pos[0]][pos[1]] != None: # Checks if there is a room already in that spot
+            if board[pos[0]][pos[1]] is not: # Checks if there is a room already in that spot
                 continue
 
             # Goes through each possible entrance and sees if it has to be open (Because a room next to it has the entrance open)
             # Or it randomises a possibility that it should be open
             pathCount = 0
-            if pos[0] > 0 and board[pos[0] - 1][pos[1]] != None:
-                if board[pos[0] - 1][pos[1]].enterences[1] == True:
+            if pos[0] > 0 and board[pos[0] - 1][pos[1]] is not:
+                if board[pos[0] - 1][pos[1]].entrances[1] == True:
                     north = True
                 pathCount += 1
             else:
@@ -98,8 +98,8 @@ def generatePaths(board : list, current : list, layerMax : int) -> tuple: # This
                     pathCount += 1
 
             south = False
-            if pos[0] < BOARDSIZE - 1 and board[pos[0] + 1][pos[1]] != None:
-                if board[pos[0] + 1][pos[1]].enterences[0] == True:
+            if pos[0] < BOARDSIZE - 1 and board[pos[0] + 1][pos[1]] is not:
+                if board[pos[0] + 1][pos[1]].entrances[0] == True:
                     south = True
                 pathCount += 1
             else:
@@ -109,8 +109,8 @@ def generatePaths(board : list, current : list, layerMax : int) -> tuple: # This
                     pathCount += 1
 
             east = False
-            if pos[1] < BOARDSIZE - 1 and board[pos[0]][pos[1] + 1] != None:
-                if board[pos[0]][pos[1] + 1].enterences[3] == True:
+            if pos[1] < BOARDSIZE - 1 and board[pos[0]][pos[1] + 1] is not:
+                if board[pos[0]][pos[1] + 1].entrances[3] == True:
                     east = True
                 pathCount += 1
             else:
@@ -120,8 +120,8 @@ def generatePaths(board : list, current : list, layerMax : int) -> tuple: # This
                     pathCount += 1
 
             west = False
-            if pos[1] > 0 and board[pos[0]][pos[1] - 1] != None:
-                if board[pos[0]][pos[1] - 1].enterences[2] == True:
+            if pos[1] > 0 and board[pos[0]][pos[1] - 1] is not:
+                if board[pos[0]][pos[1] - 1].entrances[2] == True:
                     west = True
                 pathCount += 1
             else:
@@ -198,13 +198,13 @@ def generatePaths(board : list, current : list, layerMax : int) -> tuple: # This
 
     # This finds all the entrances on the edge of the board
     for i in range(BOARDSIZE):
-        if board[0][i] != None and board[0][i].enterences[0]:
+        if board[0][i] is not and board[0][i].entrances[0]:
             currentNorth.append(i)
-        if board[-1][i] != None and board[-1][i].enterences[1]:
+        if board[-1][i] is not and board[-1][i].entrances[1]:
             currentSouth.append(i)
-        if board[i][-1] != None and board[i][-1].enterences[2]:
+        if board[i][-1] is not and board[i][-1].entrances[2]:
             currentEast.append(i)
-        if board[i][0] != None and board[i][0].enterences[3]:
+        if board[i][0] is not and board[i][0].entrances[3]:
             currentWest.append(i)
 
     return board, currentNorth, currentSouth, currentEast, currentWest

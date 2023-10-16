@@ -8,7 +8,6 @@
 #include <string>
 
 #include "Log.h"
-#include "Renderer.h"
 
 Shader::Shader(const std::string &filepath)
 	: m_FilePath(filepath), m_RendererID(0)

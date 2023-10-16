@@ -41,7 +41,6 @@ class NPC : public Mob
 	uint32_t m_TimeSinceMoved;
 	uint32_t m_WaitFor;
 
-	bool findingPath;
 	bool isRunningAway;
 
 	void generateInventory(Race race);

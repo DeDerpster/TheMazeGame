@@ -31,7 +31,7 @@
             \end{figure}
     \subsection{End Users}
         \subsubsection{\textbf{Description}}
-            Teenagers who enjoy exploration video games.
+            Teenagers who enjoy exploration video games. They should know the basic mechanics of a video game, such as using W, A, S, D keys to move around and space bar to attack. They should also have a curiosity to explore and play around with what they can do, as this would hopefully make it easier for them to understand how the game works, as the game will not have a tutorial explaining how the game works.
         \subsubsection{Questionnaire}
             \begin{itemize}
                 \item Have you played an exploration game before?
@@ -108,40 +108,40 @@
         % From this, it seems that the reliance of chance for loot needs to be carefully managed. So, to combat this I have decided to change loot up between the levels, meaning that you cannot get overpowered loot on the first levels. Also I have decided to add a leveling system that allows you to upgrade your stats to allow more ways to play the game. Furthermore, I will need to create multiple ways to get down to different levels, for examples stairs, or a hidden passage that leads you to a treasure room on the next level.
     \clearpage
     \subsection{Objectives}
-        \begin{itemize}
+        \begin{enumerate}
             \item Have an effective rendering system
-                \begin{itemize}
+                \begin{enumerate}
                     \item This system must use OpenGL - as it is the graphics library I am using for this project.
                     \item This means having a system in place where I can call a function, giving it a set of values, and then it will be automatically rendered, so that I do not have to deal with keeping track of how much of the buffer is used up
                     \item So once this is complete, I should have be able to render a tile, or multiple tiles on the screen.
                     \item Create a camera class that can move in the 2D plane with the keyboard.
-                \end{itemize}
+                \end{enumerate}
             \item Be able to generate an infinite maze
-                \begin{itemize}
+                \begin{enumerate}
                     \item Add a room class that can generate the tiles for each location from reading a bitmap file.
                     \item This needs the rendering system to be finished, so that I can render the maze once generated.
                     \item The maze needs to be stored in effective means that means that it will not slow down everytime it generates more of the maze.
                     \item This needs to be able to generate a maze from nothing, with most of the board filled up.
                     \item Once this is in place, I can then make is so that once you can move in each direction and the maze will generate more of itself.
                     \item Create a class for the player, allowing them to be rendered into the maze and have the camera follow the player.
-                \end{itemize}
+                \end{enumerate}
             \item Create NPCs that rome the maze and can start following you
-                \begin{itemize}
+                \begin{enumerate}
                     \item Create an NPC class that can be placed and rendered into the world.
                     \item Make it so that the follower can ask the level for the shortest route (which will use the A* algorithm).
                     \item Make it so that once they have the direction they need to go in, that they can move around the map.
                     \item Add different types of followers.
-                \end{itemize}
+                \end{enumerate}
             \item Add items and a way to collect them with a simple space-based inventory system
-                \begin{itemize}
+                \begin{enumerate}
                     \item Add an inventory to each mob (player, follower, enemy)
                     \item Create an item class that can be found in the maze.
                     \item Allow the item to be picked up and put inside the inventory of the player
                     \item Make an inventory system, so that if the player has too much in their inventory they can chose what to get rid of.
-                    \item Allow items to be parsed to the followers (so that they act like storage for the player)
-                \end{itemize}
+                    \item Allow items to be passed to the followers (so that they act like storage for the player)
+                \end{enumerate}
             \item Add combat into the game
-                \begin{itemize}
+                \begin{enumerate}
                     \item Add projectile class that can be created by the player and rendered onto the map.
                     \item Allow the projectile to move in the direction the player is facing, and when it collides with an entity or solid tile, it will delete itself.
                     \item Add a particle system, so that the projectile will produce particles with a solid colour, that will decay over time.
@@ -151,28 +151,27 @@
                     \item Create an algorithm for the enemies to attack the player and their followers, also allow the followers to use the same algorithm to attack the enemy
                     \item Allow the enemies to have followers, who also attack the player and their followers.
                     \item Add multiple weapons, which have different damages and particle effects.
-                \end{itemize}
+                \end{enumerate}
             \item Create different rooms that can be found in the maze.
-                \begin{itemize}
+                \begin{enumerate}
                     \item Add multiple different rooms the player can find while exploring the maze.
                     \item This will include creating a chest that randomly generates items inside, which the player can pick up.
                     \item Update the maze generation slightly so that it can randomly generate the different types of rooms.
-                \end{itemize}
+                \end{enumerate}
             \item Create a menu system
-                \begin{itemize}
+                \begin{enumerate}
                     \item Create a layer for handling GUI objects.
                     \item Create button objects that can run a function when clicked.
                     \item Overhaul the inventory menu to work with the new system.
                     \item Make the game updates to be paused when inside a menu.
                     \item Create a main menu, where you can start a new game.
                     \item Allow the user to get back to the main menu while playing the game.
-                \end{itemize}
+                \end{enumerate}
             \item Finalise everything
-                \begin{itemize}
+                \begin{enumerate}
                     \item Add more stats to the mobs, which results in different effects to your damage and the number of followers you can have.
                     \item Add food into the game which acts like a potion and have random sprites generated.
-                    \item Clean up anything left unfinished and get rid of any bugs left over.
                     \item Update the sprites of the maze so that it has a medieval theme.
-                \end{itemize}
-        \end{itemize}
+                \end{enumerate}
+        \end{enumerate}
 \end{document}

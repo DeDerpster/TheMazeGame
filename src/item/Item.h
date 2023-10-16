@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Sprite.h"
+#include "rendering/sprite/Sprite.h"
 
 class Item
 {

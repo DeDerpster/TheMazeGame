@@ -1,7 +1,7 @@
 #include "ParticleSpawner.h"
 
-#include "Level.h"
 #include "RandomGen.h"
+#include "level/Level.h"
 
 ParticleSpawner::ParticleSpawner()
 	: Spawner(), m_ParticleSpawnRate(4), m_Colour({0.0f, 0.0f, 0.0f, 1.0f})
@@ -42,22 +42,26 @@ ParticleSpawner::ParticleSpawner(float x, float y, Level *level, uint16_t mLife,
 
 ParticleSpawner::~ParticleSpawner()
 {
+	// Doesn't have to delete the particles as that is handled by the vector class
 }
 
 void ParticleSpawner::render()
 {
+	// Renders all the particles
 	for(Particle p : m_Particles)
 		p.render();
 }
 
 void ParticleSpawner::update()
 {
-	if(m_Age != m_Lifetime)
+	if(m_Age < m_Lifetime)
 	{
+		// Checks if it is time to release a particle (using the m_Age as a timer)
 		if(m_Age % m_ParticleSpawnRate == 0)
 		{
 			for(int i = 0; i < m_NumOfParticles; i++)
 			{
+				// Creates random stats and applies them to a new particle
 				int      xGen     = Random::getNum((int) (m_ParticleXMinSpeed * 10), (int) (m_ParticleXMaxSpeed * 10));
 				int      yGen     = Random::getNum((int) (m_ParticleYMinSpeed * 10), (int) (m_ParticleYMaxSpeed * 10));
 				Vec2f    dir      = {(float) xGen / 10, (float) yGen / 10};
@@ -66,13 +70,14 @@ void ParticleSpawner::update()
 				m_Particles.emplace_back(x, y, size, dir, lifetime, m_Colour);
 			}
 		}
-		m_Age++;
+		m_Age++;   // Has to increase the age as the base class is not called
 	}
 
+	// Updates all the particles
 	for(auto it = m_Particles.begin(); it != m_Particles.end();)
 	{
-		(*it).update();
-		if((*it).deleteMe())
+		it->update();
+		if((*it).deleteMe())   // If a particle is dead, it is removed from the vector
 			it = m_Particles.erase(it);
 		else
 			++it;
@@ -81,11 +86,13 @@ void ParticleSpawner::update()
 
 bool ParticleSpawner::eventCallback(const Event::Event &e)
 {
+	// Sends all the events to the particles
 	for(Particle p : m_Particles)
 	{
 		if(p.eventCallback(e))
 			return true;
 	}
+	// Calls the base class function
 	return Spawner::eventCallback(e);
 }
 
@@ -101,5 +108,5 @@ std::vector<Particle> *ParticleSpawner::getParticles()
 
 bool ParticleSpawner::deleteMe()
 {
-	return m_Age == m_Lifetime && m_Particles.size() == 0;
+	return m_Age >= m_Lifetime && m_Particles.size() == 0;
 }

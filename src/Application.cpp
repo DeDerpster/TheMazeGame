@@ -1,25 +1,21 @@
+#include "Application.h"
 #include "Core.h"
 
-#include <algorithm>
-#include <functional>
-#include <vector>
+#include "rendering/Renderer.h"
+#include "rendering/sprite/Sprite.h"
 
-#include "Application.h"
-#include "Renderer.h"
-#include "Sprite.h"
-#include "Tile.h"
-#include "glDebug.h"
+#include "level/Maze.h"
+#include "maze/tile/Tile.h"
 
-#include "Maze.h"
+#include "rendering/glInterface/VertexBufferLayout.h"
+#include "rendering/glInterface/glDebug.h"
 
-#include "VertexBufferLayout.h"
+#include "layer/GUILayer.h"
 
-#include "GUILayer.h"
-
-#include "Event.h"
 #include "Log.h"
-#include "MessageManager.h"
 #include "ShaderEffectsManager.h"
+#include "event/Event.h"
+#include "layer/MessageManager.h"
 
 // SECTION: Initialises
 Application::Application()
@@ -86,7 +82,7 @@ Application::~Application()   // Terminates everything
 }
 
 #ifdef DEBUG
-bool Application::setupImGuiImpl()   // Sets up ImGui
+bool Application::setupImGui()   // Sets up ImGui
 {
 	ImGui::CreateContext();   // Creates ImGui context
 	ImGuiIO &io = ImGui::GetIO();
@@ -113,7 +109,7 @@ bool Application::setupImGuiImpl()   // Sets up ImGui
 	}
 }
 
-ImGuiIO *Application::getImGuiContextImpl()
+ImGuiIO *Application::getImGuiContext()
 {
 	ImGui::CreateContext();   // Creates ImGui context
 	ImGuiIO &io = ImGui::GetIO();
@@ -141,9 +137,8 @@ ImGuiIO *Application::getImGuiContextImpl()
 }
 #endif
 
-void Application::updateImpl()   // Updates all the layers
+void Application::update()   // Updates all the layers
 {
-	Event::update();
 	if(projEffectID == 0)
 		updateWindowSizeImpl(windowWidth, windowHeight);
 	for(int i = layers.size() - 1; i > -1; i--)
@@ -158,13 +153,13 @@ void Application::updateImpl()   // Updates all the layers
 
 	for(const Event::Event *e : eventBuffer)
 	{
-		callEvent(*e, true);
+		callEvent(*e, Event::CallType::All);
 		delete e;
 	}
 	eventBuffer.clear();
 }
 
-void Application::renderImpl()   // Renders all the layers
+void Application::render()   // Renders all the layers
 {
 	camera.render();
 	for(int i = 0; i < layers.size(); i++)
@@ -179,8 +174,72 @@ void Application::renderImpl()   // Renders all the layers
 	Render::render(temp);
 }
 
+void Application::gameLoopImpl()
+{
 #ifdef DEBUG
-void Application::imGuiRenderImpl()   // Renders ImGui in all the layers
+	ImGuiIO &io = *Application::getImGuiContext();   // Creates an ImGui Interface, if I am debugging
+#endif
+
+	int          fps = 0;
+	int          ups = 0;
+	const double ns  = 1000000000.0f / 60.0f;
+
+	auto   lastTime = std::chrono::high_resolution_clock::now();
+	double delta    = 1.0f;
+
+	while(isWindowOpen())
+	{
+#ifdef DEBUG
+		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));   // Sets the background to white if I am Debugging as it is easier to see if textures are not rendering
+#endif
+		glClear(GL_COLOR_BUFFER_BIT);   // Resets the screen
+
+		auto now = std::chrono::high_resolution_clock::now();
+		delta += (double) std::chrono::duration_cast<std::chrono::nanoseconds>(now - lastTime).count() / ns;
+		lastTime = now;
+		// Updates and renders the application
+		while(delta >= 1)
+		{
+			update();
+			ups++;
+			delta--;
+		}
+		fps++;
+		render();
+
+#ifdef DEBUG   // Renders all the ImGui interface to make it easier while debugging
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Begin("MazeGame");
+		imGuiRender();
+		// Shows the framerate of the program
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
+
+		// Swaps the buffers of the application
+		Application::swapBuffers();
+		glfwPollEvents();   // Processes all pending events
+
+#ifdef DEBUG
+		if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow *backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
+#endif
+	}
+}
+
+#ifdef DEBUG
+void Application::imGuiRender()   // Renders ImGui in all the layers
 {
 	for(int i = 0; i < layers.size(); i++)
 		layers[i]->imGuiRender();
@@ -194,7 +253,7 @@ void Application::imGuiRenderImpl()   // Renders ImGui in all the layers
 void Application::setupLayersImpl()
 {
 	gameIsPaused = true;
-	// TODO: Put this in a separate functioan
+	// TODO: Put this in a separate function
 	for(Layer *layer : layers)
 		delete layer;
 	layers.clear();
@@ -256,24 +315,38 @@ void Application::removeLayerImpl(Layer *layer, bool deleteLayer)
 }
 // !SECTION
 
-// SECTION: Events & Effects
-void Application::callEventImpl(const Event::Event &e, bool includeOverlay)   // Sends event through the layers
+// SECTION: Events
+void Application::callEventImpl(const Event::Event &e, Event::CallType callType)   // Sends event through the layers
 {
 	// TODO: Make this multithreading
 	if(camera.eventCallback(e))
 		return;
 
-	int startVal;
-	if(includeOverlay)
-		startVal = layers.size();
-	else
+	uint16_t startVal;
+	int      endVal;
+
+	switch(callType)
 	{
+	case Event::CallType::All:
+		startVal = layers.size();
+		endVal   = 0;
+
+		break;
+	case Event::CallType::Overlay:
+		startVal = layers.size();
+		endVal   = overlayStart;
+		break;
+
+	default:
 		if(gameIsPaused && !e.ignoreIfPaused())
 			return;
 		startVal = overlayStart;
+		endVal   = 0;
+
+		break;
 	}
 
-	for(int i = startVal - 1; i > -1; i--)
+	for(int i = startVal - 1; i > endVal - 1; i--)
 	{
 		if(layers[i])
 		{
@@ -285,36 +358,6 @@ void Application::callEventImpl(const Event::Event &e, bool includeOverlay)   //
 			break;
 	}
 }
-
-void Application::setEffectImpl(Effect::Effect *e, bool includeOverlay)   // Sends an effect through the layers
-{
-	if(e->getType() == Effect::Effect::Type::removeShaderEffect)
-	{
-		Effect::RemoveShaderEffect *ne = static_cast<Effect::RemoveShaderEffect *>(e);
-		if(ne->getID() == projEffectID)
-		{
-			Log::warning("Deleting projection effect!");
-			projEffectID = 0;
-		}
-		else if(ne->getID() > projEffectID)
-			projEffectID--;
-	}
-	int endVal;
-	if(includeOverlay)
-		endVal = layers.size();
-	else
-		endVal = overlayStart;
-
-	for(int i = 0; i < endVal; i++)
-		layers[i]->setEffect(e);
-}
-
-void Application::setOverlayEffectImpl(Effect::Effect *e)
-{
-	for(int i = overlayStart; i < layers.size(); i++)
-		layers[i]->setEffect(e);
-}
-
 // !SECTION
 
 // SECTION: Window stuff
@@ -326,7 +369,7 @@ void Application::updateWindowSizeImpl(int width, int height)   // updates the w
 	if(projEffectID == 0)
 	{
 		std::string name = "u_MVP";
-		projEffectID     = Effect::ShaderEffectsManager::sendOverlayEffect(name, proj);
+		projEffectID     = Effect::ShaderEffectsManager::sendEffect(name, proj, Event::CallType::Overlay);
 	}
 	else
 	{

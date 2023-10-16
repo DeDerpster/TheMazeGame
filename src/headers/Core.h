@@ -1,9 +1,13 @@
 #pragma once
 
-#include "glfwGlew.h"
+#include <glfwGlew.h>
 
 #include <GLM.h>
 
-#include "ImGui.h"
+#include <ImGui.h>
 
-#include <iostream>
+#include <algorithm>
+#include <chrono>
+#include <functional>
+#include <thread>
+#include <vector>

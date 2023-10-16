@@ -2,11 +2,20 @@
 
 #include "Application.h"
 #include "ShaderEffectsManager.h"
-#include "Sprite.h"
-#include "VertexBufferLayout.h"
+#include "glInterface/VertexBufferLayout.h"
+#include "sprite/Sprite.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+// Data type for determining what buffer is currently being rendered to
+enum class RenderBuffer
+{
+	None,
+	Simple,
+	Sprite,
+	Text
+};
 
 Render::Render()
 	: orderBuffersByYAxisSetting(false)
@@ -25,8 +34,6 @@ Render::Render()
 		Log::critical("FREETYPE: Failed to load Glyph", LOGINFO);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);   // disable byte-alignment restriction
 
-	float maxHeight = 0;
-	float minHeight = 0;
 	for(unsigned char c = 0; c < 128; c++)
 	{
 		// Loads each glyph
@@ -44,14 +51,7 @@ Render::Render()
 		};
 		characters.insert(std::pair<char, Character>(c, character));
 		characters[c].texture = new Texture(face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap.buffer);
-
-		if(characters[c].bearing.y > maxHeight)
-			maxHeight = characters[c].bearing.y;
-		if(characters[c].bearing.y - characters[c].size.y < minHeight)
-			minHeight = characters[c].bearing.y - characters[c].size.y;
 	}
-
-	Log::variable("Max Height", maxHeight - minHeight);
 
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
@@ -75,8 +75,7 @@ Render::Render()
 	uint32_t maxVertices = 3528;
 
 	m_VertexBuffer = std::make_unique<VertexBuffer>(nullptr, (uint16_t) sizeof(float) * 5 * maxVertices);
-	m_IndexBuffer = std::make_unique<IndexBuffer>((maxVertices / 4) * 6);
-
+	m_IndexBuffer  = std::make_unique<IndexBuffer>((maxVertices / 4) * 6);
 
 	// Sprite VAO set up
 	// Creates the VAO and links it to the vertex buffer
@@ -164,6 +163,7 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 			Log::warning("Trying to use effect that doesn't exist!");
 			continue;
 		}
+		// Applies effect to only the shaders it is responsible for
 		Effect::ShaderEffect *e = Effect::ShaderEffectsManager::getShaderEffect(id);
 		if(e->forSimpleShader())
 			e->setEffect(*m_SimpleShader);
@@ -172,18 +172,11 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 		if(e->forTextShader())
 			e->setEffect(*m_TextShader);
 	}
-	// Renders
-	// TODO: Put everything into one buffer?
-	enum class RenderBuffer
-	{
-		None,
-		Simple,
-		Sprite,
-		Text
-	};
-	uint8_t      startLayer    = 0;
-	RenderBuffer currentBuffer = RenderBuffer::None;
 
+	uint8_t      startLayer    = 0;                    // Stores the layer it will start rendering at
+	RenderBuffer currentBuffer = RenderBuffer::None;   // Stores the buffer it is currently rendering to
+
+	// Function for rendering the correct buffer
 	auto renderCurrentBuffer = [this](RenderBuffer currentBuffer, uint8_t startLayer, uint8_t endLayer) {
 		switch(currentBuffer)
 		{
@@ -203,11 +196,14 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 
 	for(uint8_t i = 0; i < 10; i++)
 	{
+		// Determines whether each buffer needs to be rendered to
 		bool noSimple = m_ObjectBuffer.getLayerSize(i) == 0;
 		bool noSprite = m_SpriteBuffer.getLayerSize(i) == 0;
 		bool noText   = m_TextObjBuffer.getLayerSize(i) == 0;
 		if(i != 9)
 		{
+			// Checks if there is only one buffer needed to be rendered, if so it won't render this layer until later
+			// If another buffer is meant to be rendered for the previous layers it will render that buffer up to the previous layer
 			if(noSprite && noText)
 			{
 				if(currentBuffer != RenderBuffer::Simple)
@@ -237,6 +233,7 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 			}
 			else
 			{
+				// If multiple buffers need to be rendered it will render all the buffers that need it as well as the buffer that was being rendered for the previous layers
 				renderCurrentBuffer(currentBuffer, startLayer, i - 1);
 				if(!noSimple)
 					simpleRender(i, i);
@@ -249,6 +246,7 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 		}
 		else
 		{
+			// If this is the last layer being rendered it will just render the buffers needed
 			renderCurrentBuffer(currentBuffer, startLayer, i - 1);
 			if(!noSimple)
 				simpleRender(i, i);
@@ -263,6 +261,7 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 	// Resets settings
 	orderBuffersByYAxisSetting = false;
 
+	// Clears all the buffers
 	m_ObjectBuffer.clear();
 	m_SpriteBuffer.clear();
 	m_TextObjBuffer.clear();
@@ -466,18 +465,19 @@ void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec
 
 void Render::hoverTextImpl(std::string &inpText, float x, float y, float scale, glm::vec4 textColour, glm::vec4 backgroundColour, uint8_t layer, bool isOverlay)
 {
+	// This creates a box with text in it - used for displaying names in the game
 	CollisionBox box = Render::getTextCollisionBox(inpText, scale);
 
+	// Sets the variables
 	float borderWidth = 2.0f;
-
-	float width  = box.upperBound.x - box.lowerBound.x;
-	float height = box.upperBound.y - box.lowerBound.y;
-
-	float yOffset = 4.0f;
+	float width       = box.upperBound.x - box.lowerBound.x;
+	float height      = box.upperBound.y - box.lowerBound.y;
+	float yOffset     = 4.0f;
 
 	float textX = x + box.lowerBound.x;
 	float textY = y + yOffset + borderWidth - box.lowerBound.y + height / 2;
 
+	// Draw a rectangle and then text
 	rectangle(x, y + yOffset + borderWidth + height / 2, 0.0f, width + 2 * borderWidth, height + 2 * borderWidth, backgroundColour, layer, true, isOverlay);
 	text(inpText, x, textY, scale, textColour, layer, true, isOverlay);
 }
@@ -502,6 +502,7 @@ void Render::rectangleImpl(float x, float y, double rotation, float width, float
 // This is for rendering a box with a border
 void Render::rectangleImpl(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, uint8_t layer, bool isCentered, bool isOverlay)
 {
+	// NOTE: This does not work for rectangles that are rotated
 	float tempX, tempY;   // Stores the x and y position of the botton corner of the rectangle
 	if(isCentered)
 	{

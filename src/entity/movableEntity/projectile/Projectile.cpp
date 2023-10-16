@@ -1,11 +1,13 @@
-#include "Projectile.h"
+#include "entity/movableEntity/projectile/Projectile.h"
 
-#include "Entity.h"
 #include "KeyDefinitions.h"
-#include "Level.h"
-#include "ParticleSpawner.h"
-#include "Sprite.h"
 #include "RandomGen.h"
+#include "rendering/sprite/Sprite.h"
+#include "level/Level.h"
+
+#include "particle/spawner/ParticleSpawner.h"
+
+#include "event/game/MobDied.h"
 
 #define defaultBox           \
 	{                        \
@@ -440,16 +442,24 @@ void Projectile::update()
 
 bool Projectile::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Event::EventType::mobDied)
+	switch (e.getType())
 	{
-		const Event::MobDied &ne = static_cast<const Event::MobDied &>(e);
+	case Event::EventType::MobDied:
+	{
+		const Event::MobDiedEvent &ne = static_cast<const Event::MobDiedEvent &>(e);
 		if(ne.mob == spawner)
 		{
 			spawner     = nullptr;
 			hasCollided = true;
 		}
+
+		return false;
 	}
-	return MovableEntity::eventCallback(e);
+
+	default:
+		return MovableEntity::eventCallback(e);
+	}
+
 }
 
 void Projectile::render()

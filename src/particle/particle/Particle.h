@@ -1,18 +1,19 @@
 #pragma once
 
-#include "Renderer.h"
 #include "Utils.h"
+#include "rendering/Renderer.h"
 
-#include "Event.h"
+#include "event/Event.h"
 
 class Particle
 {
   private:
-	float x, y;
-	float m_Size;
-	Vec2f m_Dir;
+	float     x, y;
+	float     m_Size;
+	Vec2f     m_Dir;   // Stores the direction in vector form
 	glm::vec4 m_Colour;
 
+	// Variables for handling its death
 	uint16_t m_Lifetime;
 	uint16_t m_Age;
 

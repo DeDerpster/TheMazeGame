@@ -1,7 +1,9 @@
 #include "Entity.h"
 
 #include "KeyDefinitions.h"
-#include "Level.h"
+#include "level/Level.h"
+
+#include "event/game/MazeMoved.h"
 
 Entity::Entity()
 	: x(0.0f), y(0.0f), width(TILE_SIZE), height(TILE_SIZE), m_Level(nullptr), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(Sprite::ID::errorID) {}
@@ -15,13 +17,17 @@ Entity::~Entity() {}
 
 bool Entity::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Event::EventType::mazeMovedEvent)
+	switch(e.getType())
+	{
+	case Event::EventType::MazeMoved:
 	{
 		const Event::MazeMovedEvent &ne = static_cast<const Event::MazeMovedEvent &>(e);
 		x += ne.changeX;
 		y += ne.changeY;
 	}
-	return false;
+	default:
+		return false;
+	}
 }
 
 float Entity::getX() const { return x; }

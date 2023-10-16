@@ -16,7 +16,7 @@ class Buffer : public std::vector<T *>
 		memset(&layersLoc, 0, sizeof(layersLoc));
 	}
 	~Buffer()
-	{
+	{   // As it is only storing pointers, it will delete all the objects in storage
 		for(T *obj : *this)
 			delete obj;
 	}

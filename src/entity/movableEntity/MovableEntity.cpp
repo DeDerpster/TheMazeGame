@@ -1,6 +1,6 @@
 #include "MovableEntity.h"
 
-#include "Level.h"
+#include "level/Level.h"
 
 MovableEntity::MovableEntity()
 	: Entity(), m_Speed(7.0f), isMoving(false), m_Dir(Direction::south), isGhost(false) {}

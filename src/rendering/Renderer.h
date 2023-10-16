@@ -9,12 +9,13 @@
 #include "RenderVertex.h"
 
 #include "Buffer.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
+#include "rendering/glInterface/IndexBuffer.h"
+#include "rendering/glInterface/Shader.h"
+#include "rendering/glInterface/Texture.h"
+#include "rendering/glInterface/VertexArray.h"
+
 #include "ShaderEffectsManager.h"
-#include "Texture.h"
 #include "Utils.h"
-#include "VertexArray.h"
 
 // Render is a singleton and handles all the rendering
 // all the static functions are there so you can call Render::rectangle(...) instead of Render::get().rectangle(...)

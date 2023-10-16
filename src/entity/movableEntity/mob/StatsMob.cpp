@@ -3,7 +3,8 @@
 #include "Log.h"
 #include "RandomGen.h"
 #include "Utils.h"
-#include "math.h"
+
+#include <math.h>
 
 #define MAXLEVEL           15
 #define BINOMIAL_PRECISION 10

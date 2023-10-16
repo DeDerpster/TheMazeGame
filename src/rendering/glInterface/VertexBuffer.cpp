@@ -3,7 +3,6 @@
 #include "VertexBuffer.h"
 
 #include "Log.h"
-#include "Renderer.h"
 
 VertexBuffer::VertexBuffer(const void *data, uint32_t size)
 	: m_Offset(0), m_BufferSize(size)

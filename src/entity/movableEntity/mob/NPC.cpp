@@ -5,19 +5,27 @@
 
 #include "Application.h"
 #include "KeyDefinitions.h"
-#include "Level.h"
-#include "MessageManager.h"
-#include "Player.h"
 #include "RandomGen.h"
 #include "Utils.h"
+#include "layer/MessageManager.h"
+#include "level/Level.h"
 
-#include "Boomerang.h"
-#include "Bow.h"
-#include "Crossbow.h"
-#include "DarkStaff.h"
-#include "FireStaff.h"
-#include "FrostStaff.h"
-#include "Sling.h"
+#include "Player.h"
+
+#include "item/weapon/general/Boomerang.h"
+#include "item/weapon/general/Bow.h"
+#include "item/weapon/general/Crossbow.h"
+#include "item/weapon/general/Sling.h"
+#include "item/weapon/staff/DarkStaff.h"
+#include "item/weapon/staff/FireStaff.h"
+#include "item/weapon/staff/FrostStaff.h"
+
+#include "event/game/ChestOpened.h"
+#include "event/game/MazeMoved.h"
+#include "event/game/PlayerResponse.h"
+#include "event/game/ShowAlternatives.h"
+#include "event/input/Mouse.h"
+#include "event/menu/ChangeGUIMenu.h"
 
 static float getRatioForAttacking(float pos, float ePos, float buffer)
 {
@@ -104,19 +112,19 @@ static NPC::Race getRace(NPC::Type type, Sprite::ID spriteID)
 }
 
 NPC::NPC()
-	: m_Name("Bob"), m_Attack(AttackMove::None), m_Center({0.0f, 0.0f}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
+	: m_Name("Bob"), m_Attack(AttackMove::None), m_Center({0.0f, 0.0f}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), isRunningAway(false)
 {
 	generateInventory(Race::Fire);
 }
 
 NPC::NPC(float x, float y, Level *level, Type type)
-	: Mob(x, y, level, genSpriteID(type)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
+	: Mob(x, y, level, genSpriteID(type)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), isRunningAway(false)
 {
 	generateInventory(getRace(type, m_SpriteID));
 }
 
 NPC::NPC(float x, float y, Level *level, Type type, Race race)
-	: Mob(x, y, level, getSpriteID(type, race)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
+	: Mob(x, y, level, getSpriteID(type, race)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), isRunningAway(false)
 {
 	generateInventory(race);
 }
@@ -173,9 +181,10 @@ void NPC::findPath(Vec2f dest, float speed)
 	Vec2f start = {x, y};
 	if(!m_Level)
 		Log::critical("Level is null", LOGINFO);
-	std::vector<Vec2f> *path = m_Level->getPath(start, dest, m_CollisionBox);
+	std::vector<Vec2f> *path = m_Level->getPath(start, dest, getMovingCollisionBox());
 
-	if(path->size() == 0 || (path->size() == 1 && distBetweenVec2f({x, y}, path->front()) < speed))
+	// path->pop_back();
+	if(path->size() == 0 || (path->size() == 1 && distBetweenVec2f({x, y}, path->back()) < speed))
 	{
 		isMoving = false;
 		return;
@@ -200,7 +209,6 @@ void NPC::findPath(Vec2f dest, float speed)
 		}
 	}
 
-	findingPath = false;
 	delete path;
 }
 
@@ -211,16 +219,10 @@ void NPC::follow()
 		Log::warning("Trying to follow a nullptr!");
 		return;
 	}
-	float xDif        = m_Following->getX() - x;
-	float yDif        = m_Following->getY() - y;
+
 	float minDistAway = (TILE_SIZE / 3) * 2;
-	if(!findingPath && (xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway))
-	{
-		findingPath = true;
-		// std::thread t1(&NPC::findPath, this);
-		// t1.detach();
+	if(distBetweenVec2f({m_Following->getX(), m_Following->getY()}, {x, y}) > minDistAway)
 		findPath({m_Following->getX(), m_Following->getY()}, m_Speed);
-	}
 	else
 		isMoving = false;
 }
@@ -230,17 +232,10 @@ void NPC::roam()
 	if(!m_NextPosActive)
 		generateNextPos();
 
-	float xDif        = m_NextPos.x - x;
-	float yDif        = m_NextPos.y - y;
 	float minDistAway = TILE_SIZE / 3;
 
-	if(!findingPath && (xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway))
-	{
-		findingPath = true;
-		// std::thread t1(&NPC::findPath, this);
-		// t1.detach();
+	if(distBetweenVec2f(m_NextPos, {x, y}) > minDistAway)
 		findPath({m_NextPos.x, m_NextPos.y}, m_Speed / 2);
-	}
 	else
 		isMoving = false;
 
@@ -386,11 +381,8 @@ void NPC::attack()
 		float yDif        = m_NextPos.y - y;
 		float minDistAway = TILE_SIZE / 3;
 
-		if(!findingPath && (xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway))
-		{
-			findingPath = true;   // TODO: Get rid of this variable
+		if((xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway))
 			findPath({m_NextPos.x, m_NextPos.y}, m_Speed * (getStamina() / getMaxStamina()) / 2);
-		}
 		else
 			m_Attack = AttackMove::None;
 
@@ -471,7 +463,7 @@ void NPC::update()
 		if(m_Attack != AttackMove::None)
 			m_Attack = AttackMove::None;
 
-		if(m_Following && !findingPath)
+		if(m_Following)
 			follow();
 		else
 			roam();
@@ -515,7 +507,9 @@ void NPC::setFollowing(Mob *following)
 
 bool NPC::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Event::EventType::mouseClicked)
+	switch(e.getType())
+	{
+	case Event::EventType::MouseClicked:
 	{
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
@@ -526,8 +520,8 @@ bool NPC::eventCallback(const Event::Event &e)
 		{
 			if(!m_Enemy && !m_Following)
 			{
-				Event::ChangeGUIActiveLayer e(InGameGUILayer::npcInteraction);
-				Application::callEvent(e, true);
+				Event::ChangeGUIActiveLayerEvent e(InGameGUILayer::npcInteraction);
+				Application::callEvent(e, Event::CallType::Overlay);
 
 				MessageManager::sendMessage("NPC: Can I follow you?", MessageManager::Priority::Low);
 
@@ -535,28 +529,32 @@ bool NPC::eventCallback(const Event::Event &e)
 			}
 			else if(m_Following == m_Level->getPlayer())
 			{
-				Event::ChangeGUIActiveLayer e1(InGameGUILayer::npcInventory);
-				Application::callEvent(e1, true);
+				Event::ChangeGUIActiveLayerEvent e1(InGameGUILayer::npcInventory);
+				Application::callEvent(e1, Event::CallType::Overlay);
 
 				Event::ChestOpenedEvent e2(&m_Inventory, nullptr, GUIInventoryIDCode::inventory);
-				Application::callEvent(e2, true);
+				Application::callEvent(e2, Event::CallType::Overlay);
 
 				Event::ChestOpenedEvent e3(&m_Weapons, &m_CurrentWeapon, GUIInventoryIDCode::weapons);
-				Application::callEvent(e3, true);
+				Application::callEvent(e3, Event::CallType::Overlay);
 				return true;
 			}
 
 			return false;
 		}
-	}
-	else if(e.getType() == Event::EventType::playerResponse && !m_Following && !m_Enemy)
-	{
-		const Event::PlayerResponse &ne = static_cast<const Event::PlayerResponse &>(e);
 
-		if(ne.response == Event::PlayerResponse::Response::reject)
+		return false;
+	}
+
+	case Event::EventType::PlayerResponse:
+	{
+		if(m_Following || m_Enemy)
+			return false;
+
+		const Event::PlayerResponseEvent &ne = static_cast<const Event::PlayerResponseEvent &>(e);
+		if(ne.response == Event::PlayerResponseEvent::Response::reject)
 		{
-			// TODO: Have this have a random change to attack the player
-			int r = Random::getNum(0, 4);   // TODO: Base this upon stats?
+			int r = Random::getNum(0, 4);
 
 			if(r == 1)
 			{
@@ -581,14 +579,16 @@ bool NPC::eventCallback(const Event::Event &e)
 				MessageManager::sendMessage("NPC: Looks like you already have a follower", MessageManager::Priority::Medium);
 		}
 
-		Event::ChangeGUIActiveLayer e(InGameGUILayer::overlay);
-		Application::callEvent(e, true);
+		Event::ChangeGUIActiveLayerEvent e(InGameGUILayer::overlay);
+		Application::callEvent(e, Event::CallType::Overlay);
 
 		return true;
 	}
-	else if(e.getType() == Event::EventType::mazeMovedEvent)
+
+	case Event::EventType::MazeMoved:
 	{
 		const Event::MazeMovedEvent &ne = static_cast<const Event::MazeMovedEvent &>(e);
+
 		m_Center.x += ne.changeX;
 		m_Center.y += ne.changeY;
 		if(m_NextPosActive)
@@ -597,5 +597,8 @@ bool NPC::eventCallback(const Event::Event &e)
 			m_NextPos.y += ne.changeY;
 		}
 	}
-	return Mob::eventCallback(e);
+
+	default:
+		return Mob::eventCallback(e);
+	}
 }

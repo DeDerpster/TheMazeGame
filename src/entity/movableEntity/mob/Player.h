@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AnimatedSprite.h"
 #include "Mob.h"
 
 class Player : public Mob

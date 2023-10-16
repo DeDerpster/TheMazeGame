@@ -1,4 +1,3 @@
-add_subdirectory(rooms)
-add_subdirectory(tiles)
+add_subdirectory(room)
+add_subdirectory(tile)
 
-target_include_directories(${PROJECT_NAME} PUBLIC rooms tiles)
