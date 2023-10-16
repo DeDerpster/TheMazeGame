@@ -1,0 +1,27 @@
+#pragma once
+
+#include <vector>
+
+#include "Layer.h"
+#include "Tile.h"
+
+class Tile;
+
+class Level : public Layer
+{
+  public:
+	Level() {}
+	virtual ~Level() override {}
+
+	virtual void render()                                   = 0;
+	virtual void update()                                   = 0;
+	virtual bool eventCallback(const Application::Event &e) = 0;
+	virtual bool setEffect(const Effect::RenderEffect &e)   = 0;
+
+	virtual Tile *getTile(int x, int y) = 0;
+
+	virtual void updateMVP(glm::mat4 &view) override {}
+#ifdef DEBUG
+	virtual void imGuiRender() = 0;
+#endif
+};
