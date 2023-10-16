@@ -209,7 +209,6 @@ void Render::simpleRender(std::vector<RenderColouredObject *> &buffer)
 
 void Render::spriteRender()
 {
-	// FIXME
 	if(m_SpriteBuffer.size() == 0)
 		return;
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
@@ -220,6 +219,7 @@ void Render::spriteRender()
 
 	m_SpriteShader->bind();
 	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
+	Texture::clearBufferSlots();
 	for(TexturedObject *obj : m_SpriteBuffer)
 	{
 		// Checks if the buffer is full or the buffer is too big and draws what there is
@@ -245,6 +245,11 @@ void Render::spriteRender()
 			texSlot = currentTexSlot;
 			currentTexSlot++;
 			Sprite::getSprite(obj->spriteID)->bind(texSlot);
+		}
+
+		if(texSlot >= currentTexSlot)
+		{
+			Log::warning("Unbounded texSlot given!");
 		}
 
 		auto vertices = obj->convertToTexturedVertices(texSlot);   // Creates the vertices
@@ -276,6 +281,7 @@ void Render::textRender()
 
 	m_TextShader->bind();
 	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to
+	Texture::clearBufferSlots();
 	for(TextObject *text : m_TextObjBuffer)
 	{
 		float xOffset = 0.0f;

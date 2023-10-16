@@ -119,6 +119,5 @@ uint8_t Texture::getBoundSlot(Texture *tex)
 void Texture::clearBufferSlots()
 {
 	// Sets all the slots to nullptrs
-	for(uint8_t i = 0; i < 32; i++)
-		bufferStorage[i] = nullptr;
+	memset(bufferStorage, NULL, sizeof(bufferStorage));
 }
