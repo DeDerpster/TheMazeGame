@@ -1,13 +1,15 @@
 #include "Entity.h"
 
+#include "Tile.h"
+
 Entity::Entity()
-	: x(0.0f), y(0.0f), m_Level(nullptr), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
-Entity::Entity(float x, float y)
-	: x(x), y(y), m_Level(nullptr), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
-Entity::Entity(float x, float y, Level *level)
-	: x(x), y(y), m_Level(level), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
-Entity::Entity(float x, float y, CollisionBox box, Level *level, uint16_t spriteID)
-	: x(x), y(y), m_Level(level), m_CollisionBox(box), m_SpriteID(spriteID) {}
+	: x(0.0f), y(0.0f), width(Tile::TILE_SIZE), height(Tile::TILE_SIZE), m_Level(nullptr), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
+Entity::Entity(float x, float y, float size, uint16_t spriteID)
+	: x(x), y(y), width(size), height(size), m_Level(nullptr), m_CollisionBox({{-size / 2, -size / 2}, {size / 2, size / 2}}), m_SpriteID(spriteID) {}
+Entity::Entity(float x, float y, float size, Level *level, uint16_t spriteID)
+	: x(x), y(y), width(size), height(size), m_Level(level), m_CollisionBox({{-size / 2, -size / 2}, {size / 2, size / 2}}), m_SpriteID(spriteID) {}
+Entity::Entity(float x, float y, float size, CollisionBox box, Level *level, uint16_t spriteID)
+	: x(x), y(y), width(size), height(size), m_Level(level), m_CollisionBox(box), m_SpriteID(spriteID) {}
 Entity::~Entity() {}
 
 bool Entity::eventCallback(const Event::Event &e)

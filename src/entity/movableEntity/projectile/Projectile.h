@@ -11,16 +11,15 @@ class Projectile : public MovableEntity
 	Vec2f   m_StartPos;
 	float   m_MaxDistance;
 	float   m_Damage;
-	float   m_Size;
 	Mob *   spawner;
 	bool    hasCollided;
 
 	std::function<void(float, float, Direction, Level *)> m_CollisionFunction;
 
   public:
-	Projectile(float startX, float startY, float damage, Direction dir, Mob *spawner, Level *level);
-	Projectile(float startX, float startY, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box);
-	Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box, std::function<void(float, float, Direction, Level *)> collisionFunc);
+	Projectile(float startX, float startY, float size, float damage, Direction dir, Mob *spawner, Level *level);
+	Projectile(float startX, float startY, float size, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box);
+	Projectile(float startX, float startY, float size, float maxDistance, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box, std::function<void(float, float, Direction, Level *)> collisionFunc);
 	virtual ~Projectile() {}
 
 	virtual void update() override;

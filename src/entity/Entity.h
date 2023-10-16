@@ -9,15 +9,16 @@ class Entity
 {
   protected:
 	float        x, y;
+	float        width, height;
 	uint16_t     m_SpriteID;
 	Level *      m_Level;
 	CollisionBox m_CollisionBox;
 
   public:
 	Entity();
-	Entity(float x, float y);
-	Entity(float x, float y, Level *level);
-	Entity(float x, float y, CollisionBox box, Level *level, uint16_t spriteID);
+	Entity(float x, float y, float size, uint16_t spriteID);
+	Entity(float x, float y, float size, Level *level, uint16_t spriteID);
+	Entity(float x, float y, float size, CollisionBox box, Level *level, uint16_t spriteID);
 	virtual ~Entity();
 
 	virtual void update()                             = 0;

@@ -8,18 +8,18 @@
 		{25, 20}, { 60, 20 } \
 	}
 
-Projectile::Projectile(float startX, float startY, float damage, Direction dir, Mob *spawner, Level *level)
-	: MovableEntity(startX, startY, 7.0f, dir, defaultBox, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false)
+Projectile::Projectile(float startX, float startY, float size, float damage, Direction dir, Mob *spawner, Level *level)
+	: MovableEntity(startX, startY, size, 7.0f, dir, defaultBox, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), spawner(spawner), hasCollided(false)
 {
 }
 
-Projectile::Projectile(float startX, float startY, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box)
-	: MovableEntity(startX, startY, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false)
+Projectile::Projectile(float startX, float startY, float size, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box)
+	: MovableEntity(startX, startY, size, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), spawner(spawner), hasCollided(false)
 {
 }
 
-Projectile::Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box, std::function<void(float, float, Direction, Level *)> collisionFunc)
-	: MovableEntity(startX, startY, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(maxDistance), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false), m_CollisionFunction(collisionFunc)
+Projectile::Projectile(float startX, float startY, float size, float maxDistance, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box, std::function<void(float, float, Direction, Level *)> collisionFunc)
+	: MovableEntity(startX, startY, size, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(maxDistance), m_Damage(damage), spawner(spawner), hasCollided(false), m_CollisionFunction(collisionFunc)
 {
 }
 
@@ -70,7 +70,7 @@ bool Projectile::eventCallback(const Event::Event &e)
 
 void Projectile::render()
 {
-	Render::sprite(x, y, directionToRotation(m_Dir), m_Size, m_SpriteID);
+	Render::sprite(x, y, directionToRotation(m_Dir), width, height, m_SpriteID);
 }
 
 void Projectile::changeX(float changeBy)

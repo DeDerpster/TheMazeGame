@@ -5,6 +5,7 @@
 
 #include "vector"
 
+// TODO: Wipe this from existence
 class ParticleLayer : public Layer
 {
   private:

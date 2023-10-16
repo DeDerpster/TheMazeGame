@@ -4,10 +4,10 @@
 #include <array>
 #include <memory>
 
+#include "AStarUtils.h"
 #include "Entity.h"
-#include "Projectile.h"
-#include "Tile.h"
 #include "Player.h"
+#include "Projectile.h"
 #include "Tile.h"
 
 #define X_MAX 4500
@@ -80,6 +80,7 @@ bool Level::directionalCollision(float x, float y, float xs, float ys, Collision
 
 std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox)
 {
+	// FIXME
 	Vec2i start       = {(int) round(startPos.x / X_STEP), (int) round(startPos.y / Y_STEP)};
 	Vec2i destination = {(int) round(dest.x / X_STEP), (int) round(dest.y / Y_STEP)};
 

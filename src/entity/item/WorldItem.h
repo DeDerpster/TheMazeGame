@@ -13,8 +13,8 @@ class WorldItem : public Entity
 
   public:
 	WorldItem(Item *item);
-	WorldItem(float x, float y, Item *item);
-	WorldItem(float x, float y, Level *level, Item *item);
+	WorldItem(float x, float y, float size, Item *item);
+	WorldItem(float x, float y, float size, Level *level, Item *item);
 	virtual ~WorldItem();
 
 	virtual void render() override;

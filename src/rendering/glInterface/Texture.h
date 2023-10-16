@@ -2,13 +2,15 @@
 
 #include <string>
 
+// This is for storing and loading textures
 class Texture
 {
   private:
+	// This is a cache for what is currently bound to which slot
 	static const Texture *bufferStorage[32];
 
-	unsigned int   m_RendererID;
-	std::string    m_FilePath;
+	uint32_t       m_RendererID;
+	std::string    m_FilePath;   // This is for debugging purposes
 	unsigned char *m_LocalBuffer;
 	int            m_Width, m_Height, m_BPP;
 
@@ -23,6 +25,7 @@ class Texture
 	inline int getWidth() const { return m_Width; }
 	inline int getHeight() const { return m_Height; }
 
+	// Functions for interacting with the bufferStorage cache
 	static const Texture *getTextureInBuffer(uint16_t slot) { return bufferStorage[slot]; }
 	static uint8_t        getBoundSlot(Texture *tex);
 	static void           clearBufferSlots();

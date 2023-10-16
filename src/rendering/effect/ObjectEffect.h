@@ -5,6 +5,7 @@
 
 namespace Effect
 {
+	// These are the effects which transfer the ownership of an object between the layers, for example
 	class ObjectEffect : public RenderEffect
 	{
 	  public:

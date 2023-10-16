@@ -16,6 +16,7 @@ namespace Effect
 			delete s;
 	}
 
+	// These functions handle the sending of an effect, by creating them, adding them to the cache and sending them through the layers
 	uint16_t ShaderEffects::sendShaderEffectImpl(const std::string &s, glm::vec4 vec, bool includeOverlay)
 	{
 		UniformVec4 *e = new UniformVec4(s, vec);
@@ -38,6 +39,7 @@ namespace Effect
 		return messenger.getID();
 	}
 
+	// These send the effects through the overlays only and not all the layers
 	uint16_t ShaderEffects::sendOverlayEffectImpl(const std::string &s, glm::vec4 vec)
 	{
 		UniformVec4 *e = new UniformVec4(s, vec);
@@ -60,6 +62,7 @@ namespace Effect
 		return messenger.getID();
 	}
 
+	// This manages deleting a shader effect from all the layers and its storage
 	void ShaderEffects::deleteShaderEffectImpl(uint16_t id)
 	{
 		if(id > m_Effects.size() || id < 1)
@@ -85,6 +88,7 @@ namespace Effect
 		return m_Effects[id - 1];
 	}
 
+	// This finds the id of a shader by use of its name
 	uint16_t ShaderEffects::findShaderEffectImpl(const std::string &s)
 	{
 		for(uint16_t i = 0; i < m_Effects.size(); i++)

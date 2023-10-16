@@ -21,6 +21,11 @@ struct Character
 	}
 };
 
+// These are the objects that are stored in the buffer, and store all the information needed so they can be converted and transferred to the vertex buffer
+// This is most definitely less efficient then just converting them and storing them in the buffer
+// However, this allows me to easily order and manipulate them while stored in the buffer,
+// so I believe the trade off is worth it
+
 struct RenderObject
 {
 	glm::vec2 position;
@@ -32,12 +37,14 @@ struct RenderObject
 	RenderObject(glm::vec2 position, float width, float height, double rotation, bool centered)
 		: position(position), width(width), height(height), rotation(rotation), centered(centered) {}
 
+	// Gets the size of each array of vertices returned by 'convertToVertices'
 	virtual uint32_t      getSizeOfVertices() { return 4 * sizeof(Vertex); }
 	std::array<Vertex, 4> convertToVertices()
 	{
 		// Creates a 2d rotation matrix, so that the object can be rotated
 		glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
 
+		// Gets the point at which to rotate around
 		float leftPoint, rightPoint, topPoint, bottomPoint;
 		if(centered)
 		{
@@ -75,12 +82,14 @@ struct RenderColouredObject : public RenderObject
 	RenderColouredObject(glm::vec2 position, float width, float height, double rotation, bool centered, glm::vec4 colour)
 		: RenderObject(position, width, height, rotation, centered), colour(colour) {}
 
+	// Gets the size of each array of vertices returned by 'convertToColouredVertices'
 	virtual uint32_t              getSizeOfVertices() override { return 4 * sizeof(ColouredVertex); }
 	std::array<ColouredVertex, 4> convertToColouredVertices()
 	{
 		// Creates a 2d rotation matrix, so that the object can be rotated
 		glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
 
+		// Gets the point at which to rotate around
 		float leftPoint, rightPoint, topPoint, bottomPoint;
 		if(centered)
 		{
@@ -101,7 +110,7 @@ struct RenderColouredObject : public RenderObject
 			bottomPoint = 0;
 		}
 
-		// Creates 4 vertices that create the square
+		// Creates 4 vertices that create the rectangle
 		ColouredVertex v0(
 			rotationMatrix * glm::vec2(leftPoint, bottomPoint) + position,
 			colour);
@@ -127,12 +136,14 @@ struct TexturedObject : public RenderObject
 	TexturedObject(glm::vec2 position, float width, float height, double rotation, bool centered, uint16_t spriteID)
 		: RenderObject(position, width, height, rotation, centered), spriteID(spriteID) {}
 
+	// Gets the size of each array of vertices returned by 'convertToTexturedVertices'
 	virtual uint32_t              getSizeOfVertices() override { return 4 * sizeof(TexturedVertex); }
 	std::array<TexturedVertex, 4> convertToTexturedVertices(uint16_t texSlot)
 	{
 		// Creates a 2d rotation matrix, so that the object can be rotated
 		glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
 
+		// Gets the point at which to rotate around
 		float leftPoint, rightPoint, topPoint, bottomPoint;
 		if(centered)
 		{
@@ -152,7 +163,7 @@ struct TexturedObject : public RenderObject
 			bottomPoint = 0;
 		}
 
-		// Creates 4 vertices that create the square
+		// Creates 4 vertices that create the sprite
 		TexturedVertex v0(
 			rotationMatrix * glm::vec2(leftPoint, bottomPoint) + position,
 			{0.0f, 0.0f},
@@ -185,7 +196,11 @@ struct TextObject : public RenderColouredObject
 	TextObject(std::string text, float scale, glm::vec2 position, float width, float height, double rotation, glm::vec4 colour, bool centered)
 		: RenderColouredObject(position, width, height, rotation, centered, colour), text(text), scale(scale) {}
 
+	// Gets the size of each array of vertices returned by 'convertToCharacterVertices'
 	virtual uint32_t          getSizeOfVertices() override { return 4 * sizeof(TextVertex); }
+	// This function is slightly different from the rest, however this is because it stores a string and so is rendered
+	// by going through each character, so this takes in the character and the offset when creating the vertices
+	// This allows to correctly render rotated strings
 	std::array<TextVertex, 4> convertCharacterToVertices(Character *ch, float xOffset, uint16_t texSlot)
 	{
 		float newScale = scale / 100;
@@ -199,6 +214,7 @@ struct TextObject : public RenderColouredObject
 		// Creates a 2d rotation matrix, so that the object can be rotated
 		glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
 
+		// Gets the point at which to rotate around
 		float leftPoint, rightPoint, topPoint, bottomPoint;
 		if(centered)
 		{
@@ -218,7 +234,7 @@ struct TextObject : public RenderColouredObject
 			bottomPoint = 0;
 		}
 
-		// Creates 4 vertices that create the square
+		// Creates 4 vertices that create the character
 		TextVertex v0(
 			rotationMatrix * glm::vec2(leftPoint, topPoint) + position,
 			{0.0f, 0.0f},

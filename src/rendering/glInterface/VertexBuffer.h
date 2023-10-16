@@ -1,9 +1,10 @@
 #pragma once
 
+// This is for storing and interacting with the buffer
 class VertexBuffer
 {
   private:
-	unsigned int m_RendererID;
+	uint32_t     m_RendererID;
 	bool         isDynamic;
 	int          m_Offset;
 	uint32_t     m_BufferSize;

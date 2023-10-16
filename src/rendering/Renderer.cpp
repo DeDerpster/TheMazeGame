@@ -11,7 +11,7 @@
 Render::Render()
 	: orderBuffersByYAxisSetting(false)
 {
-// Text initialisation
+	// Text initialisation
 	FT_Library ft;
 	if(FT_Init_FreeType(&ft))
 		Log::critical("FREETYPE: Could not init FreeType", LOGINFO);
@@ -27,13 +27,13 @@ Render::Render()
 
 	for(unsigned char c = 0; c < 128; c++)
 	{
-		// load character glyph
+		// Loads each glyph
 		if(FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
 			std::cout << "ERROR::FREETYPE: Failed to load Glyph" << std::endl;
 			continue;
 		}
-		// now store character for later use
+		// Adds the character characters map, so it can be quickly retrieved later
 		Character character = {
 			nullptr,
 			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
@@ -50,8 +50,7 @@ Render::Render()
 	Log::info("Text initialised");
 
 	// Shaders setup
-
-	int samplers[32];
+	int samplers[32];   // This is used for when rendering multiple textures with one draw function
 	for(int i = 0; i < 32; i++)
 		samplers[i] = i;
 
@@ -83,6 +82,7 @@ Render::Render()
 	};
 	m_SpriteVAO->addBuffer(*m_VertexBuffer, spriteLayout);   // Adds it to the VAO
 	m_IndexBuffer->bind();
+
 	// Unbinds everything
 	m_SpriteVAO->unbind();
 	m_IndexBuffer->unbind();
@@ -127,9 +127,12 @@ Render::Render()
 
 Render::~Render()
 {
+	// Deletes all the objects stored as pointers
 	for(TextObject *obj : m_TextObjBuffer)
 		delete obj;
 	for(RenderColouredObject *obj : m_ObjectBuffer)
+		delete obj;
+	for(TexturedObject *obj : m_SpriteBuffer)
 		delete obj;
 	Log::info("Renderer destroyed");
 }
@@ -147,18 +150,19 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 	// Sets effects given
 	for(uint16_t id : shaderEffects)
 	{
-		if(id == 0)
+		if(id == 0)   // Checks if the effect exists
 		{
 			Log::warning("Trying to use effect that doesn't exist!");
 			continue;
 		}
 		Effect::RenderShaderEffect *e = Effect::ShaderEffects::getShaderEffect(id);
+		// TODO: Add effects that only effect certain shaders
 		e->setEffect(*m_SpriteShader);
 		e->setEffect(*m_TextShader);
 		e->setEffect(*m_SimpleShader);
 	}
 	// Renders
-	simpleRender(m_BottomLayerObjectBuffer);
+	simpleRender(m_BottomLayerObjectBuffer);   // Renders bottom layers first
 	spriteRender();
 	simpleRender(m_ObjectBuffer);
 	textRender();
@@ -174,7 +178,6 @@ void Render::simpleRender(std::vector<RenderColouredObject *> &buffer)
 
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
-		// draw();
 		m_VertexBuffer->clearBufferData();
 		Log::warning("Vertex Buffer was not empty!");
 	}
@@ -218,8 +221,9 @@ void Render::spriteRender()
 	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
 	for(TexturedObject *obj : m_SpriteBuffer)
 	{
+		// Gets the texture slot
 		uint8_t texSlot = Texture::getBoundSlot(Sprite::getSprite(obj->spriteID)->getTexture());
-		if(texSlot == 32)
+		if(texSlot == 32)   // This means the texture is not bound, so it gets bound
 		{
 			texSlot = currentTexSlot;
 			currentTexSlot++;
@@ -232,7 +236,9 @@ void Render::spriteRender()
 			}
 			Sprite::getSprite(obj->spriteID)->bind(texSlot);
 		}
-		auto vertices = obj->convertToTexturedVertices(texSlot);
+
+		auto vertices = obj->convertToTexturedVertices(texSlot);   // Creates the vertices
+
 		// Checks if the buffer is full or the buffer is too big and draws what there is
 		if(!m_VertexBuffer->canStore(obj->getSizeOfVertices()))
 		{
@@ -243,13 +249,15 @@ void Render::spriteRender()
 		}
 		// Adds the current object to the buffer by creating its quad (this is for memory efficiency)
 		m_VertexBuffer->addToBuffer((void *) &vertices, obj->getSizeOfVertices());
-		delete obj;
+
+		delete obj;   // Deletes the object
 	}
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
 		draw(*m_SpriteVAO);
 		m_VertexBuffer->clearBufferData();
 	}
+
 	m_SpriteBuffer.clear();
 }
 
@@ -271,27 +279,33 @@ void Render::textRender()
 		float xOffset = 0.0f;
 		if(text->text.empty())
 			continue;
+
+		// This goes through each character in the text and adds it to the buffer
 		for(std::string::const_iterator c = text->text.begin(); c != text->text.end(); c++)
 		{
 			Character *ch = &characters[*c];
 
+			// Gets the textures slot
 			uint8_t texSlot = Texture::getBoundSlot(ch->texture);
-			if(texSlot == 32)
+			if(texSlot == 32)   // This means it is not bound so it gets bound
 			{
 				texSlot = currentTexSlot;
 				currentTexSlot++;
-				if(currentTexSlot == 32)
+				if(currentTexSlot == 32)   // This means the it cannot render anymore textures
 				{
 					draw(*m_TextVAO);
 					m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
 					currentTexSlot = 0;                  // resets this as all the textures have been rendered
+					texSlot        = 0;
 					Texture::clearBufferSlots();
 				}
 				ch->texture->bind(texSlot);
 			}
 
+			// Gets the vertices
+			auto vertices = text->convertCharacterToVertices(ch, xOffset, texSlot);
 
-			std::array<TextVertex, 4> vertices = text->convertCharacterToVertices(ch, xOffset, texSlot);
+			// Checks if the buffer can store the new vertices
 			if(!m_VertexBuffer->canStore(text->getSizeOfVertices()))
 			{
 				draw(*m_SpriteVAO);
@@ -305,91 +319,58 @@ void Render::textRender()
 			float newScale = text->scale / 100;
 			xOffset += (ch->advance >> 6) * newScale;   // bitshift by 6 to get value in pixels (2^6 = 64)
 		}
+
+		// Deletes the text obj
+		delete text;
 	}
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
 		draw(*m_TextVAO);
 		m_VertexBuffer->clearBufferData();
 	}
-	for(TextObject *obj : m_TextObjBuffer)
-		delete obj;
+
 	m_TextObjBuffer.clear();
+}
+
+void Render::draw(VertexArray &vao) const   // Assumes VAO and shader have already been bound
+{
+	// Binds what this renderer is using for vertices
+	vao.bind();
+	m_VertexBuffer->bind();
+	m_IndexBuffer->bind();
+	GLCall(glDrawElements(GL_TRIANGLES, m_IndexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
+	vao.unbind();
 }
 
 void Render::spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID, bool isOverlay)
 {
+	// TODO: Add a bottom layer sprite buffer
+	// This creates a collision box for the sprite, so it can check if it is in frame
 	CollisionBox box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
 	if(isOverlay || Application::isInFrame(x, y, box))
 	{
+		// Creates an object to store the information and adds it to the buffer through the function which takes settings into account
 		TexturedObject *obj              = new TexturedObject({x, y}, width, height, rotation, true, spriteID);
-
-		if(orderBuffersByYAxisSetting && m_SpriteBuffer.size() > 0)
-		{
-			if(m_SpriteBuffer.size() == 1)
-			{
-				if(m_SpriteBuffer[0]->position.y > y)
-					m_SpriteBuffer.push_back(obj);
-				else
-					m_SpriteBuffer.insert(m_SpriteBuffer.begin(), obj);
-			}
-			else
-			{
-				int startSub = 0;
-				int endSub   = m_SpriteBuffer.size();
-				int index    = m_SpriteBuffer.size() / 2;
-
-				int indexOfInsertion = 0;
-
-				while(startSub != endSub && startSub < endSub)
-				{
-					if(index + 1 == m_SpriteBuffer.size())
-						index--;
-
-					float thisY    = m_SpriteBuffer[index]->position.y;
-					float nextY    = m_SpriteBuffer[index + 1]->position.y;
-
-					if(thisY == y || (thisY > y && nextY < y))
-					{
-						index++;
-						break;
-					}
-					else if(nextY == y)
-					{
-						index += 2;
-						break;
-					}
-					else if(thisY > y && nextY > y)
-						startSub = index + 2;
-					else if(thisY < y && nextY < y)
-						endSub = index;
-					else
-					{
-						Log::critical("Vector is not sorted correctly!", LOGINFO);
-						indexOfInsertion = m_SpriteBuffer.size();
-						break;
-					}
-
-					index = (startSub + endSub) / 2;
-				}
-
-				m_SpriteBuffer.insert(m_SpriteBuffer.begin() + index, obj);
-			}
-		}
-		else
-			m_SpriteBuffer.push_back(obj);
+		addElementToBuffer((std::vector<RenderObject *> *) &m_SpriteBuffer, obj);
 	}
 }
 
 void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool isCentered, bool isOverlay)   // NOTE: Scale is a percentage
 {
+	// Gets the collision box for the text to check if it is frame
 	CollisionBox box = getTextCollisionBox(text, scale);
 
 	if(isOverlay || Application::isInFrame(x, y, box))
-		m_TextObjBuffer.push_back(new TextObject(text, scale, {x, y}, box.upperBound.x, box.upperBound.y, 0.0f, colour, isCentered));
+	{
+		// Creates an object to store the information and adds it to the buffer through the function which takes settings into account
+		TextObject *obj = new TextObject(text, scale, {x, y}, box.upperBound.x, box.upperBound.y, 0.0f, colour, isCentered);
+		addElementToBuffer((std::vector<RenderObject *> *) &m_TextObjBuffer, obj);
+	}
 }
 
 void Render::rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, bool isCentered, bool isOverlay, bool bottomLayer)
 {
+	// Creates a collision box, taking into account if it wants to be centered or not
 	CollisionBox box;
 	if(isCentered)
 		box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
@@ -398,13 +379,16 @@ void Render::rectangleImpl(float x, float y, double rotation, float width, float
 
 	if(isOverlay || Application::isInFrame(x, y, box))
 	{
-		if(bottomLayer)
-			m_BottomLayerObjectBuffer.push_back(new RenderColouredObject({x, y}, width, height, rotation, isCentered, colour));
+		// Creates an object to store the information
+		RenderColouredObject *obj = new RenderColouredObject({x, y}, width, height, rotation, isCentered, colour);
+		if(bottomLayer)   // Checks what buffer it wants to be put on
+			addElementToBuffer((std::vector<RenderObject *> *) &m_BottomLayerObjectBuffer, obj);
 		else
-			m_ObjectBuffer.push_back(new RenderColouredObject({x, y}, width, height, rotation, isCentered, colour));
+			addElementToBuffer((std::vector<RenderObject *> *) &m_ObjectBuffer, obj);
 	}
 }
 
+// This is for rendering a box with a border
 void Render::rectangleImpl(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, bool isCentered, bool isOverlay, bool bottomLayer)
 {
 	float tempX, tempY;   // Stores the x and y position of the botton corner of the rectangle
@@ -418,8 +402,10 @@ void Render::rectangleImpl(float x, float y, float width, float height, glm::vec
 		tempX = x;
 		tempY = y;
 	}
+	// Adds the normal rectangle to the buffer
 	rectangle(x, y, 0.0f, width, height, colour, isCentered, isOverlay, bottomLayer);
 
+	// For each border it renders more rectangles
 	rectangle(tempX, tempY, 0.0f, width, borderWidth, borderColour, false, isOverlay, bottomLayer);
 	rectangle(tempX, tempY, 0.0f, borderWidth, height, borderColour, false, isOverlay, bottomLayer);
 	rectangle(tempX, tempY + height - borderWidth, 0.0f, width, borderWidth, borderColour, false, isOverlay, bottomLayer);
@@ -428,6 +414,7 @@ void Render::rectangleImpl(float x, float y, float width, float height, glm::vec
 
 float Render::getTextWidthImpl(std::string &text, float scale)
 {
+	// This goes through each letter of text and adds all the advance together to get the width
 	float textWidth = 0;
 	float newScale  = scale / 100;
 	for(std::string::const_iterator c = text.begin(); c != text.end(); c++)
@@ -440,6 +427,7 @@ float Render::getTextWidthImpl(std::string &text, float scale)
 
 float Render::getTextHeightImpl(std::string &text, float scale)
 {
+	// This goes through each letter of the text and finds the character with the biggest height and returns that
 	float textHeight = 0;
 	float newScale   = scale / 100;
 	for(std::string::const_iterator c = text.begin(); c != text.end(); c++)
@@ -454,6 +442,7 @@ float Render::getTextHeightImpl(std::string &text, float scale)
 
 CollisionBox Render::getTextCollisionBoxImpl(std::string &text, float scale)
 {
+	// This does the same as the above two function but creates a collision box and does it with one for loop
 	float textWidth  = 0;
 	float textHeight = 0;
 	float newScale   = scale / 100;
@@ -470,19 +459,70 @@ CollisionBox Render::getTextCollisionBoxImpl(std::string &text, float scale)
 	return {{0.0f, 0.0f}, {textWidth, textHeight}};
 }
 
-void Render::draw(VertexArray &vao) const   // Assumes VAO and shader have already been bound
+void Render::addElementToBuffer(std::vector<RenderObject *> *buffer, RenderObject *obj)
 {
-	// Binds what this renderer is using for vertices
-	vao.bind();
-	m_VertexBuffer->bind();
-	m_IndexBuffer->bind();
-	GLCall(glDrawElements(GL_TRIANGLES, m_IndexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
-	vao.unbind();
-}
+	// Checks if it wants to be ordered and there are enough elements in the buffer to order them
+	if(orderBuffersByYAxisSetting && buffer->size() > 0)
+	{
+		// If the size is one it does a quick evaluation to see where to place it
+		if(buffer->size() == 1)
+		{
+			if((*buffer)[0]->position.y > obj->position.y)
+				buffer->push_back(obj);
+			else
+				buffer->insert(buffer->begin(), obj);
+		}
+		else
+		{
+			// This is a modified binomial search to find the range of where to place the new element
+			// These variables keeps track of the range of elements of the set
+			int startSub = 0;
+			int endSub   = buffer->size();
+			int index;
 
+			while(startSub != endSub && startSub < endSub)   // This continues going until the range is 0
+			{
+				index = (startSub + endSub) / 2;   // Sets the index to be inbetween the new ranges
+				if(index + 1 == buffer->size())
+					index--;   // If it is looking at the end of the list, it minuses 1, so that the algorithm can work without any errors
+
+				// Gets the y positions of the elements at the current index and above it
+				float thisY = (*buffer)[index]->position.y;
+				float nextY = (*buffer)[index + 1]->position.y;
+
+				// Checks to see if it has found a location to place the new element
+				if(thisY == obj->position.y || (thisY > obj->position.y && nextY < obj->position.y))
+				{
+					index++;
+					break;
+				}
+				else if(nextY == obj->position.y)
+				{
+					index += 2;
+					break;
+				}
+				else if(thisY > obj->position.y && nextY > obj->position.y)   // Otherwise it modifies the range for the binomial search to work
+					startSub = index + 2;
+				else if(thisY < obj->position.y && nextY < obj->position.y)
+					endSub = index;
+				else
+				{   // If the vector is not sorted beforehand, it will raise an error here
+					Log::critical("Vector is not sorted correctly!", LOGINFO);
+					index = buffer->size();
+					break;
+				}
+			}
+
+			buffer->insert(buffer->begin() + index, obj);   // Inserts the object at the correct position
+		}
+	}
+	else
+		buffer->push_back(obj);
+}
 
 void Render::orderBuffersByYAxisImpl()
 {
+	// This sets the setting to true, and does a quick check to see if all the buffers are empty
 	if(m_SpriteBuffer.size() != 0 || m_TextObjBuffer.size() != 0 || m_ObjectBuffer.size() != 0)
 		Log::warning("Turning on setting 'orderBuffersByYAxis' after buffers have started to be filled!");
 	orderBuffersByYAxisSetting = true;

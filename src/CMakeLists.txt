@@ -21,6 +21,7 @@ add_subdirectory(levels)
 add_subdirectory(utils)
 add_subdirectory(item)
 add_subdirectory(gui)
+add_subdirectory(particle)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                             maze
@@ -32,4 +33,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                             levels
                             utils
                             item
-                            gui)
+                            gui
+                            particle)

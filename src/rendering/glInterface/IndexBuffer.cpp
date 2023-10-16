@@ -4,21 +4,23 @@
 
 #include "Renderer.h"
 
-IndexBuffer::IndexBuffer(const unsigned int *data, unsigned int count)
+IndexBuffer::IndexBuffer(const uint32_t *data, uint32_t count)
 	: m_Count(count)
 {
+	// This will generate the buffer and add the data
 	GLCall(glGenBuffers(1, &m_RendererID));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_STATIC_DRAW));
 }
 
-IndexBuffer::IndexBuffer(unsigned int count)
+IndexBuffer::IndexBuffer(uint32_t count)
 	: m_Count(count)
 {
-	unsigned int *data = new unsigned int[count];
+	// This generates a default for the data with a given count of vertices
+	uint32_t *data = new uint32_t[count];
 
-	int squares = count / 6;
-	for(int i = 0; i < squares; i++)
+	uint32_t squares = count / 6;
+	for(uint32_t i = 0; i < squares; i++)
 	{
 		data[i * 6]     = (i * 4);
 		data[i * 6 + 1] = (i * 4) + 1;
@@ -29,20 +31,25 @@ IndexBuffer::IndexBuffer(unsigned int count)
 	}
 	GLCall(glGenBuffers(1, &m_RendererID));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Count * sizeof(unsigned int), data, GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Count * sizeof(uint32_t), data, GL_STATIC_DRAW));
+
+	delete[] data;   // Makes sure to delete the data
 }
 
 IndexBuffer::~IndexBuffer()
 {
+	// Deletes the buffer
 	GLCall(glDeleteBuffers(1, &m_RendererID));
 }
 
 void IndexBuffer::bind() const
 {
+	// Binds the buffer
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
 }
 
 void IndexBuffer::unbind() const
 {
+	// Unbinds the buffer
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }

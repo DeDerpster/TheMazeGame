@@ -2,15 +2,16 @@
 
 #include "Application.h"
 #include "Player.h"
+#include "Tile.h"
 
 WorldItem::WorldItem(Item *item)
-	: Entity(0.0f, 0.0f, {{-25.0f, -25.0f}, {25.0f, 25.0f}}, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
+	: Entity(0.0f, 0.0f, Tile::TILE_SIZE / 2, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
 
-WorldItem::WorldItem(float x, float y, Item *item)
-	: Entity(x, y, {{-25.0f, -25.0f}, {25.0f, 25.0f}}, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
+WorldItem::WorldItem(float x, float y, float size, Item *item)
+	: Entity(x, y, size, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
 
-WorldItem::WorldItem(float x, float y, Level *level, Item *item)
-	: Entity(x, y, {{-25.0f, -25.0f}, {25.0f, 25.0f}}, level, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
+WorldItem::WorldItem(float x, float y, float size, Level *level, Item *item)
+	: Entity(x, y, size, level, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
 
 WorldItem::~WorldItem()
 {
@@ -22,7 +23,7 @@ void WorldItem::render()
 {
 	if(m_Item)
 	{
-		m_Item->render(x, y, 0.0f, 50);
+		m_Item->render(x, y, 0.0f, width);
 		if(m_State == Button::State::Hover)
 		{
 			float scale = 35.0f;

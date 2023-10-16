@@ -64,7 +64,7 @@ class Sprite
 
 	  Texture *getTexture() { return m_Texture.get(); }
 
-	  void bind(unsigned int slot = 0);
+	  void bind(uint8_t slot = 0);
 	  void unbind();
 
 	  static Sprite *getSprite(int i) { return &*sprites[i]; };

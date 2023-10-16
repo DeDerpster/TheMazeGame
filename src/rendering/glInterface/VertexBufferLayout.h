@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "Log.h"
-#include "Renderer.h"
 
+// These are for differentiating between the different types
 enum class ShaderDataType
 {
 	None = 0,
@@ -22,39 +22,7 @@ enum class ShaderDataType
 	Bool
 };
 
-static uint32_t shaderDataTypeSize(ShaderDataType type)
-{
-	switch(type)
-	{
-	case ShaderDataType::Float:
-		return 4;
-	case ShaderDataType::Float2:
-		return 4 * 2;
-	case ShaderDataType::Float3:
-		return 4 * 3;
-	case ShaderDataType::Float4:
-		return 4 * 4;
-	case ShaderDataType::Mat3:
-		return 4 * 3 * 3;
-	case ShaderDataType::Mat4:
-		return 4 * 4 * 4;
-	case ShaderDataType::Int:
-		return 4;
-	case ShaderDataType::Int2:
-		return 4 * 2;
-	case ShaderDataType::Int3:
-		return 4 * 3;
-	case ShaderDataType::Int4:
-		return 4 * 4;
-	case ShaderDataType::Bool:
-		return 1;
-	}
-
-	Log::error("Unknown ShaderDataType!", LOGINFO);
-
-	return 0;
-}
-
+// This will convert each type to the corresponding openGL type
 static GLenum shaderDataTypeToOpenGLBaseType(ShaderDataType type)
 {
 	switch(type)
@@ -87,6 +55,7 @@ static GLenum shaderDataTypeToOpenGLBaseType(ShaderDataType type)
 	return 0;
 }
 
+// This stores all the information needed about a single element
 struct BufferElement
 {
 	std::string    name;
@@ -97,14 +66,12 @@ struct BufferElement
 
 	BufferElement() = default;
 
-	BufferElement(ShaderDataType type, const std::string &name, bool normalized = false)
-		: name(name), type(type), size(shaderDataTypeSize(type)), offset(0), normalized(normalized)
-	{
-	}
+	BufferElement(ShaderDataType type, const std::string &name, bool normalized = false);
 
 	uint32_t getComponentCount() const;
 };
 
+// This will store a list of buffer elements so that they can be accessed and set correctly
 class VertexBufferLayout
 {
   private:
@@ -113,6 +80,7 @@ class VertexBufferLayout
 
 	void calculateOffsetsAndStride()
 	{
+		// Calculates and sets the offsets for each element
 		size_t offset = 0;
 		m_Stride      = 0;
 		for(auto &element : m_Elements)
@@ -135,6 +103,7 @@ class VertexBufferLayout
 	uint32_t                          getStride() const { return m_Stride; }
 	const std::vector<BufferElement> &getElements() const { return m_Elements; }
 
+	// Function to allow interaction with the vector without using 'getElements'
 	std::vector<BufferElement>::iterator       begin() { return m_Elements.begin(); }
 	std::vector<BufferElement>::iterator       end() { return m_Elements.end(); }
 	std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }

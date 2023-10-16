@@ -8,7 +8,7 @@
 
 namespace Effect
 {
-
+	// These are for all the different shader effects that could be applied
 	class ShaderEffectCarrier : public RenderEffect
 	{
 	  protected:
@@ -25,6 +25,7 @@ namespace Effect
 		virtual EffectType getType() const override { return EffectType::shaderEffect; }
 	};
 
+	// This is for removing an effect from a layer
 	class RemoveShaderEffect : public ShaderEffectCarrier
 	{
 	  public:
@@ -92,6 +93,7 @@ namespace Effect
 		void setMat(glm::mat4 newMat) { mat = newMat; }
 	};
 
+	// This is the class for managing the shader effects, their IDs and storing and sending the effects that are carried
 	class ShaderEffects
 	{
 	  public:

@@ -1,10 +1,6 @@
 add_subdirectory(movableEntity)
 add_subdirectory(item)
-add_subdirectory(spawner)
-add_subdirectory(particle)
 target_include_directories(${PROJECT_NAME} PUBLIC movableEntity)
 target_include_directories(${PROJECT_NAME} PUBLIC item)
-target_include_directories(${PROJECT_NAME} PUBLIC spawner)
-target_include_directories(${PROJECT_NAME} PUBLIC particle)
 
 target_sources(${PROJECT_NAME} PRIVATE Entity.cpp)

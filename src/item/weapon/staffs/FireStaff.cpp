@@ -1,5 +1,7 @@
 #include "FireStaff.h"
 
+#include "Tile.h"
+
 FireStaff::FireStaff()
 	: Weapon("Fire Staff", 10.0f, 20, ITEM_STICK) {}
 FireStaff::~FireStaff() {}
@@ -50,7 +52,7 @@ void FireStaff::attack(Level *level, Mob &e, Direction dir, bool hold)
             Application::setEffect(&spawner);
 		};
 		float maxDistance = 700.0f;
-		level->addProjectile(new Projectile(e.getX(), e.getY(), maxDistance, damage, speed, dir, &e, level, box, collisionFunc));
+		level->addProjectile(new Projectile(e.getX(), e.getY(), Tile::TILE_SIZE / 2, maxDistance, damage, speed, dir, &e, level, box, collisionFunc));
 		m_Cooldown = e.getWeaponDelay(m_CooldownMax);
 		e.hasUsedWeapon();
 	}

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
 
-class VertexBufferLayout;
-
+// This is for compining vertex buffer, index buffer and vertex buffer layout together
 class VertexArray
 {
   private:
-	unsigned int m_RendererID;
+	uint32_t m_RendererID;
 
   public:
 	VertexArray();

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 
+#include "AStarUtils.h"
 #include "Application.h"
 #include "Log.h"
 #include "RandomGen.h"
@@ -15,8 +16,7 @@
 #include "StatBar.h"
 
 #include "EmptyRoom.h"
-#include "Enemy.h"
-#include "Follower.h"
+#include "NPC.h"
 #include "Tile.h"
 
 #include "WorldItem.h"
@@ -35,15 +35,16 @@ Maze::Maze()
 
 	Application::getCamera()->setAnchor(&m_Player);
 
-	Enemy *enemy = new Enemy(3800.0f, 4500.0f, this);
+	NPC *enemy = new NPC(3800.0f, 4500.0f, this);
+	enemy->setFollower(&m_Player);
 	// follower->setFollower(&m_Player);
 	m_Entities.push_back(enemy);
 
 	Item *     item      = new FireStaff();
-	WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, this, item);
+	WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, Tile::TILE_SIZE / 2, this, item);
 	m_Entities.push_back(worldItem);
 	Item *     item2      = new FireStaff();
-	WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, this, item2);
+	WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, Tile::TILE_SIZE / 2, this, item2);
 	m_Entities.push_back(worldItem2);
 
 	// Setting up overlay

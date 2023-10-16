@@ -11,7 +11,7 @@ Sprite::~Sprite()
 {
 }
 
-void Sprite::bind(unsigned int slot)
+void Sprite::bind(uint8_t slot)
 {
 	m_Texture->bind(slot);
 }

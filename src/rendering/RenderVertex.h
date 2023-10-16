@@ -2,6 +2,8 @@
 
 #include <GLM.h>
 
+// This is all the vertices, set in the correct layout to be directly copied to the vertex buffer without any alterations
+// Each type of vertex is for a different shader
 struct Vertex
 {
 	glm::vec2 position;
@@ -11,7 +13,7 @@ struct Vertex
 		: position(position) {}
 };
 
-struct TexturedVertex : public Vertex
+struct TexturedVertex : public Vertex   // For the sprite shader
 {
 	glm::vec2 texCoords;
 	float     texID;
@@ -21,7 +23,7 @@ struct TexturedVertex : public Vertex
 		: Vertex(position), texCoords(texCoords), texID(texID) {}
 };
 
-struct ColouredVertex : public Vertex
+struct ColouredVertex : public Vertex   // For the simple shader
 {
 	glm::vec4 colour;
 
@@ -30,7 +32,7 @@ struct ColouredVertex : public Vertex
 		: Vertex(position), colour(colour) {}
 };
 
-struct TextVertex : public TexturedVertex
+struct TextVertex : public TexturedVertex   // For the text shader
 {
 	glm::vec4 colour;
 
