@@ -2,19 +2,22 @@
 
 #include <string>
 
+#include "Sprite.h"
+
 class Item
 {
   protected:
-	uint16_t    m_SpriteID;
+	Sprite::ID  m_SpriteID;
 	std::string m_Name;
 
   public:
 	Item();
-	Item(const char *name, uint32_t spriteID);
+	Item(std::string name, Sprite::ID spriteID);
+	Item(const char *name, Sprite::ID spriteID);
 	virtual ~Item();
 
 	void render(float x, float y, double rotation, float size, uint8_t layer, bool isOverlay = false);
 
-	int          getSpriteID();
+	Sprite::ID   getSpriteID();
 	std::string *getName();
 };

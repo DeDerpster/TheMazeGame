@@ -227,7 +227,7 @@ void MIHManager::transferItem(TransferObject *o)
 
 		if(swap)
 		{
-			Weapon *mWeapon = dynamic_cast<Weapon *>(m_Items->getItem(oIndex));
+			Weapon *mWeapon = dynamic_cast<Weapon *>(m_Items->getItem(hoverBox));
 			cancel          = oContainer->getType() == IContainer::Type::weapon && !mWeapon;
 		}
 

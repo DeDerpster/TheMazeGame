@@ -98,27 +98,26 @@ void Log::setConsoleColour(LogColour c)
 void Log::setConsoleColour(LogColour c)
 {
 	switch(c) {
-		case LogColour::critical:
-			std::cout << BOLDRED;
-			break;
-		case LogColour::error:
-			std::cout << RED;
-			break;
-		case LogColour::warning:
-			std::cout << YELLOW;
-			break;
-		case LogColour::info:
-			std::cout << BOLDRED;
-			break;
-		case LogColour::debug:
-			std::cout << GREEN;
-			break;
-		case LogColour::variable:
-			std::cout << BOLDMAGENTA;
-			break;
-		default:
-			std::cout << RESET;
-			break;
+	case LogColour::critical:
+		std::cout << BOLDRED;
+		break;
+	case LogColour::error:
+		std::cout << RED;
+		break;
+	case LogColour::warning:
+		std::cout << YELLOW;
+		break;
+	case LogColour::info:
+		break;
+	case LogColour::debug:
+		std::cout << GREEN;
+		break;
+	case LogColour::variable:
+		std::cout << BOLDMAGENTA;
+		break;
+	default:
+		std::cout << RESET;
+		break;
 		}
 }
 #endif

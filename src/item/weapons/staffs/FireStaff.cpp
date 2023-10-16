@@ -7,7 +7,7 @@
 #include "ParticleSpawner.h"
 
 FireStaff::FireStaff()
-	: Weapon("Fire Staff", 10.0f, 20, ITEM_STICK) {}
+	: Weapon("Fire Staff", 10.0f, 20, Sprite::ID::weaponFireStaff) {}
 FireStaff::~FireStaff() {}
 
 void FireStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
@@ -17,50 +17,11 @@ void FireStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
 	{
 		float damage;
 		if(m)
-			damage = m->getDamage(0.0f, m_Damage);
+			damage = m->getDamage(m_Damage / 2.0f, m_Damage);
 		else
 			damage = 0.0f;
-		CollisionBox box           = {{25, 20},
-                            {60, 20}};
-		float        speed         = 12.5f;
-		auto         collisionFunc = [level](float x, float y, Direction dir, Level *level) {
-            float xMinSpeed = -8.0f;
-            float xMaxSpeed = 8.0f;
-            float yMinSpeed = -8.0f;
-            float yMaxSpeed = 8.0f;
-            if(dir == Direction::north)
-            {
-                yMaxSpeed = 0.5f;
-            }
-            else if(dir == Direction::south)
-            {
-                yMinSpeed = -0.5f;
-                y -= 40;
-            }
-            else if(dir == Direction::east)
-            {
-                xMaxSpeed = 0.5f;
-                x += 30;
-            }
-            else
-            {
-                xMinSpeed = -0.5f;
-                x -= 50;
-            }
 
-			uint16_t  spawnerLifetime = 5;
-			uint16_t  spawnRate       = 1;
-            uint16_t  minLife         = 5;
-            uint16_t  maxLife         = 15;
-            float     minSize         = 7.0f;
-            float     maxSize         = 15.0f;
-            uint16_t  groupSize       = 3;
-            glm::vec4 colour          = {0.929f, 0.541f, 0.0f, 1.0f};
-
-			level->addSpawner(new ParticleSpawner(x, y, level, spawnerLifetime, spawnRate, minLife, maxLife, xMinSpeed, xMaxSpeed, yMinSpeed, yMaxSpeed, minSize, maxSize, groupSize, colour));
-		};
-		float maxDistance = 700.0f;
-		level->addProjectile(new Projectile(e.getX(), e.getY(), TILE_SIZE / 2, maxDistance, damage, speed, dir, &e, level, box, collisionFunc));
+		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Fire));
 		if(m)
 		{
 			m_Cooldown = m->getWeaponDelay(m_CooldownMax);

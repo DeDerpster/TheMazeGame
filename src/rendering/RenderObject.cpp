@@ -77,7 +77,7 @@ std::array<ColouredVertex, 4> ColouredObject::convertToColouredVertices()
 	return {v0, v1, v2, v3};
 }
 
-std::array<TexturedVertex, 4> TexturedObject::convertToTexturedVertices(uint16_t texSlot)
+std::array<TexturedVertex, 4> TexturedObject::convertToTexturedVertices(uint8_t texSlot)
 {
 	// Creates a 2d rotation matrix, so that the object can be rotated
 	glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
@@ -126,7 +126,7 @@ std::array<TexturedVertex, 4> TexturedObject::convertToTexturedVertices(uint16_t
 	return {v0, v1, v2, v3};
 }
 
-std::array<TextVertex, 4> TextObject::convertCharacterToVertices(Character *ch, float xOffset, uint16_t texSlot)
+std::array<TextVertex, 4> TextObject::convertCharacterToVertices(Character *ch, float xOffset, uint8_t texSlot)
 {
 	float newScale = scale / 100;
 

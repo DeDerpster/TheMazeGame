@@ -41,7 +41,7 @@ Maze::Maze()
 
 	currentPaths.reserve(2 * MAZE_SIZE);   // The data is reserved here because not all the data is needed, but it could be used and so for efficiency, it is reserved on init
 
-	NPC *follower = new NPC(3100.0f, 3800.0f, this);
+	NPC *follower = new NPC(3100.0f, 3800.0f, this, NPC::Type::Follower, NPC::Race::Fire);
 	m_Player.addFollower(follower);
 	m_Entities.push_back(follower);
 
@@ -386,11 +386,7 @@ void Maze::generate()
 	WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, TILE_SIZE / 2, this, item2);
 	getMidRoom()->addEntity(worldItem2);
 
-	auto healthPotionFunc = [](Mob *mob) {
-		mob->changeHealth(100);
-	};
-
-	Item *     potion     = new Potion("Large Health Potion", POTION_HEALTH, healthPotionFunc);
+	Item *     potion     = new Potion(Potion::Type::HealthHuge);
 	WorldItem *worldItem3 = new WorldItem(3800.0f, 3900.0f, TILE_SIZE / 2, this, potion);
 	getMidRoom()->addEntity(worldItem3);
 

@@ -1,21 +1,22 @@
 #pragma once
 
 #include "Sprite.h"
+
 #include <vector>
 
 class AnimatedSprite
 {
   private:
-	std::vector<int> sprites;
+	std::vector<Sprite::ID> sprites;
 	int              index;
 	uint16_t         textureSwapDelay, textureSwapCount;
 
   public:
 	AnimatedSprite();
-	AnimatedSprite(uint16_t frames, uint16_t spriteID);
-	AnimatedSprite(uint16_t frames, uint16_t spriteID, uint16_t textureSwapDelay);
+	AnimatedSprite(uint16_t frames, Sprite::ID spriteID);
+	AnimatedSprite(uint16_t frames, Sprite::ID spriteID, uint16_t textureSwapDelay);
 
-	void addSprite(int sprite);
+	void addSprite(Sprite::ID sprite);
 
 	void update();
 

@@ -8,7 +8,7 @@ class Trap : public Tile
 	uint16_t m_AttackCooldown;
 	uint16_t m_AttackCooldownMax;
 	uint16_t m_AttackTrapTimer;
-	uint32_t m_AttackSpriteID;
+	Sprite::ID m_AttackSpriteID;
 	uint32_t m_Damage;
 
 	CollisionBox getCollisionBox();

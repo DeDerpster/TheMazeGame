@@ -1,11 +1,11 @@
 #include "SwitchTile.h"
 
 SwitchTile::SwitchTile()
-	: Tile(), m_AltSpriteID(0), showAlt(false)
+	: Tile(), m_AltSpriteID(Sprite::ID::errorID), showAlt(false)
 {
 }
 
-SwitchTile::SwitchTile(float x, float y, double rotation, uint32_t defaultSpriteID, double altRotation, uint32_t altSpriteID, bool isSolid, Level *level)
+SwitchTile::SwitchTile(float x, float y, double rotation, Sprite::ID defaultSpriteID, double altRotation, Sprite::ID altSpriteID, bool isSolid, Level *level)
 	: Tile(x, y, rotation, defaultSpriteID, isSolid, level), m_AltSpriteID(altSpriteID), m_AltRotation(altRotation), showAlt(false)
 {
 }

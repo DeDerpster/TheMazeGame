@@ -6,18 +6,32 @@
 
 class NPC : public Mob
 {
-  private:
-	std::string m_Name;
-
-	enum class AttackMove
+  public:
+	enum class Type
 	{
-		None,
-		Dodge,
-		RunAway,
-		RunAwayAlongX,
-		RunAwayAlongY,
-		GoToPoint,
-		Attack
+		Follower,
+		Enemy
+	};
+
+	enum class Race
+	{
+		Frost,
+		Fire,
+		Dark
+	};
+
+  private:
+    std::string m_Name;
+
+    enum class AttackMove
+    {
+	  None,
+	  Dodge,
+	  RunAway,
+	  RunAwayAlongX,
+	  RunAwayAlongY,
+	  GoToPoint,
+	  Attack
 	};
 	AttackMove m_Attack;
 
@@ -30,7 +44,7 @@ class NPC : public Mob
 	bool findingPath;
 	bool isRunningAway;
 
-	void generateInventory();
+	void generateInventory(Race race);
 
 	void findPath(Vec2f dest, float speed);
 	void attack();
@@ -41,9 +55,8 @@ class NPC : public Mob
 
   public:
 	NPC();
-	NPC(float x, float y);
-	NPC(float x, float y, Level *level);
-	NPC(float x, float y, Level *level, uint16_t spriteID);
+	NPC(float x, float y, Level *level, Type type);
+	NPC(float x, float y, Level *level, Type type, Race race);
 	virtual ~NPC() override;
 
 	virtual void update() override;

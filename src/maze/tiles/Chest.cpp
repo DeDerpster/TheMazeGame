@@ -2,11 +2,12 @@
 
 #include "Application.h"
 #include "FireStaff.h"
+#include "KeyDefinitions.h"
 #include "Level.h"
 #include "Player.h"
+#include "RandomGen.h"
 #include "Sprite.h"
 #include "Utils.h"
-#include "KeyDefinitions.h"
 
 Chest::Chest()
 	: Tile(), m_Inventory(DEFAULT_INVENTORY_SIZE), m_State(Button::State::None)
@@ -14,7 +15,7 @@ Chest::Chest()
 }
 
 Chest::Chest(float x, float y, double rotation, Level *level, bool isDud)
-	: Tile(x, y, rotation, BASIC_CHEST, true, level), m_Inventory(DEFAULT_INVENTORY_SIZE), m_State(Button::State::None), m_IsDud(isDud)
+	: Tile(x, y, rotation, Sprite::ID::tileBasicChest, true, level), m_Inventory(DEFAULT_INVENTORY_SIZE), m_State(Button::State::None), m_IsDud(isDud)
 {
 	if(!m_IsDud)
 		generateInventory();
@@ -26,9 +27,9 @@ Chest::~Chest()
 
 void Chest::generateInventory()
 {
-	m_Inventory.push_back(new FireStaff());
-	m_Inventory.push_back(new FireStaff());
-	m_Inventory.push_back(new FireStaff());
+	int numOfItems = Random::getNum(2, 10);
+	for(int i = 0; i < numOfItems; i++)
+		m_Inventory.push_back(Random::getItem());
 }
 
 CollisionBox Chest::getCollisionBox()

@@ -7,11 +7,30 @@
 
 class Potion : public Item
 {
+  public:
+	enum class Type
+	{
+		Health,
+		HealthRegen,
+		HealthMagic,
+		HealthHuge,
+
+		Stamina,
+		StaminaRegen,
+		StaminaMagic,
+		StaminaHuge,
+
+		Book,
+		MagicBook,
+		Food
+	};
+
   private:
 	std::function<void(Mob *)> m_EffectFunc;
 
   public:
-	Potion(const char *name, uint32_t spriteID, std::function<void(Mob *)> effect);
+	Potion(Type type);
+	Potion(const char *name, Sprite::ID spriteID, std::function<void(Mob *)> effect);
 	virtual ~Potion() override;
 
 	void useOn(Mob *mob);

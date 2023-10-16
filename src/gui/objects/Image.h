@@ -2,14 +2,16 @@
 
 #include "MenuObject.h"
 
+#include "Sprite.h"
+
 class Image : public MenuObject
 {
   private:
-	uint32_t m_SpriteID;
+	Sprite::ID m_SpriteID;
 
   public:
-	Image(float x, float y, float width, float height, uint32_t spriteID, Layer *layer);
-	Image(std::function<void(float *, float *, float *, float *)> posFunc, uint32_t spriteID, Layer *layer);
+	Image(float x, float y, float width, float height, Sprite::ID spriteID, Layer *layer);
+	Image(std::function<void(float *, float *, float *, float *)> posFunc, Sprite::ID spriteID, Layer *layer);
 
 	virtual void render() override;
 	virtual void update() override;

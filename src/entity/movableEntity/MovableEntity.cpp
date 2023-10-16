@@ -5,13 +5,13 @@
 MovableEntity::MovableEntity()
 	: Entity(), m_Speed(7.0f), isMoving(false), m_Dir(Direction::south), isGhost(false) {}
 
-MovableEntity::MovableEntity(float x, float y, float size, Level *level, uint16_t spriteID)
+MovableEntity::MovableEntity(float x, float y, float size, Level *level, Sprite::ID spriteID)
 	: Entity(x, y, size, level, spriteID), m_Speed(7.0f), isMoving(false), m_Dir(Direction::south), isGhost(false) {}
 
-MovableEntity::MovableEntity(float x, float y, float size, CollisionBox box, Level *level, uint16_t spriteID)
+MovableEntity::MovableEntity(float x, float y, float size, CollisionBox box, Level *level, Sprite::ID spriteID)
 	: Entity(x, y, size, box, level, spriteID), m_Speed(7.0f), isMoving(false), m_Dir(Direction::south), isGhost(false) {}
 
-MovableEntity::MovableEntity(float x, float y, float size, float speed, Direction dir, CollisionBox box, Level *level, uint16_t spriteID)
+MovableEntity::MovableEntity(float x, float y, float size, float speed, Direction dir, CollisionBox box, Level *level, Sprite::ID spriteID)
 	: Entity(x, y, size, box, level, spriteID), m_Speed(speed), isMoving(false), m_Dir(dir), isGhost(false) {}
 
 MovableEntity::~MovableEntity() {}

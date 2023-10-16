@@ -4,6 +4,7 @@
 #include "Application.h"
 #include "Level.h"
 #include "Log.h"
+#include "RandomGen.h"
 #include "Sprite.h"
 
 #include "NPC.h"
@@ -43,14 +44,25 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 
 	if(type == RoomType::Enemy)
 	{
-		// TODO: Generate enemy
-		NPC *enemy = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level);
+		NPC *enemy = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level, NPC::Type::Enemy);
 		enemy->setEnemy(m_Level->getPlayer());
 		m_Entities.push_back(enemy);
+		while(enemy->canAddFollower())
+		{
+			int r = Random::getNum(0, 4);
+			if(r = 0)
+			{
+				NPC *follower = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level, NPC::Type::Follower);
+				enemy->addFollower(follower);
+				m_Entities.push_back(follower);
+			}
+			else
+				break;
+		}
 	}
 	else if(type == RoomType::NPC)
 	{
-		NPC *npc = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level);
+		NPC *npc = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level, NPC::Type::Follower);
 		m_Entities.push_back(npc);
 	}
 
@@ -89,7 +101,7 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 			}
 			else
 			{
-				uint32_t    texID;
+				Sprite::ID  texID;
 				bool   isSolid  = true;
 				double rotation = 0.0f;
 				bool        isSwitch = false;
@@ -97,21 +109,21 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 
 				if(!m_Entrances[Direction::north] && i == height - 1 && j != 0 && j != width - 1)
 				{
-					texID = BASIC_WALL;
+					texID = Sprite::ID::tileBasicWall;
 				}
 				else if(!m_Entrances[Direction::south] && i == 0 && j != 0 && j != width - 1)
 				{
-					texID    = BASIC_WALL;
+					texID    = Sprite::ID::tileBasicWall;
 					rotation = M_PI;
 				}
 				else if(!m_Entrances[Direction::east] && j == width - 1 && i != 0 && i != height - 1)
 				{
-					texID    = BASIC_WALL;
+					texID    = Sprite::ID::tileBasicWall;
 					rotation = M_PI / 2;
 				}
 				else if(!m_Entrances[Direction::west] && j == 0 && i != 0 && i != height - 1)
 				{
-					texID    = BASIC_WALL;
+					texID    = Sprite::ID::tileBasicWall;
 					rotation = 3 * M_PI / 2;
 				}
 				else
@@ -131,7 +143,7 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 
 					if(pixelOffset[0] == WALL_COLOUR)   // Checks the colour against the different defined ones
 					{
-						texID = BASIC_WALL;
+						texID = Sprite::ID::tileBasicWall;
 						if(j == 0)   // Makes sure that the rotation is correct
 							rotation = 3 * M_PI / 2;
 						else if(j == width - 1)
@@ -143,13 +155,13 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 					{
 						isSolid = false;
 						if(i == height - 1 && !entrances[0])
-							texID = BASIC_WALL;
+							texID = Sprite::ID::tileBasicWall;
 						else
-							texID = BASIC_FLOOR;
+							texID = Sprite::ID::tileBasicFloor;
 					}
 					else if(pixelOffset[0] == CORNER_OUT_COLOUR)
 					{
-						texID = BASIC_OUTWARDS_CORNER;
+						texID = Sprite::ID::tileBasicExtCorner;
 						if(j <= width / 2 && i <= height / 2)
 							rotation = 3 * M_PI / 2;
 						else if(j > width / 2 && i > height / 2)
@@ -159,7 +171,7 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 					}
 					else if(pixelOffset[0] == CORNER_IN_COLOUR)
 					{
-						texID = BASIC_INWARDS_CORNER;
+						texID = Sprite::ID::tileBasicIntCorner;
 						if(j <= width / 2 && i <= height / 2)
 							rotation = 3 * M_PI / 2;
 						else if(j > width / 2 && i > height / 2)
@@ -173,7 +185,7 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 
 				if(isSwitch)
 				{
-					m_Tiles[i * ROOM_SIZE + j] = new SwitchTile(pos.x, pos.y, rotation, texID, altRotation, BASIC_WALL, isSolid, m_Level);   // This creates the tile and adds it to the vector
+					m_Tiles[i * ROOM_SIZE + j] = new SwitchTile(pos.x, pos.y, rotation, texID, altRotation, Sprite::ID::tileBasicWall, isSolid, m_Level);   // This creates the tile and adds it to the vector
 				}
 				else
 					m_Tiles[i * ROOM_SIZE + j] = new Tile(pos.x, pos.y, rotation, texID, isSolid, m_Level);   // This creates the tile and adds it to the vector
@@ -207,10 +219,17 @@ void Room::update()
 		(*it)->update();
 		if((*it)->deleteMe())
 		{
-			delete *it;
-			it = m_Entities.erase(it);
-
-			checkForMobs();
+			Mob *mob = dynamic_cast<Mob *>(*it);
+			if(mob)
+			{
+				Application::callEventLater(new Event::MobDied(mob));
+				++it;
+			}
+			else
+			{
+				delete *it;
+				it = m_Entities.erase(it);
+			}
 		}
 		else
 			++it;
@@ -315,7 +334,7 @@ Tile *Room::getTile(int x, int y) { return m_Tiles[y * ROOM_SIZE + x]; }
 
 void Room::checkForMobs()
 {
-	if(m_Type == RoomType::Enemy)
+	if(isLocked)
 	{
 		auto searchFunc = [this](const Entity *o) -> bool {
 			const Mob *mob = dynamic_cast<const Mob *>(o);

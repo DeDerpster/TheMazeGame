@@ -439,7 +439,7 @@ void Render::draw(VertexArray &vao) const   // Assumes VAO and shader have alrea
 	vao.unbind();
 }
 
-void Render::spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID, uint8_t layer, bool isOverlay)
+void Render::spriteImpl(float x, float y, double rotation, float width, float height, Sprite::ID spriteID, uint8_t layer, bool isOverlay)
 {
 	// This creates a collision box for the sprite, so it can check if it is in frame
 	CollisionBox box = {{-width / 2, -height / 2}, {width / 2, height / 2}};

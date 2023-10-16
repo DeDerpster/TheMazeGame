@@ -5,125 +5,280 @@
 #include <string>
 
 #include "Log.h"
-#include "RenderObject.h"
 #include "Texture.h"
 #include "Utils.h"
 
-#define SPRITE_ANIM_1 1
-#define SPRITE_ANIM_2 2
+#define SPRITE_WALK_1 static_cast<Sprite::ID>(1)
+#define SPRITE_WALK_2 static_cast<Sprite::ID>(2)
 
-#define SPRITE_NORTH 0
-#define SPRITE_SOUTH 3
-#define SPRITE_EAST  6
-#define SPRITE_WEST  9
+#define SPRITE_NORTH static_cast<Sprite::ID>(0)
+#define SPRITE_SOUTH static_cast<Sprite::ID>(3)
+#define SPRITE_EAST  static_cast<Sprite::ID>(6)
+#define SPRITE_WEST  static_cast<Sprite::ID>(9)
+#define SPRITE_END   static_cast<Sprite::ID>(12)
 
-// This is a definition for every sprite there is
-// Tiles
-#define BASIC_WALL            0
-#define BASIC_FLOOR           BASIC_WALL + 1
-#define BASIC_OUTWARDS_CORNER BASIC_FLOOR + 1
-#define BASIC_INWARDS_CORNER  BASIC_OUTWARDS_CORNER + 1
-#define BASIC_CHEST           BASIC_INWARDS_CORNER + 1
-#define BASIC_TRAP_HIDDEN     BASIC_CHEST + 1
-#define BASIC_TRAP_EXPOSED    BASIC_TRAP_HIDDEN + 1
-#define BASIC_TRAPDOOR        BASIC_TRAP_EXPOSED + 1
+#define SPRITE_FROST static_cast<Sprite::ID>(0) * SPRITE_END
+#define SPRITE_FIRE  static_cast<Sprite::ID>(1) * SPRITE_END
+#define SPRITE_DARK  static_cast<Sprite::ID>(2) * SPRITE_END
 
-// Mobs
-#define SPRITE_PLAYER  BASIC_TRAPDOOR + 1
-#define PLAYER_NORTH   SPRITE_PLAYER + SPRITE_NORTH
-#define PLAYER_NORTH_1 SPRITE_PLAYER + SPRITE_ANIM_1
-#define PLAYER_NORTH_2 SPRITE_PLAYER + SPRITE_ANIM_2
-#define PLAYER_SOUTH   SPRITE_PLAYER + SPRITE_SOUTH
-#define PLAYER_SOUTH_1 PLAYER_SOUTH + SPRITE_ANIM_1
-#define PLAYER_SOUTH_2 PLAYER_SOUTH + SPRITE_ANIM_2
-#define PLAYER_EAST    SPRITE_PLAYER + SPRITE_EAST
-#define PLAYER_EAST_1  PLAYER_EAST + SPRITE_ANIM_1
-#define PLAYER_EAST_2  PLAYER_EAST + SPRITE_ANIM_2
-#define PLAYER_WEST    SPRITE_PLAYER + SPRITE_WEST
-#define PLAYER_WEST_1  PLAYER_WEST + SPRITE_ANIM_1
-#define PLAYER_WEST_2  PLAYER_WEST + SPRITE_ANIM_2
+#define POTION_SPRITES 4
+#define POTION_REGEN   static_cast<Sprite::ID>(1)
+#define POTION_MAGIC   static_cast<Sprite::ID>(2)
+#define POTION_HUGE    static_cast<Sprite::ID>(3)
 
-// Items
-#define ITEM_STICK PLAYER_WEST_2 + 1
+#define SPRITE_BOOK_NUM 6
+#define SPRITE_MAGIC_BOOK_NUM 2
+#define SPRITE_FOOD_NUM 15
 
-// Projectiles
-#define PROJECTILE_FIRE ITEM_STICK + 1
-
-// Potions
-#define POTION_HEALTH PROJECTILE_FIRE + 1
-
-// Debug stuff
-#define DEBUG_CIRCLE POTION_HEALTH + 1
-
-// Menus
-#define MAINMENU_TITLE DEBUG_CIRCLE + 1
-
-#define NUM_OF_SPRITES MAINMENU_TITLE + 1
+#define SPRITE_BOOK_START       Sprite::ID::books1
+#define SPRITE_MAGIC_BOOK_START Sprite::ID::magicBooks1
+#define SPRITE_FOOD_START       Sprite::ID::food1
 
 class Sprite
 {
-	private:
-	  std::shared_ptr<Texture>                                   m_Texture;
-	  static std::array<std::unique_ptr<Sprite>, NUM_OF_SPRITES> sprites;
+  public:
+	enum ID
+	{
+		errorID = -1,
 
-	public:
-	  Sprite(const char *texturePath);
-	  ~Sprite();
+		tileBasicWall,
+		tileBasicFloor,
+		tileBasicExtCorner,
+		tileBasicIntCorner,
+		tileBasicChest,
+		tileBasicTrapHidden,
+		tileBasicTrapExposed,
+		tileBasicTrapdoor,
 
-	  void render(float x, float y, double rotation, float width, float height);
+		mobPlayer,
+		mobPlayerNorth      = mobPlayer + SPRITE_NORTH,
+		mobPlayerNorthWalk1 = mobPlayer + SPRITE_NORTH + SPRITE_WALK_1,
+		mobPlayerNorthWalk2 = mobPlayer + SPRITE_NORTH + SPRITE_WALK_2,
+		mobPlayerSouth      = mobPlayer + SPRITE_SOUTH,
+		mobPlayerSouthWalk1 = mobPlayer + SPRITE_SOUTH + SPRITE_WALK_1,
+		mobPlayerSouthWalk2 = mobPlayer + SPRITE_SOUTH + SPRITE_WALK_2,
+		mobPlayerEast       = mobPlayer + SPRITE_EAST,
+		mobPlayerEastWalk1  = mobPlayer + SPRITE_EAST + SPRITE_WALK_1,
+		mobPlayerEastWalk2  = mobPlayer + SPRITE_EAST + SPRITE_WALK_2,
+		mobPlayerWest       = mobPlayer + SPRITE_WEST,
+		mobPlayerWestWalk1  = mobPlayer + SPRITE_WEST + SPRITE_WALK_1,
+		mobPlayerWestWalk2  = mobPlayer + SPRITE_WEST + SPRITE_WALK_2,
 
-	  Texture *getTexture() { return m_Texture.get(); }
+		followerFrost           = mobPlayer + SPRITE_END,
+		followerFrostNorth      = followerFrost + SPRITE_NORTH,
+		followerFrostNorthWalk1 = followerFrost + SPRITE_NORTH + SPRITE_WALK_1,
+		followerFrostNorthWalk2 = followerFrost + SPRITE_NORTH + SPRITE_WALK_2,
+		followerFrostSouth      = followerFrost + SPRITE_SOUTH,
+		followerFrostSouthWalk1 = followerFrost + SPRITE_SOUTH + SPRITE_WALK_1,
+		followerFrostSouthWalk2 = followerFrost + SPRITE_SOUTH + SPRITE_WALK_2,
+		followerFrostEast       = followerFrost + SPRITE_EAST,
+		followerFrostEastWalk1  = followerFrost + SPRITE_EAST + SPRITE_WALK_1,
+		followerFrostEastWalk2  = followerFrost + SPRITE_EAST + SPRITE_WALK_2,
+		followerFrostWest       = followerFrost + SPRITE_WEST,
+		followerFrostWestWalk1  = followerFrost + SPRITE_WEST + SPRITE_WALK_1,
+		followerFrostWestWalk2  = followerFrost + SPRITE_WEST + SPRITE_WALK_2,
 
-	  void bind(uint8_t slot = 0);
-	  void unbind();
+		followerFire           = followerFrost + SPRITE_END,
+		followerFireNorth      = followerFire + SPRITE_NORTH,
+		followerFireNorthWalk1 = followerFire + SPRITE_NORTH + SPRITE_WALK_1,
+		followerFireNorthWalk2 = followerFire + SPRITE_NORTH + SPRITE_WALK_2,
+		followerFireSouth      = followerFire + SPRITE_SOUTH,
+		followerFireSouthWalk1 = followerFire + SPRITE_SOUTH + SPRITE_WALK_1,
+		followerFireSouthWalk2 = followerFire + SPRITE_SOUTH + SPRITE_WALK_2,
+		followerFireEast       = followerFire + SPRITE_EAST,
+		followerFireEastWalk1  = followerFire + SPRITE_EAST + SPRITE_WALK_1,
+		followerFireEastWalk2  = followerFire + SPRITE_EAST + SPRITE_WALK_2,
+		followerFireWest       = followerFire + SPRITE_WEST,
+		followerFireWestWalk1  = followerFire + SPRITE_WEST + SPRITE_WALK_1,
+		followerFireWestWalk2  = followerFire + SPRITE_WEST + SPRITE_WALK_2,
 
-	  static Sprite *getSprite(int i) { return &*sprites[i]; };
-	  static void    init()
-	  {
-		  // Tiles
-		  sprites[BASIC_WALL]            = std::make_unique<Sprite>("res/textures/tiles/BasicWall.png");
-		  sprites[BASIC_FLOOR]           = std::make_unique<Sprite>("res/textures/tiles/BasicFloor.png");
-		  sprites[BASIC_OUTWARDS_CORNER] = std::make_unique<Sprite>("res/textures/tiles/BasicCorner.png");
-		  sprites[BASIC_INWARDS_CORNER]  = std::make_unique<Sprite>("res/textures/tiles/BasicCorner2.png");
-		  sprites[BASIC_CHEST]           = std::make_unique<Sprite>("res/textures/tiles/BasicChest.png");
-		  sprites[BASIC_TRAP_HIDDEN]     = std::make_unique<Sprite>("res/textures/tiles/BasicTrapHidden.png");
-		  sprites[BASIC_TRAP_EXPOSED]    = std::make_unique<Sprite>("res/textures/tiles/BasicTrapExposed.png");
-		  sprites[BASIC_TRAPDOOR]        = std::make_unique<Sprite>("res/textures/tiles/BasicTrapdoor.png");
+		followerDark           = followerFire + SPRITE_END,
+		followerDarkNorth      = followerDark + SPRITE_NORTH,
+		followerDarkNorthWalk1 = followerDark + SPRITE_NORTH + SPRITE_WALK_1,
+		followerDarkNorthWalk2 = followerDark + SPRITE_NORTH + SPRITE_WALK_2,
+		followerDarkSouth      = followerDark + SPRITE_SOUTH,
+		followerDarkSouthWalk1 = followerDark + SPRITE_SOUTH + SPRITE_WALK_1,
+		followerDarkSouthWalk2 = followerDark + SPRITE_SOUTH + SPRITE_WALK_2,
+		followerDarkEast       = followerDark + SPRITE_EAST,
+		followerDarkEastWalk1  = followerDark + SPRITE_EAST + SPRITE_WALK_1,
+		followerDarkEastWalk2  = followerDark + SPRITE_EAST + SPRITE_WALK_2,
+		followerDarkWest       = followerDark + SPRITE_WEST,
+		followerDarkWestWalk1  = followerDark + SPRITE_WEST + SPRITE_WALK_1,
+		followerDarkWestWalk2  = followerDark + SPRITE_WEST + SPRITE_WALK_2,
 
-		  // Mobs
-		  sprites[PLAYER_NORTH]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-north.png");
-		  sprites[PLAYER_NORTH_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-north-1.png");
-		  sprites[PLAYER_NORTH_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-north-2.png");
+		enemyFrost           = followerDark + SPRITE_END,
+		enemyFrostNorth      = enemyFrost + SPRITE_NORTH,
+		enemyFrostNorthWalk1 = enemyFrost + SPRITE_NORTH + SPRITE_WALK_1,
+		enemyFrostNorthWalk2 = enemyFrost + SPRITE_NORTH + SPRITE_WALK_2,
+		enemyFrostSouth      = enemyFrost + SPRITE_SOUTH,
+		enemyFrostSouthWalk1 = enemyFrost + SPRITE_SOUTH + SPRITE_WALK_1,
+		enemyFrostSouthWalk2 = enemyFrost + SPRITE_SOUTH + SPRITE_WALK_2,
+		enemyFrostEast       = enemyFrost + SPRITE_EAST,
+		enemyFrostEastWalk1  = enemyFrost + SPRITE_EAST + SPRITE_WALK_1,
+		enemyFrostEastWalk2  = enemyFrost + SPRITE_EAST + SPRITE_WALK_2,
+		enemyFrostWest       = enemyFrost + SPRITE_WEST,
+		enemyFrostWestWalk1  = enemyFrost + SPRITE_WEST + SPRITE_WALK_1,
+		enemyFrostWestWalk2  = enemyFrost + SPRITE_WEST + SPRITE_WALK_2,
 
-		  sprites[PLAYER_SOUTH]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-south.png");
-		  sprites[PLAYER_SOUTH_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-south-1.png");
-		  sprites[PLAYER_SOUTH_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-south-2.png");
+		enemyFire           = enemyFrost + SPRITE_END,
+		enemyFireNorth      = enemyFire + SPRITE_NORTH,
+		enemyFireNorthWalk1 = enemyFire + SPRITE_NORTH + SPRITE_WALK_1,
+		enemyFireNorthWalk2 = enemyFire + SPRITE_NORTH + SPRITE_WALK_2,
+		enemyFireSouth      = enemyFire + SPRITE_SOUTH,
+		enemyFireSouthWalk1 = enemyFire + SPRITE_SOUTH + SPRITE_WALK_1,
+		enemyFireSouthWalk2 = enemyFire + SPRITE_SOUTH + SPRITE_WALK_2,
+		enemyFireEast       = enemyFire + SPRITE_EAST,
+		enemyFireEastWalk1  = enemyFire + SPRITE_EAST + SPRITE_WALK_1,
+		enemyFireEastWalk2  = enemyFire + SPRITE_EAST + SPRITE_WALK_2,
+		enemyFireWest       = enemyFire + SPRITE_WEST,
+		enemyFireWestWalk1  = enemyFire + SPRITE_WEST + SPRITE_WALK_1,
+		enemyFireWestWalk2  = enemyFire + SPRITE_WEST + SPRITE_WALK_2,
 
-		  sprites[PLAYER_EAST]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-east.png");
-		  sprites[PLAYER_EAST_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-east-1.png");
-		  sprites[PLAYER_EAST_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-east-2.png");
+		enemyDark           = enemyFire + SPRITE_END,
+		enemyDarkNorth      = enemyDark + SPRITE_NORTH,
+		enemyDarkNorthWalk1 = enemyDark + SPRITE_NORTH + SPRITE_WALK_1,
+		enemyDarkNorthWalk2 = enemyDark + SPRITE_NORTH + SPRITE_WALK_2,
+		enemyDarkSouth      = enemyDark + SPRITE_SOUTH,
+		enemyDarkSouthWalk1 = enemyDark + SPRITE_SOUTH + SPRITE_WALK_1,
+		enemyDarkSouthWalk2 = enemyDark + SPRITE_SOUTH + SPRITE_WALK_2,
+		enemyDarkEast       = enemyDark + SPRITE_EAST,
+		enemyDarkEastWalk1  = enemyDark + SPRITE_EAST + SPRITE_WALK_1,
+		enemyDarkEastWalk2  = enemyDark + SPRITE_EAST + SPRITE_WALK_2,
+		enemyDarkWest       = enemyDark + SPRITE_WEST,
+		enemyDarkWestWalk1  = enemyDark + SPRITE_WEST + SPRITE_WALK_1,
+		enemyDarkWestWalk2  = enemyDark + SPRITE_WEST + SPRITE_WALK_2,
 
-		  sprites[PLAYER_WEST]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-west.png");
-		  sprites[PLAYER_WEST_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-west-1.png");
-		  ;
-		  sprites[PLAYER_WEST_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-west-2.png");
-		  ;
+		itemStick,
 
-		  // Stick
-		  sprites[ITEM_STICK] = std::make_unique<Sprite>("res/textures/items/Stick.png");
+		weaponFireStaff,
+		weaponFrostStaff,
+		weaponDarkStaff,
+		weaponGoldStaff,
+		weaponEarthStaff,
+		weaponAirStaff,
+		weaponSling,
+		weaponBow,
+		weaponCrossbow,
+		weaponBoomerang,
 
-		  // Projectiles
-		  sprites[PROJECTILE_FIRE] = std::make_unique<Sprite>("res/textures/projectiles/FireProjectile.png");
+		bombRed,
+		bombPink,
+		bombOrange,
 
-		  // Potions
-		  sprites[POTION_HEALTH] = std::make_unique<Sprite>("res/textures/potions/Health.png");
+		potionRed,
+		potionRedRegen = potionRed + POTION_REGEN,
+		potionRedMagic = potionRed + POTION_MAGIC,
+		potionRedHuge  = potionRed + POTION_HUGE,
 
-		  // DEBUG STUFF
-		  sprites[DEBUG_CIRCLE] = std::make_unique<Sprite>("res/textures/DebugCircle.png");
+		potionBlue   = potionRed + POTION_SPRITES,
+		potionBlueRegen = potionBlue + POTION_REGEN,
+		potionBlueMagic = potionBlue + POTION_MAGIC,
+		potionBlueHuge  = potionBlue + POTION_HUGE,
 
-		  // Menu
-		  sprites[MAINMENU_TITLE] = std::make_unique<Sprite>("res/menus/Title.png");
+		potionGreen  = potionBlue + POTION_SPRITES,
+		potionGreenRegen = potionGreen + POTION_REGEN,
+		potionGreenMagic = potionGreen + POTION_MAGIC,
+		potionGreenHuge  = potionGreen + POTION_HUGE,
 
-		  Log::info("Sprites have been loaded");
-	}
+		potionYellow = potionGreen + POTION_SPRITES,
+		potionYellowRegen = potionYellow + POTION_REGEN,
+		potionYellowMagic = potionYellow + POTION_MAGIC,
+		potionYellowHuge  = potionYellow + POTION_HUGE,
+
+		books1,
+		books2,
+		books3,
+		books4,
+		books5,
+		books6,
+		magicBooks1,
+		magicBooks2,
+
+		food1,
+		food2,
+		food3,
+		food4,
+		food5,
+		food6,
+		food7,
+		food8,
+		food9,
+		food10,
+		food11,
+		food12,
+		food13,
+		food14,
+		food15,
+
+		projectileFire,
+		projectileFrost,
+		projectileDark,
+		projectileGold,
+		projectileNature,
+		projectileRock,
+		projectileArrow,
+
+		debugCircle,
+
+		menuTitle,
+
+		numOfSprites,
+
+
+	};
+
+  public:
+	Sprite(ID id);
+	Sprite(const char *texturePath);
+	~Sprite();
+
+	void render(float x, float y, double rotation, float width, float height);
+
+	Texture *getTexture() { return m_Texture.get(); }
+
+	void bind(uint8_t slot = 0);
+	void unbind();
+
+	static Sprite *getSprite(ID i) { return &*sprites[static_cast<int>(i)]; };
+	static void    init();
+
+  private:
+	std::shared_ptr<Texture>                                             m_Texture;
+	static std::array<std::unique_ptr<Sprite>, Sprite::ID::numOfSprites> sprites;
 };
+
+
+inline Sprite::ID operator+(const Sprite::ID &m, const int &o)
+{
+	if(o < -1 || o > Sprite::ID::numOfSprites)
+		Log::critical("Cannot turn into sprite!", LOGINFO);
+
+	return static_cast<Sprite::ID>(static_cast<int>(m) + o);
+}
+
+inline Sprite::ID operator-(const Sprite::ID &m, const int &o)
+{
+	if(o < -1 || o > Sprite::ID::numOfSprites)
+		Log::critical("Cannot turn into sprite!", LOGINFO);
+	return static_cast<Sprite::ID>(static_cast<int>(m) - o);
+}
+
+inline Sprite::ID &operator+=(Sprite::ID &m, const int &o)
+{
+	m = m + static_cast<Sprite::ID>(o);
+	return m;
+}
+
+inline Sprite::ID &operator-=(Sprite::ID &m, const int &o)
+{
+	m = m - static_cast<Sprite::ID>(o);
+	return m;
+}
+
+inline Sprite::ID &operator++(Sprite::ID &m)
+{
+	m = m + static_cast<Sprite::ID>(1);
+	return m;
+}
+
+

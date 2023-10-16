@@ -6,13 +6,13 @@
 class SwitchTile : public Tile
 {
   protected:
-	uint32_t m_AltSpriteID;
+	Sprite::ID m_AltSpriteID;
 	double   m_AltRotation;
 	bool     showAlt;
 
   public:
 	SwitchTile();
-	SwitchTile(float x, float y, double rotation, uint32_t defaultSpriteID, double altRotation, uint32_t altSpriteID, bool isSolid, Level *level);
+	SwitchTile(float x, float y, double rotation, Sprite::ID defaultSpriteID, double altRotation, Sprite::ID altSpriteID, bool isSolid, Level *level);
 	virtual ~SwitchTile() override;
 
 	virtual void render() override;

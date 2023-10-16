@@ -29,5 +29,7 @@ class WorldItem : public Entity
 
 	virtual bool deleteMe() override;
 
+	virtual bool hasCollidedWith(float xs, float ys, CollisionBox box) override { return false; }
+
 	Item *peak();
 };

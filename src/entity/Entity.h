@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Event.h"
-// #include "Level.h"
 #include "Log.h"
+#include "Sprite.h"
 #include "Utils.h"
 
 class Level;
@@ -11,15 +11,15 @@ class Entity
   protected:
 	float        x, y;
 	float        width, height;
-	uint16_t     m_SpriteID;
+	Sprite::ID   m_SpriteID;
 	Level *      m_Level;
 	CollisionBox m_CollisionBox;
 
   public:
 	Entity();
-	Entity(float x, float y, float size, uint16_t spriteID);
-	Entity(float x, float y, float size, Level *level, uint16_t spriteID);
-	Entity(float x, float y, float size, CollisionBox box, Level *level, uint16_t spriteID);
+	Entity(float x, float y, float size, Sprite::ID spriteID);
+	Entity(float x, float y, float size, Level *level, Sprite::ID spriteID);
+	Entity(float x, float y, float size, CollisionBox box, Level *level, Sprite::ID spriteID);
 	virtual ~Entity();
 
 	virtual void update()                             = 0;
@@ -33,7 +33,7 @@ class Entity
 	virtual bool getIsMoving();
 	CollisionBox &getCollisionBox() { return m_CollisionBox; }
 	bool doesIntersectWith(Vec2f pos);
-	bool hasCollidedWith(float xs, float ys, CollisionBox box);
+	virtual bool  hasCollidedWith(float xs, float ys, CollisionBox box);
 	virtual bool deleteMe();
 
 	virtual void changeX(float changeBy);

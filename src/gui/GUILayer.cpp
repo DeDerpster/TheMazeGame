@@ -48,7 +48,7 @@ GUILayer::GUILayer(GUILayer::Type genType, Level *connectedLevel)
 			*y = 3 * Application::getHeight() / 4;
 		};
 
-		addMenuObject(new Image(posFunc, MAINMENU_TITLE, this));
+		addMenuObject(new Image(posFunc, Sprite::ID::menuTitle, this));
 
 		auto exitFunc = []() {
 			Application::closeApplication();

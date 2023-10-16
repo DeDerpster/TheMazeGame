@@ -35,8 +35,8 @@ class Mob : public MovableEntity, public StatsMob
 	Mob();
 	Mob(float x, float y);
 	Mob(float x, float y, Level *level);
-	Mob(float x, float y, Level *level, uint16_t spriteID);
-	Mob(float x, float y, float speed, Level *level, uint16_t spriteID);
+	Mob(float x, float y, Level *level, Sprite::ID spriteID);
+	Mob(float x, float y, float speed, Level *level, Sprite::ID spriteID);
 	virtual ~Mob() override;
 
 	bool pickUp(Item *item);
@@ -55,6 +55,7 @@ class Mob : public MovableEntity, public StatsMob
 
 	bool addFollower(Mob *follower);
 	void removeFollower(Mob *follower);
+	bool canAddFollower();
 
 	virtual void setFollowing(Mob *following);
 	virtual void setEnemy(Mob *enemy);

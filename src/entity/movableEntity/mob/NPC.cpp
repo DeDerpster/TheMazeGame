@@ -4,13 +4,20 @@
 #include <vector>
 
 #include "Application.h"
-#include "FireStaff.h"
 #include "KeyDefinitions.h"
 #include "Level.h"
 #include "MessageManager.h"
+#include "Player.h"
 #include "RandomGen.h"
 #include "Utils.h"
-#include "Player.h"
+
+#include "Boomerang.h"
+#include "Bow.h"
+#include "Crossbow.h"
+#include "DarkStaff.h"
+#include "FireStaff.h"
+#include "FrostStaff.h"
+#include "Sling.h"
 
 static float getRatioForAttacking(float pos, float ePos, float buffer)
 {
@@ -21,37 +28,144 @@ static float getRatioForAttacking(float pos, float ePos, float buffer)
 		return 0.0f;
 }
 
+static Sprite::ID getSpriteID(NPC::Type type, NPC::Race race)
+{
+	Sprite::ID id;
+	switch(type)
+	{
+	case NPC::Type::Follower:
+		id = Sprite::ID::followerFrost;
+		break;
+	case NPC::Type::Enemy:
+		id = Sprite::ID::enemyFrost;
+		break;
+
+	default:
+		Log::warning("Unknown npc type!");
+		id = Sprite::ID::errorID;
+		break;
+	}
+
+	switch(race)
+	{
+	case NPC::Race::Frost:
+		id += SPRITE_FROST;
+		break;
+	case NPC::Race::Fire:
+		id += SPRITE_FIRE;
+		break;
+	case NPC::Race::Dark:
+		id += SPRITE_DARK;
+		break;
+
+	default:
+		Log::warning("Unknown npc race!");
+		break;
+	}
+
+	return id;
+}
+
+static Sprite::ID genSpriteID(NPC::Type type)
+{
+	int r = Random::getNum(0, 2);
+	return getSpriteID(type, static_cast<NPC::Race>(r));
+}
+
+static NPC::Race getRace(NPC::Type type, Sprite::ID spriteID)
+{
+	switch(type)
+	{
+	case NPC::Type::Follower:
+		spriteID -= Sprite::ID::followerFrost;
+		break;
+	case NPC::Type::Enemy:
+		spriteID -= Sprite::ID::enemyFrost;
+		break;
+	default:
+		Log::warning("Unknown npc type!");
+		break;
+	}
+
+	switch(spriteID)
+	{
+	case SPRITE_FROST:
+		return NPC::Race::Frost;
+	case SPRITE_FIRE:
+		return NPC::Race::Fire;
+	case SPRITE_DARK:
+		return NPC::Race::Dark;
+
+	default:
+		Log::warning("Unknown spriteID given!");
+		break;
+	}
+	return NPC::Race::Frost;
+}
+
 NPC::NPC()
 	: m_Name("Bob"), m_Attack(AttackMove::None), m_Center({0.0f, 0.0f}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
 {
-	generateInventory();
+	generateInventory(Race::Fire);
 }
 
-NPC::NPC(float x, float y)
-	: Mob(x, y), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
+NPC::NPC(float x, float y, Level *level, Type type)
+	: Mob(x, y, level, genSpriteID(type)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
 {
-	generateInventory();
+	generateInventory(getRace(type, m_SpriteID));
 }
 
-NPC::NPC(float x, float y, Level *level)
-	: Mob(x, y, level), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
+NPC::NPC(float x, float y, Level *level, Type type, Race race)
+	: Mob(x, y, level, getSpriteID(type, race)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
 {
-	generateInventory();
-}
-
-NPC::NPC(float x, float y, Level *level, uint16_t spriteID)
-	: Mob(x, y, level, spriteID), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), findingPath(false), isRunningAway(false)
-{
-	generateInventory();
+	generateInventory(race);
 }
 
 NPC::~NPC()
 {
 }
 
-void NPC::generateInventory()
+void NPC::generateInventory(Race race)
 {
-	pickUp(new FireStaff());
+	int r = Random::getNum(0, 2);
+	if(r == 0)
+	{
+		int s = Random::getNum(0, 3);
+		switch(s)
+		{
+		case 0:
+			pickUp(new Boomerang());
+			break;
+		case 1:
+			pickUp(new Bow());
+			break;
+		case 2:
+			pickUp(new Crossbow());
+			break;
+		default:
+			pickUp(new Sling());
+			break;
+		}
+	}
+	else
+	{
+		switch(race)
+		{
+		case Race::Frost:
+			pickUp(new FrostStaff());
+			break;
+		case Race::Fire:
+			pickUp(new FireStaff());
+			break;
+		case Race::Dark:
+			pickUp(new DarkStaff());
+			break;
+
+		default:
+			Log::warning("Unknown race when generating weapons!");
+			break;
+		}
+	}
 }
 
 void NPC::findPath(Vec2f dest, float speed)
@@ -59,7 +173,7 @@ void NPC::findPath(Vec2f dest, float speed)
 	Vec2f start = {x, y};
 	if(!m_Level)
 		Log::critical("Level is null", LOGINFO);
-	std::vector<Vec2f> *path = m_Level->getPath(start, dest, getMovingCollisionBox());
+	std::vector<Vec2f> *path = m_Level->getPath(start, dest, m_CollisionBox);
 
 	if(path->size() == 0 || (path->size() == 1 && distBetweenVec2f({x, y}, path->front()) < speed))
 	{

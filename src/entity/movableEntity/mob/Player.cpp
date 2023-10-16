@@ -3,7 +3,16 @@
 #include "Projectile.h"
 #include "Tile.h"
 
+#include "Boomerang.h"
+#include "Bow.h"
+#include "CrossBow.h"
+#include "DarkStaff.h"
 #include "FireStaff.h"
+#include "FrostStaff.h"
+#include "GoldStaff.h"
+#include "GoldStaff.h"
+#include "EarthStaff.h"
+#include "Sling.h"
 
 Player::Player()
 {
@@ -23,7 +32,14 @@ Player::Player(float x, float y, Level *level)
 	m_CurrentWeapon = 0;
 
 	m_Inventory.push_back(new FireStaff());
-	m_Inventory.push_back(new FireStaff());
+	m_Inventory.push_back(new FrostStaff());
+	m_Inventory.push_back(new DarkStaff());
+	m_Inventory.push_back(new GoldStaff());
+	m_Inventory.push_back(new EarthStaff());
+	m_Inventory.push_back(new Sling());
+	m_Inventory.push_back(new Bow());
+	m_Inventory.push_back(new Crossbow());
+	m_Inventory.push_back(new Boomerang());
 }
 
 Player::~Player()

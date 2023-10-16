@@ -3,23 +3,31 @@
 #include "Renderer.h"
 
 AnimatedSprite::AnimatedSprite()
-	: sprites(), index(-1), textureSwapDelay(20), textureSwapCount(0)
+	: sprites(), index(-1), textureSwapDelay(10), textureSwapCount(0)
 {
 }
-AnimatedSprite::AnimatedSprite(uint16_t frames, uint16_t spriteID)
-	: sprites(), index(0), textureSwapDelay(20), textureSwapCount(0)
+AnimatedSprite::AnimatedSprite(uint16_t frames, Sprite::ID spriteID)
+	: sprites(), index(0), textureSwapDelay(10), textureSwapCount(0)
 {
+	sprites.reserve(2 * frames);
 	for(int i = 1; i <= frames; i++)
+	{
 		sprites.push_back(spriteID + i);
+		sprites.push_back(spriteID);
+	}
 }
-AnimatedSprite::AnimatedSprite(uint16_t frames, uint16_t spriteID, uint16_t textureSwapDelay)
+AnimatedSprite::AnimatedSprite(uint16_t frames, Sprite::ID spriteID, uint16_t textureSwapDelay)
 	: index(0), textureSwapDelay(textureSwapDelay), textureSwapCount(0)
 {
+	sprites.reserve(2 * frames);
 	for(int i = 1; i <= frames; i++)
+	{
 		sprites.push_back(spriteID + i);
+		sprites.push_back(spriteID);
+	}
 }
 
-void AnimatedSprite::addSprite(int sprite)
+void AnimatedSprite::addSprite(Sprite::ID sprite)
 {
 	sprites.push_back(sprite);
 	if(index == -1)

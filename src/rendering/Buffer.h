@@ -2,6 +2,8 @@
 
 #include "Log.h"
 
+#include <vector>
+
 template <typename T>
 class Buffer : public std::vector<T *>
 {
@@ -35,11 +37,11 @@ class Buffer : public std::vector<T *>
 			// If the size is one it does a quick evaluation to see where to place it
 			if(layerSize == 1)
 			{
-				auto it = begin() + layersLoc[layer];
+				auto it = std::vector<T *>::begin() + layersLoc[layer];
 				if((*it)->position.y > objY)
-					insert(it + layerSize, obj);
+					std::vector<T *>::insert(it + layerSize, obj);
 				else
-					insert(it, obj);
+					std::vector<T *>::insert(it, obj);
 			}
 			else
 			{
@@ -48,7 +50,7 @@ class Buffer : public std::vector<T *>
 				int  startSub   = 0;
 				int  endSub     = layerSize;
 				int  index      = (startSub + endSub) / 2;
-				auto layerBegin = begin() + layersLoc[layer];
+				auto layerBegin = std::vector<T *>::begin() + layersLoc[layer];
 
 				auto getYOf = [layerBegin](int index) -> float {
 					return (*(layerBegin + index))->position.y;
@@ -68,7 +70,7 @@ class Buffer : public std::vector<T *>
 					if(nextY > thisY)   // Checks to see if the vector is sorted incorrectly
 					{
 						Log::critical("Buffer is not sorted correctly!", LOGINFO);
-						index = size();
+						index = std::vector<T *>::size();
 						break;
 					}
 
@@ -94,7 +96,7 @@ class Buffer : public std::vector<T *>
 				if(index > layerSize)
 				{
 					Log::warning("The index is over its range!");
-					insert(begin() + layersLoc[layer + 1], obj);
+					std::vector<T *>::insert(std::vector<T *>::begin() + layersLoc[layer + 1], obj);
 				}
 				else
 				{
@@ -105,17 +107,17 @@ class Buffer : public std::vector<T *>
 							Log::critical("Index is incorrectly calculated", LOGINFO);
 						}
 					}
-					insert(layerBegin + index, obj);   // Inserts the object at the correct position
+					std::vector<T *>::insert(layerBegin + index, obj);   // Inserts the object at the correct position
 				}
 			}
 		}
 		else
 		{
 			// Inserts it at the end of the layer wanted
-			if(layersLoc[layer + 1] == size())
-				push_back(obj);
+			if(layersLoc[layer + 1] == std::vector<T *>::size())
+				std::vector<T *>::push_back(obj);
 			else
-				insert(begin() + layersLoc[layer + 1], obj);
+				std::vector<T *>::insert(std::vector<T *>::begin() + layersLoc[layer + 1], obj);
 		}
 
 		// updates locations of the layers

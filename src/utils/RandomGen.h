@@ -3,13 +3,7 @@
 #include <random>
 #include <vector>
 
-/*namespace Random
-{
-	void init();
-
-	int getNum(int min, int max);
-	int getWeightedNum(std::vector<float> nums);
-}   // namespace Random*/
+#include "Item.h"
 
 class Random
 {
@@ -18,7 +12,8 @@ class Random
 
 	int getNumImpl(int min, int max);
 	int getWeightedNumImpl(std::vector<float> nums);
-	int reverseNum(int num);
+	Item *getItemImpl();
+	int   reverseNum(int num);
 
 	Random();
 
@@ -27,6 +22,8 @@ class Random
 
 	static int getNum(int min, int max) { return get().getNumImpl(min, max); }
 	static int getWeightedNum(std::vector<float> nums) { return get().getWeightedNumImpl(nums); }
+
+	static Item *getItem() { return get().getItemImpl(); }
 
 	static Random &get()
 	{

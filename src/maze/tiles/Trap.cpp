@@ -4,12 +4,12 @@
 #include "Utils.h"
 
 Trap::Trap()
-	: Tile(), m_AttackCooldown(0), m_AttackCooldownMax(30), m_AttackTrapTimer(0), m_AttackSpriteID(BASIC_TRAP_EXPOSED), m_Damage(20)
+	: Tile(), m_AttackCooldown(0), m_AttackCooldownMax(30), m_AttackTrapTimer(0), m_AttackSpriteID(Sprite::ID::tileBasicTrapExposed), m_Damage(20)
 {
 }
 
 Trap::Trap(float x, float y, double rotation, Level *level)
-	: Tile(x, y, rotation, BASIC_TRAP_HIDDEN, false, level), m_AttackCooldown(0), m_AttackCooldownMax(30), m_AttackTrapTimer(0), m_AttackSpriteID(BASIC_TRAP_EXPOSED), m_Damage(20)
+	: Tile(x, y, rotation, Sprite::ID::tileBasicTrapHidden, false, level), m_AttackCooldown(0), m_AttackCooldownMax(30), m_AttackTrapTimer(0), m_AttackSpriteID(Sprite::ID::tileBasicTrapExposed), m_Damage(20)
 {
 }
 

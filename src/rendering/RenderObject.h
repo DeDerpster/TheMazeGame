@@ -4,6 +4,7 @@
 #include <array>
 
 #include "RenderVertex.h"
+#include "Sprite.h"
 #include "Texture.h"
 
 // Text rendering objects
@@ -57,15 +58,15 @@ struct ColouredObject : public RenderObject
 
 struct TexturedObject : public RenderObject
 {
-	uint16_t spriteID;
+	Sprite::ID spriteID;
 
 	TexturedObject() {}
-	TexturedObject(glm::vec2 position, float width, float height, double rotation, bool centered, uint16_t spriteID)
+	TexturedObject(glm::vec2 position, float width, float height, double rotation, bool centered, Sprite::ID spriteID)
 		: RenderObject(position, width, height, rotation, centered), spriteID(spriteID) {}
 
 	// Gets the size of each array of vertices returned by 'convertToTexturedVertices'
 	virtual uint32_t              getSizeOfVertices() override { return 4 * sizeof(TexturedVertex); }
-	std::array<TexturedVertex, 4> convertToTexturedVertices(uint16_t texSlot);
+	std::array<TexturedVertex, 4> convertToTexturedVertices(uint8_t texSlot);
 };
 
 struct TextObject : public ColouredObject
@@ -81,5 +82,5 @@ struct TextObject : public ColouredObject
 	// This function is slightly different from the rest, however this is because it stores a string and so is rendered
 	// by going through each character, so this takes in the character and the offset when creating the vertices
 	// This allows to correctly render rotated strings
-	std::array<TextVertex, 4> convertCharacterToVertices(Character *ch, float xOffset, uint16_t texSlot);
+	std::array<TextVertex, 4> convertCharacterToVertices(Character *ch, float xOffset, uint8_t texSlot);
 };

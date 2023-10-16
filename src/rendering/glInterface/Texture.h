@@ -27,7 +27,7 @@ class Texture
 	inline uint32_t getID() const { return m_RendererID; }
 
 	// Functions for interacting with the bufferStorage cache
-	static const Texture *getTextureInBuffer(uint16_t slot) { return bufferStorage[slot]; }
+	static const Texture *getTextureInBuffer(uint8_t slot) { return bufferStorage[slot]; }
 	static uint8_t        getBoundSlot(Texture *tex);
 	static void           clearBufferSlots();
 };

@@ -13,9 +13,9 @@ class MovableEntity : public Entity
 
   public:
 	MovableEntity();
-	MovableEntity(float x, float y, float size, Level *level, uint16_t spriteID);
-	MovableEntity(float x, float y, float size, CollisionBox box, Level *level, uint16_t spriteID);
-	MovableEntity(float x, float y, float size, float speed, Direction dir, CollisionBox box, Level *level, uint16_t spriteID);
+	MovableEntity(float x, float y, float size, Level *level, Sprite::ID spriteID);
+	MovableEntity(float x, float y, float size, CollisionBox box, Level *level, Sprite::ID spriteID);
+	MovableEntity(float x, float y, float size, float speed, Direction dir, CollisionBox box, Level *level, Sprite::ID spriteID);
 	virtual ~MovableEntity() override;
 
 	virtual bool eventCallback(const Event::Event &e) override;

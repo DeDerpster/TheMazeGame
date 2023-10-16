@@ -109,10 +109,24 @@ void Level::update()
 	for(auto it = m_Entities.begin(); it != m_Entities.end();)
 	{
 		(*it)->update();
-		if((*it)->deleteMe() || isOutOfBound((*it)->getX(), (*it)->getY()))
+		if((*it)->deleteMe())
 		{
 			delete *it;
 			it = m_Entities.erase(it);
+		}
+		else if(isOutOfBound((*it)->getX(), (*it)->getY()))
+		{
+			Mob *mob = dynamic_cast<Mob *>(*it);
+			if(mob)
+			{
+				Application::callEventLater(new Event::MobDied(mob));
+				++it;
+			}
+			else
+			{
+				delete *it;
+				it = m_Entities.erase(it);
+			}
 		}
 		else
 			++it;
@@ -126,6 +140,7 @@ void Level::update()
 			delete *it;
 			it = m_Projectiles.erase(it);
 		}
+
 		else
 			++it;
 	}
@@ -522,7 +537,7 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f destPos, CollisionBox b
 std::tuple<Direction, Projectile *> Level::getDirOfProjInRange(float x, float y, float range)
 {
 	Direction   closestDir  = Direction::north;
-	Projectile *closestProj = false;
+	Projectile *closestProj = nullptr;
 	float       closestDist = range;
 	for(Projectile *proj : m_Projectiles)
 	{

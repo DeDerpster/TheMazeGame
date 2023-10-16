@@ -14,7 +14,7 @@ Trapdoor::Trapdoor()
 }
 
 Trapdoor::Trapdoor(float x, float y, double rotation, Level *level)
-	: Tile(x, y, rotation, BASIC_TRAPDOOR, false, level), m_State(Button::State::None)
+	: Tile(x, y, rotation, Sprite::ID::tileBasicTrapdoor, false, level), m_State(Button::State::None)
 {
 }
 

@@ -26,11 +26,11 @@ class Render
 	~Render();
 
 	static void render(std::vector<uint16_t> &shaderEffects) { get().renderImpl(shaderEffects); }
-	static void sprite(float x, float y, double rotation, float size, uint16_t spriteID, uint8_t layer, bool isOverlay = false)
+	static void sprite(float x, float y, double rotation, float size, Sprite::ID spriteID, uint8_t layer, bool isOverlay = false)
 	{
 		get().spriteImpl(x, y, rotation, size, size, spriteID, layer, isOverlay);
 	}
-	static void sprite(float x, float y, double rotation, float width, float height, uint16_t spriteID, uint8_t layer, bool isOverlay = false)
+	static void sprite(float x, float y, double rotation, float width, float height, Sprite::ID spriteID, uint8_t layer, bool isOverlay = false)
 	{
 		get().spriteImpl(x, y, rotation, width, height, spriteID, layer, isOverlay);
 	}
@@ -103,7 +103,7 @@ class Render
 	void draw(VertexArray &vao) const;
 
 	// Functions for adding objects to buffers
-	void spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID, uint8_t layer, bool isOverlay);
+	void spriteImpl(float x, float y, double rotation, float width, float height, Sprite::ID spriteID, uint8_t layer, bool isOverlay);
 	void textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, uint8_t layer, bool isCentered, bool isOverlay);   // TODO: Make this order better
 	void hoverTextImpl(std::string &inpText, float x, float y, float scale, glm::vec4 textColour, glm::vec4 backgroundColour, uint8_t layer, bool isOverlay);
 	void rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, uint8_t layer, bool isCentered, bool isOverlay);

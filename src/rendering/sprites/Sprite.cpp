@@ -1,6 +1,15 @@
 #include "Sprite.h"
 
-std::array<std::unique_ptr<Sprite>, NUM_OF_SPRITES> Sprite::sprites;
+#include "SpritePaths.h"
+
+#include <string>
+
+std::array<std::unique_ptr<Sprite>, Sprite::ID::numOfSprites> Sprite::sprites;
+
+Sprite::Sprite(ID id)
+{
+	m_Texture = std::make_unique<Texture>(getPath(id).c_str());
+}
 
 Sprite::Sprite(const char *texturePath)
 {
@@ -19,4 +28,14 @@ void Sprite::bind(uint8_t slot)
 void Sprite::unbind()
 {
 	m_Texture->unbind();
+}
+
+void Sprite::init()
+{
+	for(ID id = ID::tileBasicWall; id < ID::numOfSprites; ++id)
+	{
+		sprites[static_cast<int>(id)] = std::make_unique<Sprite>(id);
+	}
+
+	Log::info("Sprites have been loaded");
 }

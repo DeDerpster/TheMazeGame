@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Item.h"
+#include "Log.h"
 
 template <typename T>
 class Container : public std::vector<T>

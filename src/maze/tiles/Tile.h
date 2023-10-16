@@ -9,7 +9,7 @@ class Level;   // FIXME
 class Tile
 {
   protected:
-	uint32_t m_SpriteID;
+	Sprite::ID m_SpriteID;
 	float  x, y;
 	double rotation;
 	bool   m_IsSolid;
@@ -17,7 +17,7 @@ class Tile
 
   public:
 	Tile();
-	Tile(float x, float y, double rotation, uint32_t texID, bool isSolid, Level *level);
+	Tile(float x, float y, double rotation, Sprite::ID id, bool isSolid, Level *level);
 	virtual ~Tile();
 
 	virtual void render();

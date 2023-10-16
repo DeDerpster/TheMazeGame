@@ -24,30 +24,30 @@
 #define DEFINE_MY_VARS m_Inventory(DEFAULT_INVENTORY_SIZE), m_Weapons(3), m_CurrentWeapon(-1), m_Followers(1), m_Following(nullptr), m_Enemy(nullptr)
 
 Mob::Mob()
-	: MovableEntity(0.0f, 0.0f, TILE_SIZE * 1.25f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), DEFINE_MY_VARS
+	: MovableEntity(0.0f, 0.0f, TILE_SIZE * 1.25f, defaultBox, nullptr, Sprite::ID::mobPlayer), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y)
-	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), DEFINE_MY_VARS
+	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, nullptr, Sprite::ID::mobPlayer), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level)
-	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, level, SPRITE_PLAYER), StatsMob(), DEFINE_MY_VARS
+	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, level, Sprite::ID::mobPlayer), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
-Mob::Mob(float x, float y, Level *level, uint16_t spriteID)
+Mob::Mob(float x, float y, Level *level, Sprite::ID spriteID)
 	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, level, spriteID), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
-Mob::Mob(float x, float y, float speed, Level *level, uint16_t spriteID)
+Mob::Mob(float x, float y, float speed, Level *level, Sprite::ID spriteID)
 	: MovableEntity(x, y, TILE_SIZE * 1.25f, speed, Direction::south, defaultBox, level, spriteID), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
@@ -149,6 +149,12 @@ bool Mob::eventCallback(const Event::Event &e)
 			if(index != m_Followers.end())
 				m_Followers.erase(index);
 		}
+
+		if(m_Enemy)
+		{
+			setFollowersEnemy(m_Enemy);
+			m_Level->getPlayer()->setFollowersEnemy(this);
+		}
 	}
 	else if(!m_Following && e.getType() == Event::EventType::showAltTileEvent)
 	{
@@ -215,6 +221,11 @@ void Mob::removeFollower(Mob *follower)
 		Log::warning("Cannot find follower to remove!");
 }
 
+bool Mob::canAddFollower()
+{
+	return !m_Followers.isFull();
+}
+
 void Mob::setFollowing(Mob *following)
 {
 	m_Following = following;
@@ -236,10 +247,11 @@ void Mob::setFollowersEnemy(Mob *enemy)
 		{
 			if(i == eFollowers.size())
 			{
-				follower->setEnemy(enemy);
+				if(!follower->getEnemy())
+					follower->setEnemy(enemy);
 				i = -1;
 			}
-			else
+			else if(!follower->getEnemy())
 				follower->setEnemy(eFollowers[i]);
 
 			i++;

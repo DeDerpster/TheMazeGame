@@ -60,7 +60,7 @@ inline int getIndexOfInsertion(std::vector<Vec2i> positions, std::array<std::arr
 
 	Node &node = nodeMap[nextPos.x][nextPos.y];
 
-	auto getNode = [nodeMap, positions](int index) -> Node {
+	auto getNode = [&nodeMap, &positions](int index) -> Node & {
 		return nodeMap[positions[index].x][positions[index].y];
 	};
 

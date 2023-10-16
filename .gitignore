@@ -49,3 +49,4 @@ build
 Logs/*
 Dependencies/*
 .clang-format
+res/models

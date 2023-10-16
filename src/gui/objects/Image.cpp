@@ -2,12 +2,12 @@
 
 #include "Renderer.h"
 
-Image::Image(float x, float y, float width, float height, uint32_t spriteID, Layer *layer)
+Image::Image(float x, float y, float width, float height, Sprite::ID spriteID, Layer *layer)
 	: MenuObject(x, y, width, height, layer), m_SpriteID(spriteID)
 {
 }
 
-Image::Image(std::function<void(float *, float *, float *, float *)> posFunc, uint32_t spriteID, Layer *layer)
+Image::Image(std::function<void(float *, float *, float *, float *)> posFunc, Sprite::ID spriteID, Layer *layer)
 	: MenuObject(posFunc, layer), m_SpriteID(spriteID)
 {
 }
