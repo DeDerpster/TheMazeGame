@@ -13,7 +13,7 @@ class Shader
 	unsigned int                         m_RendererID;
 	std::unordered_map<std::string, int> m_UniformLocationCache;
 
-	int                                  GetUniformLocation(const std::string &name);
+	int                                  getUniformLocation(const std::string &name);
 	std::tuple<std::string, std::string> parseShader(const std::string &filepath);
 	unsigned int                         compileShader(unsigned int type, const std::string &source);
 	int                                  createShader(const std::string &vertexShader, const std::string &fragmentShader);

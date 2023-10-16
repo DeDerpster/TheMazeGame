@@ -14,7 +14,7 @@ class Item
 		: m_SpriteID(0), m_Name("I am an item") {}
 	Item(int spriteID, std::string name)
 		: m_SpriteID(spriteID), m_Name(name) {}
-	~Item() {}
+	virtual ~Item() {}
 
 	void render(float x, float y, double rotation, float size)
 	{

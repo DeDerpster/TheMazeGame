@@ -34,7 +34,7 @@ Texture::Texture(const std::string &path)
 		stbi_image_free(m_LocalBuffer);
 }
 
-Texture::Texture(uint32_t width, uint32_t height, unsigned char *buffer)
+Texture::Texture(uint16_t width, uint16_t height, unsigned char *buffer)
 	: m_RendererID(0), m_LocalBuffer(buffer), m_Width(width), m_Height(height), m_BPP(0)
 {
 	glGenTextures(1, &m_RendererID);

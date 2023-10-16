@@ -7,10 +7,10 @@
 
 enum Direction
 {
-	NORTH = 0,
-	SOUTH,
-	EAST,
-	WEST
+	north = 0,
+	south,
+	east,
+	west
 };
 
 struct Vec2i

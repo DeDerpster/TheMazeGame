@@ -8,26 +8,39 @@
 #include "Texture.h"
 #include "Utils.h"
 
+#define SPRITE_ANIM_1 1
+#define SPRITE_ANIM_2 2
+
+#define SPRITE_NORTH 0
+#define SPRITE_SOUTH 3
+#define SPRITE_EAST  6
+#define SPRITE_WEST  9
+
 // This is a definition for every sprite there is
 #define BASIC_WALL            0
-#define BASIC_FLOOR           1
-#define BASIC_OUTWARDS_CORNER 2
-#define BASIC_INWARDS_CORNER  3
-#define PLAYER_NORTH          4
-#define PLAYER_NORTH_1        5
-#define PLAYER_NORTH_2        6
-#define PLAYER_SOUTH          7
-#define PLAYER_SOUTH_1        8
-#define PLAYER_SOUTH_2        9
-#define PLAYER_EAST           10
-#define PLAYER_EAST_1         11
-#define PLAYER_EAST_2         12
-#define PLAYER_WEST           13
-#define PLAYER_WEST_1         14
-#define PLAYER_WEST_2         15
-#define ITEM_STICK            16
-#define DEBUG_CIRCLE          17
-#define NUM_OF_SPRITES        18
+#define BASIC_FLOOR           BASIC_WALL + 1
+#define BASIC_OUTWARDS_CORNER BASIC_FLOOR + 1
+#define BASIC_INWARDS_CORNER  BASIC_OUTWARDS_CORNER + 1
+
+#define SPRITE_PLAYER  BASIC_INWARDS_CORNER + 1
+#define PLAYER_NORTH   SPRITE_PLAYER + SPRITE_NORTH
+#define PLAYER_NORTH_1 SPRITE_PLAYER + SPRITE_ANIM_1
+#define PLAYER_NORTH_2 SPRITE_PLAYER + SPRITE_ANIM_2
+#define PLAYER_SOUTH   SPRITE_PLAYER + SPRITE_SOUTH
+#define PLAYER_SOUTH_1 PLAYER_SOUTH + SPRITE_ANIM_1
+#define PLAYER_SOUTH_2 PLAYER_SOUTH + SPRITE_ANIM_1
+#define PLAYER_EAST    SPRITE_PLAYER + SPRITE_EAST
+#define PLAYER_EAST_1  PLAYER_EAST + SPRITE_ANIM_1
+#define PLAYER_EAST_2  PLAYER_EAST + SPRITE_ANIM_2
+#define PLAYER_WEST    SPRITE_PLAYER + SPRITE_WEST
+#define PLAYER_WEST_1  SPRITE_WEST + SPRITE_ANIM_1
+#define PLAYER_WEST_2  SPRITE_WEST + SPRITE_ANIM_2
+
+#define ITEM_STICK PLAYER_WEST_2 + 1
+
+#define DEBUG_CIRCLE ITEM_STICK + 1
+
+#define NUM_OF_SPRITES DEBUG_CIRCLE + 1
 
 namespace Render
 {
@@ -35,11 +48,10 @@ namespace Render
 	{
 	  private:
 		std::shared_ptr<Texture> m_Texture;
-		std::vector<Object>      m_Buffer;
-
-	  public:
+		std::vector<Object>                         m_Buffer;
 		static std::vector<std::unique_ptr<Sprite>> sprites;
 
+	  public:
 		Sprite(const char *texturePath);
 		Sprite(const Sprite &sprite);
 		~Sprite();
@@ -56,11 +68,13 @@ namespace Render
 		static Sprite *getSprite(int i) { return &*sprites[i]; };
 		static void    init()
 		{
+			// Tiles
 			sprites.push_back(std::make_unique<Sprite>("res/textures/tiles/BasicWall.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/tiles/BasicFloor.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/tiles/BasicCorner.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/tiles/BasicCorner2.png"));
 
+			// Mobs
 			sprites.push_back(std::make_unique<Sprite>("res/textures/entities/Player-heir-north.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/entities/Player-heir-north-1.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/entities/Player-heir-north-2.png"));
@@ -77,15 +91,18 @@ namespace Render
 			sprites.push_back(std::make_unique<Sprite>("res/textures/entities/Player-heir-west-1.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/entities/Player-heir-west-2.png"));
 
+			// Stick
 			sprites.push_back(std::make_unique<Sprite>("res/textures/items/Stick.png"));
 
+			// Projectiles
+			sprites.push_back(std::make_unique<Sprite>("res/textures/projectiles/FireProjectile.png"));
 			sprites.push_back(std::make_unique<Sprite>("res/textures/DebugCircle.png"));
 		}
 	};
 
 	static void spriteRender(SmartBuffer &smartBuffer)
 	{
-		uint32_t currentTexID = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
+		uint16_t currentTexID = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
 		for(int i = 0; i < NUM_OF_SPRITES; i++)
 		{
 			// Gets the buffer from the sprite

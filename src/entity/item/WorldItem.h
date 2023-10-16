@@ -12,15 +12,15 @@ class WorldItem : public Entity
 
   public:
 	WorldItem(Item *item)
-		: Entity(0.0f, 0.0f, nullptr, {{-10.0f, -10.0f}, {10.0f, 10.0f}}), m_Item(item) {}
+		: Entity(0.0f, 0.0f, {{-10.0f, -10.0f}, {10.0f, 10.0f}}, nullptr, item->getSpriteID()), m_Item(item) {}
 
 	WorldItem(float x, float y, Item *item)
-		: Entity(x, y, nullptr, {{-10.0f, -10.0f}, {10.0f, 10.0f}}), m_Item(item) {}
+		: Entity(x, y, {{-10.0f, -10.0f}, {10.0f, 10.0f}}, nullptr, item->getSpriteID()), m_Item(item) {}
 
 	WorldItem(float x, float y, Level *level, Item *item)
-		: Entity(x, y, level, {{-10.0f, -10.0f}, {10.0f, 10.0f}}), m_Item(item) {}
+		: Entity(x, y, {{-10.0f, -10.0f}, {10.0f, 10.0f}}, level, item->getSpriteID()), m_Item(item) {}
 
-	~WorldItem()
+	virtual ~WorldItem()
 	{
 		if(m_Item)
 			delete m_Item;
@@ -48,7 +48,7 @@ class WorldItem : public Entity
 			// Log::variable("Mouse Y", convPos.y);
 
 			Player *player = m_Level->getPlayer();
-			if(doesIntersect(Application::getCamera()->convertWindowToLevel(ne.pos)) && distBetweenVec2f({player->getX(), player->getY()}, {x, y}) < 5 * Tile::TILE_SIZE)
+			if(doesIntersectWith(Application::getCamera()->convertWindowToLevel(ne.pos)) && distBetweenVec2f({player->getX(), player->getY()}, {x, y}) < 5 * Tile::TILE_SIZE)
 			{
 				Log::info("Picked up");
 				player->pickUp(m_Item);

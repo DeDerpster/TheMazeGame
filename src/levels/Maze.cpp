@@ -1,7 +1,6 @@
 #include "Maze.h"
 
 #include "ImGui.h"
-
 #include <algorithm>
 
 #include "Application.h"
@@ -310,13 +309,13 @@ std::vector<Vec2f> *Maze::getPath(Vec2f startPos, Vec2f dest, CollisionBox colli
 					continue;
 
 				Vec2i dirVec = {0, 0};
-				if(i == Direction::NORTH)
+				if(i == Direction::north)
 					dirVec.y = 1;
-				else if(i == Direction::SOUTH)
+				else if(i == Direction::south)
 					dirVec.y = -1;
-				else if(i == Direction::EAST)
+				else if(i == Direction::east)
 					dirVec.x = 1;
-				else if(i == Direction::WEST)
+				else if(i == Direction::west)
 					dirVec.x = -1;
 				Vec2i nextPos {currentPos.x + dirVec.x, currentPos.y + dirVec.y};
 

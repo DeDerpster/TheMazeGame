@@ -34,7 +34,9 @@ class Room
 	virtual void render(float x, float y) {}
 	virtual void update() {}
 
+#ifdef DEBUG
 	virtual void imGuiRender() {}
+#endif
 
 	virtual bool isOpen(int entrance)
 	{

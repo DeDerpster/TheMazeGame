@@ -31,7 +31,7 @@ namespace Render::Text
 		// unsigned int textureID;   // ID handle of the glyph texture
 		glm::ivec2 size;      // Size of glyph
 		glm::ivec2 bearing;   // Offset from baseline to left/top of glyph
-		uint32_t   advance;   // Offset to advance to next glyph
+		uint16_t   advance;   // Offset to advance to next glyph
 
 		~Character()
 		{
@@ -111,7 +111,7 @@ namespace Render::Text
 				nullptr,
 				glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 				glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-				(uint32_t) face->glyph->advance.x   //
+				(uint16_t) face->glyph->advance.x   //
 			};
 			characters.insert(std::pair<char, Character>(c, character));
 			characters[c].texture = new Texture(face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap.buffer);

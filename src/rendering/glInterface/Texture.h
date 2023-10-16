@@ -12,12 +12,12 @@ class Texture
 
   public:
 	Texture(const std::string &path);
-	Texture(uint32_t width, uint32_t height, unsigned char *buffer);
+	Texture(uint16_t width, uint16_t height, unsigned char *buffer);
 	~Texture();
 
 	void bind(unsigned int slot = 0) const;
 	void unbind() const;
 
-	inline int GetWidth() const { return m_Width; }
-	inline int GetHeight() const { return m_Height; }
+	inline int getWidth() const { return m_Width; }
+	inline int getHeight() const { return m_Height; }
 };

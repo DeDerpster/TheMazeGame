@@ -5,24 +5,15 @@
 #include <string>
 #include <vector>
 
-#include "AnimatedSprite.h"
 #include "Utils.h"
 
 class Follower : public Mob
 {
   private:
-	std::string                             m_Name;
-	std::unique_ptr<Render::AnimatedSprite> m_NorthAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_SouthAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_EastAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_WestAnimation;
-
-	// std::vector<Vec2f> m_Path;
-	Entity *following = nullptr;
+	std::string m_Name;
+	Entity *    following = nullptr;
 
 	bool findingPath = false;
-
-	void setupAnimations();
 
 	void findPath();
 
@@ -30,6 +21,7 @@ class Follower : public Mob
 	Follower();
 	Follower(float x, float y);
 	Follower(float x, float y, Level *level);
+	Follower(float x, float y, Level *level, uint16_t spriteID);
 	virtual ~Follower() override;
 
 	virtual void update() override;

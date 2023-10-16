@@ -18,6 +18,7 @@ namespace Effect
 			: m_Name(name)
 		{
 		}
+		virtual ~RenderEffect() {}
 		virtual void const setEffect(Shader &s) const = 0;
 	};
 
@@ -31,6 +32,7 @@ namespace Effect
 			: RenderEffect(name), vec(vec)
 		{
 		}
+		virtual ~UniformVec4() {}
 		virtual void const setEffect(Shader &s) const override
 		{
 			s.setUniform4f(m_Name, vec[0], vec[1], vec[2], vec[3]);
@@ -47,6 +49,7 @@ namespace Effect
 			: RenderEffect(name), mat(mat)
 		{
 		}
+		virtual ~UniformMat4() {}
 		virtual void const setEffect(Shader &s) const override
 		{
 			s.setUniformMat4f(m_Name, mat);

@@ -10,22 +10,24 @@ namespace Render
 	  private:
 		std::vector<int> sprites;
 		int              index;
-		int              textureSwapDelay, textureSwapCount;
+		uint16_t         textureSwapDelay, textureSwapCount;
 
 	  public:
 		AnimatedSprite()
 			: sprites(), index(-1), textureSwapDelay(20), textureSwapCount(0)
 		{
 		}
-		AnimatedSprite(int frames)
-			: sprites(), index(-1), textureSwapDelay(20), textureSwapCount(0)
+		AnimatedSprite(uint16_t frames, uint16_t spriteID)
+			: sprites(), index(0), textureSwapDelay(20), textureSwapCount(0)
 		{
-			sprites.reserve(frames);
+			for(int i = 0; i < frames; i++)
+				sprites.push_back(spriteID + i);
 		}
-		AnimatedSprite(int frames, int textureSwapDelay)
-			: index(-1), textureSwapDelay(textureSwapDelay), textureSwapCount(0)
+		AnimatedSprite(uint16_t frames, uint16_t spriteID, uint16_t textureSwapDelay)
+			: index(0), textureSwapDelay(textureSwapDelay), textureSwapCount(0)
 		{
-			sprites.reserve(frames);
+			for(int i = 0; i < frames; i++)
+				sprites.push_back(spriteID + i);
 		}
 
 		void addSprite(int sprite)

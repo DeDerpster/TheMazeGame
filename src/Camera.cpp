@@ -147,13 +147,6 @@ bool Camera::isInFrame(float objX, float objY)
 
 void Camera::setLock(bool locked)
 {
-	if(locked)
-	{
-		moveUp    = false;
-		moveDown  = false;
-		moveLeft  = false;
-		moveRight = false;
-	}
 	moveLock = locked;
 }
 

@@ -27,7 +27,7 @@ namespace Render
 		// Creates the layout of variables being pushed to the shader
 		VertexBufferLayout layout;   // NOTE: Must change this when I change the shaders
 		(*layoutCreator)(layout);
-		m_VAO->AddBuffer(*m_VertexBuffer, layout);   // Adds it to the VAO
+		m_VAO->addBuffer(*m_VertexBuffer, layout);   // Adds it to the VAO
 
 		// Initialises the index buffer
 		m_IndexBuffer = std::make_unique<IndexBuffer>((maxVertices / 4) * 6);
@@ -75,7 +75,7 @@ namespace Render
 		// Binds what this renderer is using for vertices
 		m_VAO->bind();
 		m_IndexBuffer->bind();
-		GLCall(glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr));
+		GLCall(glDrawElements(GL_TRIANGLES, m_IndexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
 	}
 	// !SECTION
 	// !SECTION

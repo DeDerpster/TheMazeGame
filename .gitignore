@@ -36,9 +36,13 @@
 *.fdb_latexmk
 *.fls
 *.synctex.gz
+*.toc
 
 # Logs
 *.log
+
+# Gimp
+*.xcf
 
 .vscode
 build

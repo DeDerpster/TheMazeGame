@@ -14,7 +14,6 @@ class Camera
 	float x, y;
 	float zoomPercentage;
 	float moveSpeed;
-	bool  moveUp, moveDown, moveLeft, moveRight;
 	bool  moveLock;
 	bool  updateView;
 	bool  lockOnAnchor;
@@ -34,7 +33,7 @@ class Camera
 	bool setEffect(const Effect::RenderEffect &e);
 
 	glm::mat4 getView();
-	bool      isInFrame(float x, float y);
+	bool      isInFrame(float x, float y); // TODO: add Collision box
 	void      setLock(bool locked);
 	void      setX(float newX);
 	void      setY(float newY);

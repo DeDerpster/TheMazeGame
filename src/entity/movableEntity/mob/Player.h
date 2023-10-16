@@ -5,14 +5,6 @@
 
 class Player : public Mob
 {
-  private:
-	std::unique_ptr<Render::AnimatedSprite> m_NorthAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_SouthAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_EastAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_WestAnimation;
-
-	void setupAnimations();
-
   public:
 	Player();
 	Player(float x, float y);
