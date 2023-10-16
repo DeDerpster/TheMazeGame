@@ -1,8 +1,5 @@
 add_executable(${PROJECT_NAME} MazeGame.cpp
-                               Camera.cpp
-                               Application.cpp
-                               Event.cpp
-                               MessageManager.cpp)
+                               Application.cpp)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC
                           headers/Core.h

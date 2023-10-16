@@ -50,3 +50,5 @@ Logs/*
 Dependencies/*
 .clang-format
 res/models
+docs/sections/*.pdf
+docs/sections/classes/*.pdf

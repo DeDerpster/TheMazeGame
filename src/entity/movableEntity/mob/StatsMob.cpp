@@ -24,7 +24,9 @@ StatsMob::StatsMob()
 	  m_Stat_MaxActiveWeapons(3),
 	  m_Stat_MaxInventory(20)   // NOTE: This should not be changed
 {
-}
+}   // TODO: Once killed a mob have int increase experience, which after a while increases stats
+// TODO: Trapdoor room spawns enemy with 2 followers
+// TODO: Followed sets the distance a follower should keep
 
 StatsMob::~StatsMob()
 {
