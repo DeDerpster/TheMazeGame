@@ -199,6 +199,7 @@ void NPC::findPath(Vec2f dest, float speed)
 	if(path->size() == 0 || (path->size() == 1 && distBetweenVec({x, y}, path->back()) < speed))
 	{
 		isMoving = false;
+		delete path;
 		return;
 	}
 
@@ -418,7 +419,7 @@ void NPC::attack()
 
 				if(potion)
 				{
-					potion->useOn(this);
+					potion->useOn(this);   // TODO: Make it so that this is deleted and in a function
 					m_TimeSinceMoved += 30;
 
 					break;
@@ -447,7 +448,7 @@ void NPC::attack()
 
 				if(potion)
 				{
-					potion->useOn(this);
+					potion->useOn(this);   // TODO: Same thing as above, have it run a function here
 					m_TimeSinceMoved += 30;
 
 					break;
