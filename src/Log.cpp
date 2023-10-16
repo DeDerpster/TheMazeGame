@@ -52,6 +52,8 @@ namespace Log
 	std::string variableMessage = "INFO";
 	std::string defaultMessage  = "INFO";
 
+	bool hasInit = false;
+
 #ifdef IS_ON_WINDOWS
 	void setConsoleColor(WORD c)
 	{
@@ -61,6 +63,8 @@ namespace Log
 
 	void output(std::string &type, const char *message, const char *filepath, int line)
 	{
+		if(!hasInit)   // Checks to see if the Log has been initialised
+			return;
 #ifdef DEBUG
 		std::cout << "[" << type << "] " << message;
 		if(line != -1)
@@ -178,7 +182,7 @@ namespace Log
 		}
 		logFile = "Logs/" + currentTime + ".log";
 
-		// TODO: Fix the error where the file isn't being saved!
+		hasInit = true;
 
 		variable("Initialised logging system", logFile);
 	}

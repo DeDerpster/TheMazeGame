@@ -23,14 +23,11 @@ void gameLoop()
 	ImGuiIO &io = *Application::getImGuiContext();   // Creates an ImGui Interface, if I am debugging
 #endif
 
-	{   // Adds the camera layer and the maze layer to the application
-		Camera *camera = new Camera(4500.0f, 4500.0f);
-		Application::addLayer(0, camera);
+	{
 
 		Maze *maze = new Maze();
-		maze->generate();   // Generates the maze
-		maze->setCamera(camera);
-		Application::addLayer(1, maze);
+		maze->generate();              // Generates the maze
+		Application::addLayer(maze);   // Adds it to the layers
 	}
 
 	while(Application::isWindowOpen())

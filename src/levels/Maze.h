@@ -37,15 +37,14 @@ class Maze : public Level
 	bool pathsEast[BOARD_SIZE];
 	bool pathsWest[BOARD_SIZE];
 
+	Player m_Player;
+
 	enum EntranceState
 	{
 		couldOpen = 0,
 		isOpen    = 1,
 		isClosed  = 2
 	};
-
-	std::unique_ptr<Player> testPlayer;
-	Camera *                camera;
 
 #ifdef DEBUG
 	bool renderAll = false;
@@ -72,12 +71,6 @@ class Maze : public Level
 	virtual void imGuiRender() override;
 #endif
 	virtual void updateMVP(glm::mat4 &view) override;
-
-	void setCamera(Camera *c)
-	{
-		camera = c;
-		c->setAnchor(&*testPlayer);
-	}
 
 	void          generate();
 	void          moveNorth();

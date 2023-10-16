@@ -1,20 +1,15 @@
 #include "Core.h"
 
-#include "glDebug.h"
+#include <vector>
 
 #include "Application.h"
-
 #include "Renderer.h"
-
-#include "Log.h"
+#include "Sprite.h"
+#include "Tile.h"
+#include "glDebug.h"
 
 #include "Event.h"
-
-#include "Tile.h"
-
-#include "Camera.h"
-
-#include "Sprite.h"
+#include "Log.h"
 
 namespace Application   // I've used a namespace here as I know there will only be one version of the application
 {
@@ -24,7 +19,9 @@ namespace Application   // I've used a namespace here as I know there will only 
 
 	int windowWidth, windowHeight;
 
-	Layer *layers[2];   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time)
+	Camera               camera(4500.0f, 4500.0f);
+	int                  overlayStart;
+	std::vector<Layer *> layers;   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time)
 
 	Render::Renderer *renderer;
 
@@ -32,6 +29,9 @@ namespace Application   // I've used a namespace here as I know there will only 
 	{   // This initialises everything
 		windowWidth  = 940;
 		windowHeight = 540;
+
+		overlayStart = 0;
+		layers.reserve(2);
 
 		if(!glfwInit())   // Initialises GLFW, and checks it was okay
 		{
@@ -80,7 +80,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 		Log::info("Shutting down");
 
 		// Deletes all the layers (as they are allocated on the heap)
-		for(int i = 0; i < 2; i++)
+		for(int i = 0; i < layers.size(); i++)
 		{
 			if(layers[i])
 				delete layers[i];
@@ -104,6 +104,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 			if(layers[i])
 				layers[i]->update();
 		}
+		camera.update();
 	}
 
 	void render()   // Renders all the layers
@@ -125,6 +126,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 			if(layers[i])
 				layers[i]->imGuiRender();
 		}
+		camera.imGuiRender();
 	}
 #endif
 
@@ -132,17 +134,44 @@ namespace Application   // I've used a namespace here as I know there will only 
 	int       getWidth() { return windowWidth; }
 	int       getHeight() { return windowHeight; }
 	void *    getWindow() { return window; }
+	Camera *  getCamera() { return &camera; }
 	glm::mat4 getProj() { return proj; }
-	glm::mat4 getMVP() { return static_cast<Camera *>(layers[0])->getView(); }
 
-	void addLayer(int index, Layer *layer)   // Adds layer to the stack
+	void addLayer(Layer *layer)   // Inserts a layer before the background
 	{
-		layers[index] = layer;
+		layers.insert(layers.begin() + overlayStart, layer);
+		overlayStart++;
 	}
 
-	void removeLayer(int index)   // Removes layer by setting it to a nullptr
+	void addLayer(Layer *layer, int index)   // Adds layer at a given index
 	{
-		layers[index] = nullptr;
+		layers.insert(layers.begin() + index, layer);
+		if(index < overlayStart)
+			overlayStart++;
+	}
+
+	void addOverlay(Layer *layer)   // Adds an overlay to the layer stack, meaning it is appended to the end of the vector
+	{
+		layers.push_back(layer);
+	}
+
+	void removeLayer(int index)   // Removes layer
+	{
+		layers.erase(layers.begin() + index);
+	}
+
+	void removeLayer(Layer *layer)
+	{
+		for(int i = 0; i < layers.size(); i++)
+		{
+			if(layer == layers[i])
+			{
+				delete layers[i];
+				layers.erase(layers.begin() + i);
+				if(i < overlayStart)
+					overlayStart--;
+			}
+		}
 	}
 
 	void updateWindowSize(int width, int height)   // updates the window size and projection matrix
@@ -162,34 +191,40 @@ namespace Application   // I've used a namespace here as I know there will only 
 		glfwSwapBuffers(window);
 	}
 
-	void callEvent(const Event &e)   // Sends event through the layers
+	void callEvent(const Event &e, bool includeOverlay)   // Sends event through the layers
 	{
-		for(int i = 0; i < 2; i++)
+		int endVal;
+		if(includeOverlay)
+			endVal = layers.size();
+		else
+			endVal = overlayStart;
+
+		for(int i = 0; i < endVal; i++)
 		{
 			if(layers[i])
 				layers[i]->eventCallback(e);
 		}
 	}
 
-	void setEffect(const Effect::RenderEffect &e)   // Sends an effect through the layers
+	void setEffect(const Effect::RenderEffect &e, bool includeOverlay)   // Sends an effect through the layers
 	{
-		for(int i = 0; i < 2; i++)
+		int endVal;
+		if(includeOverlay)
+			endVal = layers.size();
+		else
+			endVal = overlayStart;
+
+		for(int i = 0; i < endVal; i++)
 		{
 			if(layers[i])
 				layers[i]->setEffect(e);
 		}
 	}
 
-	void updateMVP(glm::mat4 &view, Layer *startlayer)   // updates the MVP of the layers after a point
+	void updateMVP(glm::mat4 &view)   // updates the MVP for the foreground layers
 	{
-		bool found = false;
-		for(int i = 0; i < 2; i++)
-		{
-			if(layers[i] && layers[i] == startlayer)
-				found = true;
-			else if(found)
-				layers[i]->updateMVP(view);
-		}
+		for(int i = 0; i < overlayStart; i++)
+			layers[i]->updateMVP(view);
 	}
 
 #ifdef DEBUG
@@ -250,8 +285,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 
 	bool isInFrame(float x, float y)
 	{
-		Camera *cam = static_cast<Camera *>(layers[0]);
-		return cam->isInFrame(x, y);
+		return camera.isInFrame(x, y);
 	}
 
 };   // namespace Application

@@ -8,7 +8,7 @@
 
 class Entity;
 
-class Camera : public Layer
+class Camera
 {
   private:
 	float   x, y;
@@ -24,13 +24,13 @@ class Camera : public Layer
 	Camera();
 	Camera(float x, float y);
 
-	virtual void update() override;
+	void update();
 #ifdef DEBUG
-	virtual void imGuiRender() override;
+	void imGuiRender();
 #endif
-	virtual void render() override;
-	virtual bool eventCallback(const Application::Event &e) override;
-	virtual bool setEffect(const Effect::RenderEffect &e) override;
+
+	bool eventCallback(const Application::Event &e);
+	bool setEffect(const Effect::RenderEffect &e);
 
 	glm::mat4 getView();
 	bool      isInFrame(float x, float y);

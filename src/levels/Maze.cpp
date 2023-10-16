@@ -12,6 +12,7 @@
 static const int LAYER_MAX_FOR_DIRECTIONS = 4;
 
 Maze::Maze()
+	: m_Player(4500.0f, 4500.0f, this)
 {
 	// NOTE: Because of how it is rendering the coords (0,0) on the board is the bottom left, not the top left!!
 
@@ -29,7 +30,9 @@ Maze::Maze()
 
 	float zoomLevel = 1.0f;
 	m_Shader->SetUniform4f("u_Zoom", zoomLevel, zoomLevel, 1.0f, 1.0f);
-	testPlayer = std::make_unique<Player>(4500.0f, 4500.0f, this);
+
+	Application::getCamera()->setAnchor(&m_Player);
+
 	Log::info("Maze initialised");
 }
 
@@ -46,8 +49,6 @@ Maze::~Maze()
 
 void Maze::render()
 {
-	// m_Renderer->resetBuffer();
-
 	float multiple = ROOM_SIZE * Tile::TILE_SIZE;
 	int   midpoint = BOARD_SIZE / 2 + 1;
 #ifdef DEBUG
@@ -102,7 +103,7 @@ void Maze::render()
 	}*/
 
 #endif
-	testPlayer->render();
+	m_Player.render();
 	m_Shader->bind();
 }
 
@@ -115,39 +116,38 @@ void Maze::updateMVP(glm::mat4 &view)
 void Maze::update()
 {
 	bool movedPlayer = false;
-	if(testPlayer->getY() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
+	if(m_Player.getY() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved North");
-		testPlayer->changeY(-Tile::TILE_SIZE * ROOM_SIZE);
+		m_Player.changeY(-Tile::TILE_SIZE * ROOM_SIZE);
 		moveNorth();
 		movedPlayer = true;
 	}
-	if(testPlayer->getY() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
+	if(m_Player.getY() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved South");
-		testPlayer->changeY(Tile::TILE_SIZE * ROOM_SIZE);
+		m_Player.changeY(Tile::TILE_SIZE * ROOM_SIZE);
 		moveSouth();
 		movedPlayer = true;
 	}
-	if(testPlayer->getX() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
+	if(m_Player.getX() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved East");
-		testPlayer->changeX(-Tile::TILE_SIZE * ROOM_SIZE);
+		m_Player.changeX(-Tile::TILE_SIZE * ROOM_SIZE);
 		moveEast();
 		movedPlayer = true;
 	}
-	if(testPlayer->getX() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
+	if(m_Player.getX() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved West");
-		testPlayer->changeX(Tile::TILE_SIZE * ROOM_SIZE);
+		m_Player.changeX(Tile::TILE_SIZE * ROOM_SIZE);
 		moveWest();
 		movedPlayer = true;
 	}
-	testPlayer->update();
+	m_Player.update();
 	if(movedPlayer)
 	{
-		camera->changeUpdateView();
-		camera->update();
+		Application::getCamera()->changeUpdateView();
 	}
 	// TODO: Add check to see if all of the pathsNorth... are all false - so will need to reset the maze
 	for(int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
@@ -166,7 +166,7 @@ void Maze::imGuiRender()
 		generate();
 	}
 	ImGui::Checkbox("Render all", &renderAll);
-	testPlayer->imGuiRender();
+	m_Player.imGuiRender();
 	/*if(ImGui::Button("Move north"))
 		moveNorth();
 	if(ImGui::Button("Move south"))

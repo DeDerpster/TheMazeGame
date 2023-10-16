@@ -57,14 +57,11 @@ void Camera::update()
 	}
 	if(updateView)
 	{
-		glm::mat4 view = getView();
-		Application::updateMVP(view, this);
+		std::string         name = "u_MVP";
+		Effect::UniformMat4 effect(name, Application::getProj() * getView());
+		Application::setEffect(effect, false);
 		updateView = false;
 	}
-}
-
-void Camera::render()
-{
 }
 
 #ifdef DEBUG
@@ -85,6 +82,7 @@ void Camera::imGuiRender()
 	if(ImGui::Checkbox("Camera Lock", &lockOnAnchor))
 	{
 		m_Anchor->setIsInControl(lockOnAnchor);
+		updateView = true;
 	}
 }
 #endif
@@ -169,6 +167,7 @@ void Camera::setAnchor(Entity *e)
 {
 	lockOnAnchor = true;
 	m_Anchor     = e;
+	m_Anchor->setIsInControl(true);
 }
 
 float Camera::getZoom()

@@ -3,7 +3,7 @@
 
 Player::Player()
 {
-	isInControl = true;
+	// isInControl = true;
 	setupAnimations();
 }
 
