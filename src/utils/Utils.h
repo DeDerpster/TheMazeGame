@@ -5,6 +5,14 @@
 
 #include "Log.h"
 
+enum Direction
+{
+	NORTH = 0,
+	SOUTH,
+	EAST,
+	WEST
+};
+
 struct Vec2i
 {
 	int x, y;
@@ -47,6 +55,11 @@ static float distBetweenVec2f(const Vec2f &start, const Vec2f &end)
 
 	return std::sqrt(xDist * xDist + yDist * yDist);   // Uses Pythagorus
 }
+
+struct CollisionBox
+{
+	Vec2f lowerBound, upperBound;
+};
 
 struct Node
 {

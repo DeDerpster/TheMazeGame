@@ -1,22 +1,16 @@
 #pragma once
 
 #include "Entity.h"
-
-enum Direction
-{
-	NORTH = 0,
-	SOUTH,
-	EAST,
-	WEST
-};
+#include "Utils.h"
 
 class Mob : public Entity
 {
   protected:
-	float     m_Speed;
-	bool      isMoving;
-	bool      isGhost = false;
-	Direction m_Dir;
+	float        m_Speed;
+	bool         isMoving;
+	bool         isGhost = false;
+	CollisionBox m_CollisionBox;
+	Direction    m_Dir;
 
   public:
 	Mob();
@@ -25,7 +19,6 @@ class Mob : public Entity
 	virtual ~Mob();
 
 	void move(float xa, float ya);
-	bool collision(float xa, float ya);
 
 	virtual void render()                             = 0;
 	virtual void update()                             = 0;

@@ -7,33 +7,46 @@
 #define X_MAX 1400
 #define Y_MAX 1400   // This is from the edge of the maze to the middle
 
-bool Level::collisionDetection(float nextX, float nextY)
+bool Level::collisionPointDetection(float nextX, float nextY)
+{
+	int   tileX = (int) nextX / Tile::TILE_SIZE;
+	int   tileY = (int) nextY / Tile::TILE_SIZE;
+	Tile *tile  = getTile(tileX, tileY);
+	if(!tile)
+		return true;
+
+	return tile->isSolid();
+}
+
+bool Level::collisionDetection(float nextX, float nextY, CollisionBox collisionBox)
 {
 	if(nextX < 0 || nextY < 0 || nextX > width * Tile::TILE_SIZE || nextY > height * Tile::TILE_SIZE)
 		return true;
-	int   tileX = (nextX + Tile::TILE_SIZE * 0.37f) / Tile::TILE_SIZE;
-	int   tileY = (nextY - Tile::TILE_SIZE * 0.04f) / Tile::TILE_SIZE;
-	Tile *tile  = getTile(tileX, tileY);
-	if(!tile)
-	{
-		// Log::debug("Cannot access tile!");
-		return true;
-	}
-	bool lowerBound = tile->isSolid();
 
-	tileX = (nextX + Tile::TILE_SIZE * 0.6f) / Tile::TILE_SIZE;
-	tileY = (nextY + Tile::TILE_SIZE * 0.2f) / Tile::TILE_SIZE;
-	tile  = getTile(tileX, tileY);
-	if(!tile)
-	{
-		// Log::debug("Cannot access tile!");
-		return true;
-	}
-	bool upperBound = tile->isSolid();
+	bool lowerLeft  = collisionPointDetection(nextX + collisionBox.lowerBound.x, nextY + collisionBox.lowerBound.y);
+	bool lowerRight = collisionPointDetection(nextX + collisionBox.upperBound.x, nextY + collisionBox.lowerBound.y);
+	bool upperLeft  = collisionPointDetection(nextX + collisionBox.lowerBound.x, nextY + collisionBox.upperBound.y);
+	bool upperRight = collisionPointDetection(nextX + collisionBox.upperBound.x, nextY + collisionBox.upperBound.y);
 
-	return lowerBound || upperBound;
+	return lowerLeft || lowerRight || upperLeft || upperRight;
 }
-std::vector<Vec2f> Level::getPath(Vec2f start, Vec2f destination)
+
+bool Level::directionalCollision(float x, float y, float xs, float ys, CollisionBox collisionBox)
+{
+	if(x + xs < 0 || y + ys < 0 || x + xs > width * Tile::TILE_SIZE || y + ys > height * Tile::TILE_SIZE)
+		return true;
+
+	if(xs == 0 || ys == 0)
+	{
+		return collisionDetection(x + xs, y + ys, collisionBox);
+	}
+	else
+	{
+		return collisionDetection(x + xs / 2, y + ys / 2, collisionBox) || collisionDetection(x + xs, y + ys, collisionBox);
+	}
+}
+
+std::vector<Vec2f> Level::getPath(Vec2f start, Vec2f destination, CollisionBox collisionBox)
 {
 	// Log::info("Generating path");
 	// TODO: Add checks to see if beyond range
@@ -42,7 +55,7 @@ std::vector<Vec2f> Level::getPath(Vec2f start, Vec2f destination)
 	destination.x = (int) (destination.x / X_STEP) * X_STEP;
 	destination.y = (int) (destination.y / Y_STEP) * Y_STEP;
 	std::vector<Vec2f> path;
-	if(collisionDetection(destination.x, destination.y) || collisionDetection(start.x, start.y))
+	if(collisionDetection(destination.x, destination.y, collisionBox) /*|| collisionDetection(start.x, start.y)*/)
 	{
 		path.push_back(destination);
 		return path;
@@ -53,31 +66,27 @@ std::vector<Vec2f> Level::getPath(Vec2f start, Vec2f destination)
 		path.push_back(destination);
 		return path;
 	}
-	// Log::variable("destination x: ", destination.x);
-	// Log::variable("destination y: ", destination.y);
 	std::vector<Node *> openList;   // This will be sorted most cost -> least cost
 	std::vector<Node *> closedList;
+	closedList.reserve((X_MAX / X_STEP) * (Y_MAX / Y_STEP));
+	openList.reserve((X_MAX / X_STEP) * (Y_MAX / Y_STEP));
 
 	Node *startNode = new Node(start, nullptr, 0, distBetweenVec2f(start, destination));
 
 	openList.push_back(startNode);
-	int loopCount = 0;
 
 	while(openList.back()->vec != destination)
 	{
-		loopCount++;
 		Node *currentNode = openList.back();
 		openList.pop_back();
 		closedList.push_back(currentNode);
-		// Log::info("New loop");
 
 		for(int xs = -1; xs < 2; xs++)
 		{
 			for(int ys = -1; ys < 2; ys++)
 			{
-				float nextX = currentNode->vec.x - xs * X_STEP;
-				float nextY = currentNode->vec.y - ys * Y_STEP;
-				// Log::variable("nextX", nextX);
+				float nextX = currentNode->vec.x + xs * X_STEP;
+				float nextY = currentNode->vec.y + ys * Y_STEP;
 				if((nextX - destination.x > X_MAX || nextX - destination.x < -X_MAX) && (nextY - destination.y > Y_MAX || nextY - destination.y < -Y_MAX))
 				{
 					Log::warning("Out of bounds following!");
@@ -89,7 +98,8 @@ std::vector<Vec2f> Level::getPath(Vec2f start, Vec2f destination)
 					return path;
 				}
 
-				if(collisionDetection(nextX, nextY) || collisionDetection(nextX, currentNode->vec.y) || collisionDetection(currentNode->vec.x, nextY))
+				// if(collisionDetection(nextX, nextY, collisionBox) || collisionDetection(nextX, currentNode->vec.y, collisionBox) || collisionDetection(currentNode->vec.x, nextY, collisionBox))
+				if(directionalCollision(currentNode->vec.x, currentNode->vec.y, xs * X_STEP, ys * Y_STEP, collisionBox))
 					continue;
 
 				Vec2f currentVec = {nextX, nextY};
@@ -121,8 +131,6 @@ std::vector<Vec2f> Level::getPath(Vec2f start, Vec2f destination)
 				if(insertIndex != openList.size() && ((openList.size() > 0 && *openList[insertIndex] > *nextNode) || (openList.size() > 1 && insertIndex != 0 && *openList[insertIndex - 1] < *nextNode)))
 					Log::critical("Given wrong index!", LOGINFO);
 				openList.insert(openList.begin() + insertIndex, nextNode);
-				// Log::variable("Size", (int) openList.size());
-				// Log::variable("Closed", (int) closedList.size());
 			}
 		}
 

@@ -17,10 +17,13 @@ class Level : public Layer
   private:
 	int width, height;
 
-	bool collisionDetection(float nextX, float nextY);
+	bool collisionPointDetection(float nextX, float nextY);
+	bool directionalCollision(float x, float y, float xs, float ys, CollisionBox collisionBox);
 
   public:
-	Level(): width(0), height(0) {}
+	Level(): width(0), height(0)
+	{
+	}
 	Level(int width, int height): width(width), height(height) {}
 	virtual ~Level() override {}
 
@@ -35,5 +38,6 @@ class Level : public Layer
 
 	virtual Tile *     getTile(int x, int y) = 0;
 	virtual Player *   getPlayer() { return nullptr; }
-	std::vector<Vec2f> getPath(Vec2f start, Vec2f destination);
+	std::vector<Vec2f> getPath(Vec2f start, Vec2f destination, CollisionBox collisionBox);
+	bool               collisionDetection(float nextX, float nextY, CollisionBox collisionBox);
 };

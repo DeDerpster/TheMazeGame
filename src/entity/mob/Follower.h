@@ -20,7 +20,11 @@ class Follower : public Mob
 	// std::vector<Vec2f> m_Path;
 	Entity *following = nullptr;
 
+	bool findingPath = false;
+
 	void setupAnimations();
+
+	void findPath();
 
   public:
 	Follower();
