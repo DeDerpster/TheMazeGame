@@ -58,21 +58,22 @@ Mob::~Mob()
 
 void Mob::render()
 {
+	uint8_t layer = 4;
 	if(isMoving)
 	{
 		switch(m_Dir)
 		{
 		case Direction::north:
-			m_NorthAnimation->render(x, y, 0.0f, width, height);
+			m_NorthAnimation->render(x, y, 0.0f, width, height, layer);
 			break;
 		case Direction::south:
-			m_SouthAnimation->render(x, y, 0.0f, width, height);
+			m_SouthAnimation->render(x, y, 0.0f, width, height, layer);
 			break;
 		case Direction::east:
-			m_EastAnimation->render(x, y, 0.0f, width, height);
+			m_EastAnimation->render(x, y, 0.0f, width, height, layer);
 			break;
 		default:
-			m_WestAnimation->render(x, y, 0.0f, width, height);
+			m_WestAnimation->render(x, y, 0.0f, width, height, layer);
 			break;
 		}
 	}
@@ -81,16 +82,16 @@ void Mob::render()
 		switch(m_Dir)
 		{
 		case Direction::north:
-			Render::sprite(x, y, 0.0f, width, height, m_SpriteID + SPRITE_NORTH);
+			Render::sprite(x, y, 0.0f, width, height, m_SpriteID + SPRITE_NORTH, layer);
 			break;
 		case Direction::south:
-			Render::sprite(x, y, 0.0f, width, height, m_SpriteID + SPRITE_SOUTH);
+			Render::sprite(x, y, 0.0f, width, height, m_SpriteID + SPRITE_SOUTH, layer);
 			break;
 		case Direction::east:
-			Render::sprite(x, y, 0.0f, width, height, m_SpriteID + SPRITE_EAST);
+			Render::sprite(x, y, 0.0f, width, height, m_SpriteID + SPRITE_EAST, layer);
 			break;
 		default:
-			Render::sprite(x, y, 0.0f, width, height, m_SpriteID + SPRITE_WEST);
+			Render::sprite(x, y, 0.0f, width, height, m_SpriteID + SPRITE_WEST, layer);
 			break;
 		}
 	}

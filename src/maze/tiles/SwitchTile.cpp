@@ -16,10 +16,11 @@ SwitchTile::~SwitchTile()
 
 void SwitchTile::render()
 {
+	uint8_t layer = 0;
 	if(showAlt)
-		Render::sprite(x, y, m_AltRotation, TILE_SIZE, m_AltSpriteID);
+		Render::sprite(x, y, m_AltRotation, TILE_SIZE, m_AltSpriteID, layer);
 	else
-		Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID);
+		Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID, layer);
 }
 
 void SwitchTile::update()

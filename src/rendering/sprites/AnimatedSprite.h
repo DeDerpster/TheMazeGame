@@ -23,6 +23,6 @@ class AnimatedSprite
 
 	void setFrame(int i);
 
-	void render(float x, float y, double rotation, float size);
-	void render(float x, float y, double rotation, float width, float height);
+	void render(float x, float y, double rotation, float size, uint8_t layer);
+	void render(float x, float y, double rotation, float width, float height, uint8_t layer);
 };

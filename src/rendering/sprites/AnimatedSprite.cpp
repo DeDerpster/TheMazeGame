@@ -52,14 +52,14 @@ void AnimatedSprite::setFrame(int i)
 		index = i;
 }
 
-void AnimatedSprite::render(float x, float y, double rotation, float size)
+void AnimatedSprite::render(float x, float y, double rotation, float size, uint8_t layer)
 {
 	// Sprite::getSprite(sprites[index])->render(x, y, rotation, size, size);
-	Render::sprite(x, y, rotation, size, sprites[index]);
+	Render::sprite(x, y, rotation, size, sprites[index], layer);
 }
 
-void AnimatedSprite::render(float x, float y, double rotation, float width, float height)
+void AnimatedSprite::render(float x, float y, double rotation, float width, float height, uint8_t layer)
 {
 	// Sprite::getSprite(sprites[index])->render(x, y, rotation, width, height);
-	Render::sprite(x, y, rotation, width, height, sprites[index]);
+	Render::sprite(x, y, rotation, width, height, sprites[index], layer);
 }

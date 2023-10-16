@@ -13,7 +13,8 @@ Particle::~Particle()
 
 void Particle::render()
 {
-	Render::rectangle(x, y, 0.0f, m_Size, m_Size, m_Colour);
+	uint8_t layer = 4;
+	Render::rectangle(x, y, 0.0f, m_Size, m_Size, m_Colour, layer);
 }
 
 void Particle::update()

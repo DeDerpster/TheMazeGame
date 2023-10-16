@@ -162,8 +162,11 @@ void Camera::updateZoomEffect()
 	if(m_ZoomEffectID == 0)
 		setShaderEffects();
 
-	Effect::UniformVec4 *effect = static_cast<Effect::UniformVec4 *>(Effect::ShaderEffects::getShaderEffect(m_ZoomEffectID));   // TODO: Make this a dynamic cast
-	effect->setVec(glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
+	Effect::UniformVec4 *effect = dynamic_cast<Effect::UniformVec4 *>(Effect::ShaderEffects::getShaderEffect(m_ZoomEffectID));
+	if(effect)
+		effect->setVec(glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
+	else
+		Log::error("Incorrect effect ID given!", LOGINFO);
 }
 
 bool Camera::isInFrame(float objX, float objY, CollisionBox &box)

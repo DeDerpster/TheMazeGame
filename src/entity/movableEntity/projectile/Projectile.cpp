@@ -75,7 +75,8 @@ bool Projectile::eventCallback(const Event::Event &e)
 
 void Projectile::render()
 {
-	Render::sprite(x, y, directionToRotation(m_Dir), width, height, m_SpriteID);
+	uint8_t layer = 4;
+	Render::sprite(x, y, directionToRotation(m_Dir), width, height, m_SpriteID, layer);
 }
 
 void Projectile::changeX(float changeBy)

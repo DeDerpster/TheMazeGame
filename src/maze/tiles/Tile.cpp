@@ -20,7 +20,8 @@ Tile::~Tile()
 
 void Tile::render()
 {
-	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID);
+	uint8_t layer = 0;
+	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID, layer);
 }
 
 void Tile::update()

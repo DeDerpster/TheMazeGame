@@ -16,7 +16,7 @@ Text::~Text()
 {
 }
 
-void Text::render(float xOffset, float yOffset)
+void Text::render(float xOffset, float yOffset, uint8_t layer)
 {
-	Render::text(m_Text, x + xOffset, y + yOffset, m_Scale, m_Colour, isCentered, isOverlay);
+	Render::text(m_Text, x + xOffset, y + yOffset, m_Scale, m_Colour, layer, isCentered, isOverlay);
 }

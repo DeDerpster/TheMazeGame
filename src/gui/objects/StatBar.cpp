@@ -33,7 +33,8 @@ void StatBar::update()
 
 void StatBar::render()
 {
-	Render::rectangle(x, y, 0.0f, width * (*m_Stat) / (*m_StatMax), height, m_BackgroundColour, true, true);
+	uint8_t layer = 7;
+	Render::rectangle(x, y, 0.0f, width * (*m_Stat) / (*m_StatMax), height, m_BackgroundColour, layer, true, true);
 }
 
 bool StatBar::eventCallback(const Event::Event &e)

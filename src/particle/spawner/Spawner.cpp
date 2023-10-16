@@ -1,5 +1,7 @@
 #include "Spawner.h"
 
+#include "Level.h"
+
 Spawner::Spawner()
 	: x(3500.0f), y(3500.0f), m_Level(nullptr), m_Lifetime(60), m_Age(0)
 {

@@ -74,14 +74,15 @@ void Button::update()
 
 void Button::render()
 {
+	uint8_t layer = 7;
 	if(m_State == State::None)
-		Render::rectangle(x, y, width, height, m_BackgroundColour, 2.0f, m_BorderColour, true, true);
+		Render::rectangle(x, y, width, height, m_BackgroundColour, 2.0f, m_BorderColour, layer, true, true);
 	else if(m_State == State::Hover)
-		Render::rectangle(x, y, width, height, m_HoverColour, 2.0f, m_BorderColour, true, true);
+		Render::rectangle(x, y, width, height, m_HoverColour, 2.0f, m_BorderColour, layer, true, true);
 	else
-		Render::rectangle(x, y, width, height, m_PressColour, 2.0f, m_BorderColour, true, true);
+		Render::rectangle(x, y, width, height, m_PressColour, 2.0f, m_BorderColour, layer, true, true);
 
-	m_Text.render(x, y);
+	m_Text.render(x, y, layer);
 }
 
 bool Button::eventCallback(const Event::Event &e)

@@ -14,7 +14,6 @@
 
 #include "Layer.h"
 #include "Maze.h"
-#include "ParticleLayer.h"
 
 #include "Button.h"
 

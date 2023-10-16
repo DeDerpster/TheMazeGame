@@ -11,10 +11,11 @@
 
 #include "Entity.h"
 #include "Item.h"
+#include "Spawner.h"
 #include "Player.h"
 #include "Projectile.h"
-#include "Tile.h"
 #include "Room.h"
+#include "Tile.h"
 
 class Level : public Layer
 {
@@ -26,6 +27,7 @@ class Level : public Layer
 	Player                    m_Player;
 	std::vector<Entity *>     m_Entities;
 	std::vector<Projectile *> m_Projectiles;
+	std::vector<Spawner *>    m_Spawners;
 
 #ifdef DEBUG
 	bool renderAll = false;
@@ -73,6 +75,7 @@ class Level : public Layer
 
 	virtual void addEntity(Entity *e) { m_Entities.push_back(e); }
 	virtual void addProjectile(Projectile *e) { m_Projectiles.push_back(e); }
+	virtual void addSpawner(Spawner *e) { m_Spawners.push_back(e); }
 
 	bool            collisionDetection(float nextX, float nextY, CollisionBox box);
 	bool            directionalCollision(float x, float y, float xs, float ys, CollisionBox box);

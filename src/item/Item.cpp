@@ -14,9 +14,9 @@ Item::~Item()
 {
 }
 
-void Item::render(float x, float y, double rotation, float size, bool isOverlay)
+void Item::render(float x, float y, double rotation, float size, uint8_t layer, bool isOverlay)
 {
-	Render::sprite(x, y, rotation, size, m_SpriteID, isOverlay);
+	Render::sprite(x, y, rotation, size, m_SpriteID, layer, isOverlay);
 }
 
 int          Item::getSpriteID() { return m_SpriteID; }

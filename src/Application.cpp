@@ -11,7 +11,6 @@
 #include "glDebug.h"
 
 #include "Maze.h"
-#include "ParticleLayer.h"
 
 #include "VertexBufferLayout.h"
 
@@ -210,9 +209,6 @@ void Application::startGameImpl()
 	Maze *maze = new Maze();
 	maze->generate();   // Generates the maze
 	addLayer(maze);     // Adds it to the layers
-
-	ParticleLayer *particleLayer = new ParticleLayer();   // TODO: get rid of this
-	addLayer(particleLayer);
 
 	Effect::ShaderEffects::updateShaderEffects();
 }

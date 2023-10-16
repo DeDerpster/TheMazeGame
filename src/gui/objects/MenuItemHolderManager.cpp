@@ -83,6 +83,8 @@ void MIHManager::render()
 		int gridWidth  = (int) width / m_BlockSize;
 		int gridHeight = (int) height / m_BlockSize;
 
+		uint8_t layer = 7;
+
 		int mouseHoverBlock = -1;
 		if(m_State == Button::State::Hover)
 		{
@@ -97,25 +99,25 @@ void MIHManager::render()
 				float nextY = m_BlockSize / 2 + y - yOffset * m_BlockSize;
 
 				float borderWidth = 2.0f;
-				if(m_ActiveItem && i == *m_ActiveItem)
-				{
-					borderWidth += 3.0f;
-					Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_ActiveBorderColour, true, true, true);
-				}
-				else if(i < m_Items->size() && i == mouseHoverBlock)
+				if(i < m_Items->size() && i == mouseHoverBlock)
 				{
 					borderWidth += 1.0f;
-					Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_HoverBorderColour, true, true, true);
+					Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_HoverBorderColour, layer, true, true);
 
-					float        scale    = 35.0f;   // TODO: Increase this probably
+					float        scale    = 35.0f;   // TODO: Increase this probably - with scale
 					Vec2f        mousePos = Event::getMousePos();
-					Render::hoverText(*m_Items->getItem(i)->getName(), mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f}, true);
+					Render::hoverText(*m_Items->getItem(i)->getName(), mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f}, layer + 2, true);
+				}
+				else if(m_ActiveItem && i == *m_ActiveItem)
+				{
+					borderWidth += 3.0f;
+					Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_ActiveBorderColour, layer, true, true);
 				}
 				else
-					Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_BorderColour, true, true, true);
+					Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_BorderColour, layer, true, true);
 
 				if(i < m_Items->size())
-					m_Items->getItem(i)->render(nextX, nextY, 0.0f, m_BlockSize - 10.0f, true);
+					m_Items->getItem(i)->render(nextX, nextY, 0.0f, m_BlockSize - 10.0f, layer + 1, true);
 
 				xOffset++;
 				if(xOffset == gridWidth)

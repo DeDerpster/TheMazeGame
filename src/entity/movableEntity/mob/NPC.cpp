@@ -6,9 +6,11 @@
 #include "Application.h"
 #include "FireStaff.h"
 #include "KeyDefinitions.h"
+#include "Level.h"
 #include "MessageManager.h"
 #include "RandomGen.h"
 #include "Utils.h"
+#include "Player.h"
 
 NPC::NPC()
 	: m_Name("Bob"), following(nullptr), attacking(nullptr), findingPath(false), isRunningAway(false)

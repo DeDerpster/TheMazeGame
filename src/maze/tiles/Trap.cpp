@@ -24,10 +24,11 @@ CollisionBox Trap::getCollisionBox()
 
 void Trap::render()
 {
+	uint8_t layer = 0;
 	if(m_AttackTrapTimer == 0)
-		Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID);
+		Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID, layer);
 	else
-		Render::sprite(x, y, rotation, TILE_SIZE, m_AttackSpriteID);
+		Render::sprite(x, y, rotation, TILE_SIZE, m_AttackSpriteID, layer);
 }
 
 void Trap::update()

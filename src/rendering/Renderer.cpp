@@ -25,7 +25,8 @@ Render::Render()
 		Log::critical("FREETYPE: Failed to load Glyph", LOGINFO);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);   // disable byte-alignment restriction
 
-	int maxHeight = 0;
+	float maxHeight = 0;
+	float minHeight = 0;
 	for(unsigned char c = 0; c < 128; c++)
 	{
 		// Loads each glyph
@@ -44,11 +45,13 @@ Render::Render()
 		characters.insert(std::pair<char, Character>(c, character));
 		characters[c].texture = new Texture(face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap.buffer);
 
-		if(characters[c].size.y > maxHeight)
-			maxHeight = characters[c].size.y;
+		if(characters[c].bearing.y > maxHeight)
+			maxHeight = characters[c].bearing.y;
+		if(characters[c].bearing.y - characters[c].size.y < minHeight)
+			minHeight = characters[c].bearing.y - characters[c].size.y;
 	}
 
-	Log::variable("Max Height", maxHeight);
+	Log::variable("Max Height", maxHeight - minHeight);
 
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
@@ -168,13 +171,91 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 		e->setEffect(*m_SimpleShader);
 	}
 	// Renders
-	// simpleRender(m_ObjectBuffer);   // Renders bottom layers first
 	// TODO: Put everything into one buffer?
+	enum class RenderBuffer
+	{
+		None,
+		Simple,
+		Sprite,
+		Text
+	};
+	uint8_t      startLayer    = 0;
+	RenderBuffer currentBuffer = RenderBuffer::None;
+
+	auto renderCurrentBuffer = [this](RenderBuffer currentBuffer, uint8_t startLayer, uint8_t endLayer) {
+		switch(currentBuffer)
+		{
+		case RenderBuffer::Simple:
+			simpleRender(startLayer, endLayer);
+			break;
+		case RenderBuffer::Sprite:
+			spriteRender(startLayer, endLayer);
+			break;
+		case RenderBuffer::Text:
+			textRender(startLayer, endLayer);
+			break;
+		default:
+			break;
+		}
+	};
+
 	for(uint8_t i = 0; i < 10; i++)
 	{
-		spriteRender(i);
-		simpleRender(i);
-		textRender(i);
+		bool noSimple = m_ObjectBuffer.getLayerSize(i) == 0;
+		bool noSprite = m_SpriteBuffer.getLayerSize(i) == 0;
+		bool noText   = m_TextObjBuffer.getLayerSize(i) == 0;
+		if(i != 9)
+		{
+			if(noSprite && noText)
+			{
+				if(currentBuffer != RenderBuffer::Simple)
+				{
+					renderCurrentBuffer(currentBuffer, startLayer, i - 1);
+					startLayer    = i;
+					currentBuffer = RenderBuffer::Simple;
+				}
+			}
+			else if(noSimple && noText)
+			{
+				if(currentBuffer != RenderBuffer::Sprite)
+				{
+					renderCurrentBuffer(currentBuffer, startLayer, i - 1);
+					startLayer    = i;
+					currentBuffer = RenderBuffer::Sprite;
+				}
+			}
+			else if(noSimple && noSprite)
+			{
+				if(currentBuffer != RenderBuffer::Text)
+				{
+					renderCurrentBuffer(currentBuffer, startLayer, i - 1);
+					startLayer    = i;
+					currentBuffer = RenderBuffer::Text;
+				}
+			}
+			else
+			{
+				renderCurrentBuffer(currentBuffer, startLayer, i - 1);
+				if(!noSimple)
+					simpleRender(i, i);
+				if(!noSprite)
+					spriteRender(i, i);
+				if(!noText)
+					textRender(i, i);
+				currentBuffer = RenderBuffer::None;
+			}
+		}
+		else
+		{
+			renderCurrentBuffer(currentBuffer, startLayer, i - 1);
+			if(!noSimple)
+				simpleRender(i, i);
+			if(!noSprite)
+				spriteRender(i, i);
+			if(!noText)
+				textRender(i, i);
+			currentBuffer = RenderBuffer::None;
+		}
 	}
 
 	// Resets settings
@@ -185,11 +266,8 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 	m_TextObjBuffer.clear();
 }
 
-void Render::simpleRender(uint8_t layer)
+void Render::simpleRender(uint8_t startLayer, uint8_t endLayer)
 {
-	if(m_ObjectBuffer.getLayerPos(layer + 1) - m_ObjectBuffer.getLayerPos(layer) == 0)   // Checks the buffer is not empty
-		return;
-
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
 		m_VertexBuffer->clearBufferData();
@@ -198,7 +276,7 @@ void Render::simpleRender(uint8_t layer)
 
 	m_SimpleShader->bind();
 	// Goes through all the objects in the buffer and renders them
-	for(uint32_t i = m_ObjectBuffer.getLayerPos(layer); i < m_ObjectBuffer.getLayerPos(layer + 1); i++)
+	for(uint32_t i = m_ObjectBuffer.getLayerPos(startLayer); i < m_ObjectBuffer.getLayerPos(endLayer + 1); i++)
 	{
 		ColouredObject *obj = m_ObjectBuffer[i];
 
@@ -221,10 +299,8 @@ void Render::simpleRender(uint8_t layer)
 	}
 }
 
-void Render::spriteRender(uint8_t layer)
+void Render::spriteRender(uint8_t startLayer, uint8_t endLayer)
 {
-	if(m_SpriteBuffer.getLayerPos(layer + 1) - m_SpriteBuffer.getLayerPos(layer) == 0)
-		return;
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
 		m_VertexBuffer->clearBufferData();
@@ -235,7 +311,7 @@ void Render::spriteRender(uint8_t layer)
 	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
 	Texture::clearBufferSlots();
 
-	for(uint32_t i = m_SpriteBuffer.getLayerPos(layer); i < m_SpriteBuffer.getLayerPos(layer + 1); i++)
+	for(uint32_t i = m_SpriteBuffer.getLayerPos(startLayer); i < m_SpriteBuffer.getLayerPos(endLayer + 1); i++)
 	{
 		TexturedObject *obj = m_SpriteBuffer[i];
 		// Checks if the buffer is full or the buffer is too big and draws what there is
@@ -282,11 +358,8 @@ void Render::spriteRender(uint8_t layer)
 	}
 }
 
-void Render::textRender(uint8_t layer)
+void Render::textRender(uint8_t startLayer, uint8_t endLayer)
 {
-	if(m_TextObjBuffer.getLayerPos(layer + 1) - m_TextObjBuffer.getLayerPos(layer) == 0)
-		return;
-
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
 		m_VertexBuffer->clearBufferData();
@@ -296,7 +369,7 @@ void Render::textRender(uint8_t layer)
 	m_TextShader->bind();
 	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to
 	Texture::clearBufferSlots();
-	for(uint32_t i = m_TextObjBuffer.getLayerPos(layer); i < m_TextObjBuffer.getLayerPos(layer + 1); i++)
+	for(uint32_t i = m_TextObjBuffer.getLayerPos(startLayer); i < m_TextObjBuffer.getLayerPos(endLayer + 1); i++)
 	{
 		TextObject *text = m_TextObjBuffer[i];
 
@@ -364,20 +437,19 @@ void Render::draw(VertexArray &vao) const   // Assumes VAO and shader have alrea
 	vao.unbind();
 }
 
-void Render::spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID, bool isOverlay)
+void Render::spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID, uint8_t layer, bool isOverlay)
 {
-	// TODO: Add a bottom layer sprite buffer
 	// This creates a collision box for the sprite, so it can check if it is in frame
 	CollisionBox box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
 	if(isOverlay || Application::isInFrame(x, y, box))
 	{
 		// Creates an object to store the information and adds it to the buffer through the function which takes settings into account
-		TexturedObject *obj              = new TexturedObject({x, y}, width, height, rotation, true, spriteID);
-		m_SpriteBuffer.addElement(obj, 1, orderBuffersByYAxisSetting);
+		TexturedObject *obj = new TexturedObject({x, y}, width, height, rotation, true, spriteID);
+		m_SpriteBuffer.addElement(obj, layer, orderBuffersByYAxisSetting);
 	}
 }
 
-void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool isCentered, bool isOverlay)   // NOTE: Scale is a percentage
+void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, uint8_t layer, bool isCentered, bool isOverlay)   // NOTE: Scale is a percentage
 {
 	// Gets the collision box for the text to check if it is frame
 	CollisionBox box = getTextCollisionBox(text, scale);
@@ -386,11 +458,11 @@ void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec
 	{
 		// Creates an object to store the information and adds it to the buffer through the function which takes settings into account
 		TextObject *obj = new TextObject(text, scale, {x, y}, box.upperBound.x - box.lowerBound.x, box.upperBound.y - box.lowerBound.y, 0.0f, colour, isCentered);
-		m_TextObjBuffer.addElement(obj, 3, orderBuffersByYAxisSetting);
+		m_TextObjBuffer.addElement(obj, layer, orderBuffersByYAxisSetting);
 	}
 }
 
-void Render::hoverTextImpl(std::string &inpText, float x, float y, float scale, glm::vec4 textColour, glm::vec4 backgroundColour, bool isOverlay)
+void Render::hoverTextImpl(std::string &inpText, float x, float y, float scale, glm::vec4 textColour, glm::vec4 backgroundColour, uint8_t layer, bool isOverlay)
 {
 	CollisionBox box = Render::getTextCollisionBox(inpText, scale);
 
@@ -404,11 +476,11 @@ void Render::hoverTextImpl(std::string &inpText, float x, float y, float scale, 
 	float textX = x + box.lowerBound.x;
 	float textY = y + yOffset + borderWidth - box.lowerBound.y + height / 2;
 
-	rectangle(x, y + yOffset + borderWidth + height / 2, 0.0f, width + 2 * borderWidth, height + 2 * borderWidth, backgroundColour, true, isOverlay);
-	text(inpText, x, textY, scale, textColour, true, isOverlay);
+	rectangle(x, y + yOffset + borderWidth + height / 2, 0.0f, width + 2 * borderWidth, height + 2 * borderWidth, backgroundColour, layer, true, isOverlay);
+	text(inpText, x, textY, scale, textColour, layer, true, isOverlay);
 }
 
-void Render::rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, bool isCentered, bool isOverlay, bool bottomLayer)
+void Render::rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, uint8_t layer, bool isCentered, bool isOverlay)
 {
 	// Creates a collision box, taking into account if it wants to be centered or not
 	CollisionBox box;
@@ -421,15 +493,12 @@ void Render::rectangleImpl(float x, float y, double rotation, float width, float
 	{
 		// Creates an object to store the information
 		ColouredObject *obj = new ColouredObject({x, y}, width, height, rotation, isCentered, colour);
-		if(bottomLayer)   // Checks what buffer it wants to be put on
-			m_ObjectBuffer.addElement(obj, 0, orderBuffersByYAxisSetting);
-		else
-			m_ObjectBuffer.addElement(obj, 2, orderBuffersByYAxisSetting);
+		m_ObjectBuffer.addElement(obj, layer, orderBuffersByYAxisSetting);
 	}
 }
 
 // This is for rendering a box with a border
-void Render::rectangleImpl(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, bool isCentered, bool isOverlay, bool bottomLayer)
+void Render::rectangleImpl(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, uint8_t layer, bool isCentered, bool isOverlay)
 {
 	float tempX, tempY;   // Stores the x and y position of the botton corner of the rectangle
 	if(isCentered)
@@ -443,13 +512,13 @@ void Render::rectangleImpl(float x, float y, float width, float height, glm::vec
 		tempY = y;
 	}
 	// Adds the normal rectangle to the buffer
-	rectangle(x, y, 0.0f, width, height, colour, isCentered, isOverlay, bottomLayer);
+	rectangle(x, y, 0.0f, width, height, colour, layer, isCentered, isOverlay);
 
 	// For each border it renders more rectangles
-	rectangle(tempX, tempY, 0.0f, width, borderWidth, borderColour, false, isOverlay, bottomLayer);
-	rectangle(tempX, tempY, 0.0f, borderWidth, height, borderColour, false, isOverlay, bottomLayer);
-	rectangle(tempX, tempY + height - borderWidth, 0.0f, width, borderWidth, borderColour, false, isOverlay, bottomLayer);
-	rectangle(tempX + width - borderWidth, tempY, 0.0f, borderWidth, height, borderColour, false, isOverlay, bottomLayer);
+	rectangle(tempX, tempY, 0.0f, width, borderWidth, borderColour, layer, false, isOverlay);
+	rectangle(tempX, tempY, 0.0f, borderWidth, height, borderColour, layer, false, isOverlay);
+	rectangle(tempX, tempY + height - borderWidth, 0.0f, width, borderWidth, borderColour, layer, false, isOverlay);
+	rectangle(tempX + width - borderWidth, tempY, 0.0f, borderWidth, height, borderColour, layer, false, isOverlay);
 }
 
 float Render::getTextWidthImpl(std::string &text, float scale)

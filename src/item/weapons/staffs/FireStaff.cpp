@@ -2,7 +2,9 @@
 
 #include "KeyDefinitions.h"
 
+#include "Level.h"
 #include "Mob.h"
+#include "ParticleSpawner.h"
 
 FireStaff::FireStaff()
 	: Weapon("Fire Staff", 10.0f, 20, ITEM_STICK) {}
@@ -21,7 +23,7 @@ void FireStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
 		CollisionBox box           = {{25, 20},
                             {60, 20}};
 		float        speed         = 12.5f;
-		auto         collisionFunc = [](float x, float y, Direction dir, Level *level) {
+		auto         collisionFunc = [level](float x, float y, Direction dir, Level *level) {
             float xMinSpeed = -8.0f;
             float xMaxSpeed = 8.0f;
             float yMinSpeed = -8.0f;
@@ -55,8 +57,7 @@ void FireStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
             uint16_t  groupSize       = 3;
             glm::vec4 colour          = {0.929f, 0.541f, 0.0f, 1.0f};
 
-            Effect::ParticleSpawnerObject spawner(new ParticleSpawner(x, y, level, spawnerLifetime, spawnRate, minLife, maxLife, xMinSpeed, xMaxSpeed, yMinSpeed, yMaxSpeed, minSize, maxSize, groupSize, colour));
-            Application::setEffect(&spawner);
+			level->addSpawner(new ParticleSpawner(x, y, level, spawnerLifetime, spawnRate, minLife, maxLife, xMinSpeed, xMaxSpeed, yMinSpeed, yMaxSpeed, minSize, maxSize, groupSize, colour));
 		};
 		float maxDistance = 700.0f;
 		level->addProjectile(new Projectile(e.getX(), e.getY(), TILE_SIZE / 2, maxDistance, damage, speed, dir, &e, level, box, collisionFunc));

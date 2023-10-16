@@ -35,11 +35,15 @@ Level::~Level()
 
 	for(Projectile *projectile : m_Projectiles)
 		delete projectile;
+
+	for(Spawner *s : m_Spawners)
+		delete s;
 }
 
 void Level::render()
 {
 	int midpoint = getMidPoint();
+	Render::orderBuffersByYAxis();
 #ifdef DEBUG
 	if(renderAll)
 	{   // This is to allow the option to render all - however only when debugging - because of the limit with vertices, they must be rendered in blocks
@@ -83,21 +87,17 @@ void Level::render()
 		get(midpoint, midpoint - 1)->render();
 
 #endif
-	Render::render(m_ShaderEffectsIDs);
+	// Render::render(m_ShaderEffectsIDs);
 
-	Render::orderBuffersByYAxis();
 
 	for(Entity *entity : m_Entities)
-	{
-		if(Application::isInFrame(entity->getX(), entity->getY(), entity->getCollisionBox()))
-			entity->render();
-	}
+		entity->render();
 
 	for(Projectile *projectile : m_Projectiles)
-	{
-		if(Application::isInFrame(projectile->getX(), projectile->getY(), projectile->getCollisionBox()))
-			projectile->render();
-	}
+		projectile->render();
+
+	for(Spawner *s : m_Spawners)
+		s->render();
 
 	m_Player.render();
 }
@@ -125,6 +125,18 @@ void Level::update()
 		{
 			delete *it;
 			it = m_Projectiles.erase(it);
+		}
+		else
+			++it;
+	}
+
+	for(auto it = m_Spawners.begin(); it != m_Spawners.end();)
+	{
+		(*it)->update();
+		if((*it)->deleteMe() || isOutOfBound((*it)->getX(), (*it)->getY()))
+		{
+			delete *it;
+			it = m_Spawners.erase(it);
 		}
 		else
 			++it;
@@ -161,6 +173,12 @@ bool Level::eventCallback(const Event::Event &e)
 	for(Entity *entity : m_Entities)
 	{
 		if(entity->eventCallback(e))
+			return true;
+	}
+
+	for(Spawner *s : m_Spawners)
+	{
+		if(s->eventCallback(e))
 			return true;
 	}
 	return false;

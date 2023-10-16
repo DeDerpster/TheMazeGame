@@ -60,13 +60,17 @@ inline int getIndexOfInsertion(std::vector<Vec2i> positions, std::array<std::arr
 
 	Node &node = nodeMap[nextPos.x][nextPos.y];
 
+	auto getNode = [nodeMap, positions](int index) -> Node {
+		return nodeMap[positions[index].x][positions[index].y];
+	};
+
 	while(startSub != endSub && startSub < endSub)
 	{
-		if(index + 1 == positions.size())
-			index--;
+		if(index + 1 >= positions.size())
+			index = positions.size() - 2;
 
-		Node &thisNode = nodeMap[positions[index].x][positions[index].y];
-		Node &nextNode = nodeMap[positions[index + 1].x][positions[index + 1].y];
+		Node &thisNode = getNode(index);
+		Node &nextNode = getNode(index + 1);
 
 		if(thisNode == node || (thisNode > node && nextNode < node))
 			return index + 1;

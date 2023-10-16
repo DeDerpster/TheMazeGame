@@ -25,13 +25,15 @@ void WorldItem::render()
 {
 	if(m_Item)
 	{
-		m_Item->render(x, y, 0.0f, width);
+		m_Item->render(x, y, 0.0f, width, 2);
 		if(m_State == Button::State::Hover && !Application::getIsPaused())
 		{
 			float        scale    = 35.0f;
 			Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
 
-			Render::hoverText(*m_Item->getName(), mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f});
+			uint8_t layer = 6;
+
+			Render::hoverText(*m_Item->getName(), mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f}, layer);
 		}
 	}
 }
@@ -59,15 +61,20 @@ bool WorldItem::eventCallback(const Event::Event &e)
 		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
 
 		Player *player = m_Level->getPlayer();
-		if(doesIntersectWith(convPos) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
+		if(doesIntersectWith(convPos))
 		{
-			if(player->pickUp(m_Item))
+			if(distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
 			{
-				Log::info("Picked up");
-				m_Item = nullptr;
+				if(player->pickUp(m_Item))
+				{
+					Log::info("Picked up");
+					m_Item = nullptr;
+				}
+				else
+					MessageManager::sendMessage("Inventory full!", MessageManager::Priority::High);
 			}
 			else
-				MessageManager::sendMessage("Inventory full!", MessageManager::Priority::High);
+				MessageManager::sendMessage("The item is too far away!", MessageManager::Priority::Medium);
 
 			return true;
 		}

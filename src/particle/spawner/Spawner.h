@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Level.h"
+#include "Event.h"
 
-#include "Particle.h"
-#include "Renderer.h"
-
+class Level;
 class Spawner
 {
   protected:
@@ -25,4 +23,7 @@ class Spawner
 	virtual bool eventCallback(const Event::Event &e);
 
 	virtual bool deleteMe() { return m_Age == m_Lifetime; }
+
+	float getX() { return x; }
+	float getY() { return y; }
 };

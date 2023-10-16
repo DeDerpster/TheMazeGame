@@ -6,4 +6,4 @@ target_include_directories(${PROJECT_NAME} PUBLIC sprites
                                                   glInterface
                                                   effect)
 
-target_sources(${PROJECT_NAME} PRIVATE Renderer.cpp)
+target_sources(${PROJECT_NAME} PRIVATE Renderer.cpp RenderObject.cpp)

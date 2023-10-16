@@ -17,5 +17,5 @@ struct Text
 	Text(std::string text, float x, float y, float scale, glm::vec4 colour, bool isCentered = true, bool isOverlay = true);
 	~Text();
 
-	void render(float xOffset, float yOffset);
+	void render(float xOffset, float yOffset, uint8_t layer);
 };

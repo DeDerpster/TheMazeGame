@@ -18,7 +18,8 @@ MenuBackground::~MenuBackground()
 
 void MenuBackground::render()
 {
-	Render::rectangle(x, y, 0.0f, width, height, m_Colour, true, true, true);
+	uint8_t layer = 7;
+	Render::rectangle(x, y, 0.0f, width, height, m_Colour, layer, true, true);
 }
 
 void MenuBackground::update()
@@ -27,7 +28,6 @@ void MenuBackground::update()
 
 bool MenuBackground::eventCallback(const Event::Event &e)
 {
-	// TODO: Add exit func
 	if(e.getType() == Event::EventType::keyInput)
 	{
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);

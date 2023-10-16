@@ -1,5 +1,6 @@
 #include "ParticleSpawner.h"
 
+#include "Level.h"
 #include "RandomGen.h"
 
 ParticleSpawner::ParticleSpawner()

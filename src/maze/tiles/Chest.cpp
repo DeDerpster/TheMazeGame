@@ -38,13 +38,14 @@ CollisionBox Chest::getCollisionBox()
 
 void Chest::render()
 {
-	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID);
+	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID, 0);
 	if(m_State == Button::State::Hover && !Application::getIsPaused())
 	{
 		float        scale    = 35.0f;
 		Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
 		std::string  name     = "Chest";
-		Render::hoverText(name, mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f});
+		uint8_t      layer    = 6;
+		Render::hoverText(name, mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f}, layer);
 	}
 }
 

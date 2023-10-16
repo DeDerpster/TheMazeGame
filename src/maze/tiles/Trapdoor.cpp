@@ -2,9 +2,11 @@
 
 #include "Application.h"
 #include "FireStaff.h"
+#include "Level.h"
 #include "Player.h"
 #include "Sprite.h"
 #include "Utils.h"
+#include "Player.h"
 
 Trapdoor::Trapdoor()
 	: Tile(), m_State(Button::State::None)
@@ -27,13 +29,15 @@ CollisionBox Trapdoor::getCollisionBox()
 
 void Trapdoor::render()
 {
-	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID);
+	uint8_t layer = 0;
+	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID, layer);
 	if(m_State == Button::State::Hover)
 	{
 		float        scale    = 35.0f;
 		Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
 		std::string  name     = "Trapdoor";
-		Render::hoverText(name, mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f});
+		uint8_t      layer    = 6;
+		Render::hoverText(name, mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f}, layer);
 	}
 }
 

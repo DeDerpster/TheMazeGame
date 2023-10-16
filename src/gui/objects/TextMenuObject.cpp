@@ -12,7 +12,7 @@ TextMenuObject::TextMenuObject(Text text, std::function<void(float *, float *)> 
 
 void TextMenuObject::render()
 {
-	m_Text.render(x, y);
+	m_Text.render(x, y, 8);
 }
 
 void TextMenuObject::update()

@@ -4,7 +4,6 @@
 
 #include "ObjectEffect.h"
 #include "Projectile.h"
-#include "ParticleSpawner.h"
 #include "Application.h"
 
 class FireStaff : public Weapon

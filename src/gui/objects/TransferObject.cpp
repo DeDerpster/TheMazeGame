@@ -29,7 +29,7 @@ void TransferObject::render()
 {
 	if(container)
 	{
-		container->getItem(index)->render(x, y, 0.0f, width, true);
+		container->getItem(index)->render(x, y, 0.0f, width, 9, true);
 	}
 }
 
