@@ -31,6 +31,15 @@
 *.out
 *.app
 
+# Latex
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+# Logs
+*.log
+
 .vscode
 build
 Logs/*

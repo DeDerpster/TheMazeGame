@@ -161,6 +161,44 @@
 
                 Once the player has reached the 5th level, they will be looking for the exit to outside (a set of stairs that leads to a door). Once they reached this door, they will be seen travelling through a corridor which will lead to an exit near the Ridiere kingdom. Then there will be a cut seen of Leuok being crowned ruler. The story will then end with the wizard ending it, as if it was the end of a great book.
         \subsection{Design Outline}
+            \subsubsection{Classes}
+                \begin{itemize}
+                    \item Layer - This will allow the subclass to be stored as a layer and be updated and rendered by the application.
+                    \item Level - This will store width and height of tiles and implement the A* algorithm for finding the shortest path between two roots.
+                    \item Maze - This will store the rooms in a grid and implement the generation of the maze.
+                    \item Camera - Generates the view matrix, that will allow the player to move around the map.
+                    \item Entity - Stores x and y coordinates of an object in a given level.
+                    \item Mob - Subclass of Entity, which implements a move function including collision detection.
+                    \item Player - Stores the coordinates of the player.
+                    \item Follower - Follows the player around and helps to attack the enemy.
+                    \item Enemy - Attacks the player and their followers.
+                    \item Item - Base class of all items that can be found throughout the maze.
+                    \item Projectile - Is a projectile that travels in a single direction and then deals damage to a mob.
+                    \item Room - This stores all the tiles
+                    \item Tile - This will store a sprite with coordinates relative to the room.
+                    \item Sprite - Stores every sprite that needs to be rendered during the game.
+                \end{itemize}
+            \subsubsection{Stats}
+                Each stat will influence part of how you play the game. These will be upgraded through finding specific items in chests and experience gained from doing different activities like exploring or attacking.
+                \begin{itemize}
+                    \item Strength - Directly effects the damage an entity can do.
+                    \item Agility - Increases speed of himself and followers and decreases the speed of attacks.
+                    \item Health - Directly effects how long it takes for you to die.
+                    \item Combat Ability - Influences the likelihood of higher damages when attacking
+                    \item Stamina - Influences the accuracy and damage when attacking and directly influences the amount a mob can carry.
+                    \item Boredom - Decreases speed and accuracy. This is decreased through finding items and reading books. This is also contagious between a mob's followers.
+                    \item Minimum attack damage - This is damage done when a mob has no weapon.
+                    \item Attractiveness - Influences the maximum number of followers each mob can have, however if a mob is following another, this is set to 0.
+                \end{itemize}
+            \subsubsection{Rooms}
+                Each room has their own effects and contains different objects. This will create more variety when exploring.
+                \begin{itemize}
+                    \item Trap Room - This will contain a trap, which can harm or kill the player or a follower. However, there should also be a chance for the player to avoid the trap through pressing some keys at the right time.
+                    \item Treasure Room - This will contain a chest, containing items which the player can collect and distribute to followers.
+                    \item Stair Room - This will contain stairs that lead to the next level.
+                    \item Trapdoor Room - This can be disguised as a trap room that would cause the player to fall down to the next level.
+                    \item Hidden treasure room, this is a room that all the entrances are hidden until the player actively reveals the entrance.
+                \end{itemize}
 
         \subsection{Objectives}
             \begin{itemize}
@@ -168,15 +206,74 @@
                     \begin{itemize}
                         \item This system must use OpenGL - as it is the graphics library I am using for this project.
                         \item This means having a system in place where I can call a function, giving it a set of values, and then it will be automatically rendered, so that I do not have to deal with keeping track of how much of the buffer is used up
+                        \item So once this is complete, I should have be able to render a tile, or multiple tiles on the screen.
+                        \item Create a camera class that can move in the 2D plane with the keyboard.
                     \end{itemize}
-
                 \item Be able to generate an infinite maze
+                    \begin{itemize}
+                        \item This needs the rendering system to be finished, so that I can render the maze once generated.
+                        \item The maze needs to be stored in effective means that means that it will not slow down everytime it generates more of the maze.
+                        \item This needs to be able to generate a maze from nothing, with most of the board filled up.
+                        \item Once this is in place, I can then make is so that once you can move in each direction and the maze will generate more of itself.
+                        \item Create a class for the player, allowing them to be rendered into the maze and have the camera follow the player.
+                    \end{itemize}
                 \item Create NPCs that rome the maze and can start following you
+                    \begin{itemize}
+                        \item Create a follower class that can be placed and rendered into the world.
+                        \item Make it so that the follower can ask the level for the shortest route (which will use the A* algorithm).
+                        \item Make it so that once they have the direction they need to go in, that they can move around the map.
+                        \item Create each character in the NPCs section, with them stored in the maze level, each of them with a different skin.
+                        \item Alow them to interact with subtitles, so that they can randomly say quotes, with each NPC with their different set of quotes.
+                    \end{itemize}
                 \item Add items and a way to collect them with a simple space-based inventory system
-                \item Add enemies that will start attacking you
-                \item Allow player to move while attacking
+                    \begin{itemize}
+                        \item Add an inventory to each mob (player, follower, enemy)
+                        \item Create an item class that can be found in the maze.
+                        \item Allow the item to be picked up and put inside the inventory of the player
+                        \item Make an inventory system, so that if the player has too much in their inventory they can chose what to get rid of. Implementing a temporary, basic inventory menu.
+                        \item Allow items to be parsed to the followers (so that they act like storage for the player)
+                    \end{itemize}
+                \item Add combat into the game
+                    \begin{itemize}
+                        \item Add projectile class that can be created by the player and rendered onto the map.
+                        \item Allow the projectile to move in the direction the player is facing, and when it collides with an entity or solid tile, it will delete itself.
+                        \item Add a particle system, so that the projectile will produce particles with a solid colour, that will decay over time.
+                        \item Add an enemy class that can be rendered onto the maze.
+                        \item Add a health and other stats (strength, agility ...) for every mob (player, follower entity).
+                        \item Make it so that when a projectile hits an entity it deals a random amount of damage (in a given range), and check if the entity has died or not. Create a system to deal with the player's death.
+                        \item Create an algorithm for the enemies to attack the player and their followers, also allow the followers to use the same algorithm to attack the enemy
+                        \item Allow the enemies to have followers, who also attack the player and their followers.
+                        \item Add multiple weapons, which have different damages and effects.
+                        \item Add an experience counter, which will allow the player to increase their stats
+                    \end{itemize}
+                \item Create different rooms that can be found in the maze.
+                    \begin{itemize}
+                        \item Create the each room and its effects in the "Room" section in the "Design Outline".
+                        \item This will include creating a chest that randomly generates items inside, which the player can pick up.
+                        \item Update the addRoom function to allow the room to be randomised, adding a random room in the place.
+                    \end{itemize}
                 \item Create a menu system
+                    \begin{itemize}
+                        \item Create a layer for handling GUI objects.
+                        \item Create button objects that can run a function when clicked.
+                        \item Overhaul the inventory menu to work with the new system.
+                        \item Make the game updates to be paused when inside a menu.
+                        \item Create a main menu, where you can start a new game.
+                        \item Allow the user to get back to the main menu while playing the game.
+                    \end{itemize}
                 \item Implement the story
-                \item Allow a game to be saved
+                    \begin{itemize}
+                        \item Design graphics and write script for opening sequence when you create a new game.
+                        \item Implement a system to render the graphics and text when you create a new game.
+                        \item Do the same for the end sequence.
+                        \item Implement multiple levels into the maze, with the enemies getting harder and change the randomness of the items being created.
+                        \item Add graphics and script for when the player finds stairs to the next level.
+                        \item Do the same for when the player dies
+                    \end{itemize}
+                \item Finalise everything
+                    \begin{itemize}
+                        \item Allow the game to be saved and loaded from the main menu (saving them in custom files)
+                        \item Add more stats to the mobs, which results in different effects to your damage and the number of followers you can have.
+                    \end{itemize}
             \end{itemize}
 \end{document}
