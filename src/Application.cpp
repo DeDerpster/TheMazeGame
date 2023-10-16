@@ -199,6 +199,8 @@ namespace Application   // I've used a namespace here as I know there will only 
 		else
 			endVal = overlayStart;
 
+		camera.eventCallback(e);
+
 		for(int i = 0; i < endVal; i++)
 		{
 			if(layers[i])
