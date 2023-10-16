@@ -1,11 +1,57 @@
 #include "Level.h"
 
+#include <algorithm>
 #include <array>
 
 #include "Tile.h"
 
-#define X_MAX 1400
-#define Y_MAX 1400   // This is from the edge of the maze to the middle
+#define X_MAX 4500
+#define Y_MAX 4500   // This is from the edge of the maze to the middle
+
+static int getIndexOfInsertion(std::vector<Vec2i> positions, std::array<std::array<Node, (Y_MAX * 2 / Y_STEP)>, (X_MAX * 2 / X_STEP)> &nodeMap, Vec2i nextPos)
+{
+	if(positions.size() == 0)
+		return 0;
+	if(positions.size() == 1)
+	{
+		if(nodeMap[positions[0].x][positions[0].y] > nodeMap[nextPos.x][nextPos.y])
+			return 1;
+		else
+			return 0;
+	}
+	int startSub = 0;
+	int endSub   = positions.size();
+	int index    = positions.size() / 2;
+
+	Node *node = &nodeMap[nextPos.x][nextPos.y];
+
+	while(startSub != endSub && startSub < endSub)
+	{
+		if(index + 1 == positions.size())
+			index--;
+
+		Node *thisNode = &nodeMap[positions[index].x][positions[index].y];
+		Node *nextNode = &nodeMap[positions[index + 1].x][positions[index + 1].y];
+
+		if(*thisNode == *node || (*thisNode > *node && *nextNode < *node))
+			return index + 1;
+		else if(*nextNode == *node)
+			return index + 2;
+		else if(*thisNode > *node && *nextNode > *node)
+			startSub = index + 2;
+		else if(*thisNode < *node && *nextNode < *node)
+			endSub = index;
+		else
+		{
+			Log::critical("Node vector is not sorted correctly!", LOGINFO);
+			return -1;
+		}
+
+		index = (startSub + endSub) / 2;
+	}
+
+	return index;
+}
 
 bool Level::collisionPointDetection(float nextX, float nextY)
 {
@@ -33,9 +79,6 @@ bool Level::collisionDetection(float nextX, float nextY, CollisionBox collisionB
 
 bool Level::directionalCollision(float x, float y, float xs, float ys, CollisionBox collisionBox)
 {
-	if(x + xs < 0 || y + ys < 0 || x + xs > width * Tile::TILE_SIZE || y + ys > height * Tile::TILE_SIZE)
-		return true;
-
 	if(xs == 0 || ys == 0)
 	{
 		return collisionDetection(x + xs, y + ys, collisionBox);
@@ -46,119 +89,112 @@ bool Level::directionalCollision(float x, float y, float xs, float ys, Collision
 	}
 }
 
-std::vector<Vec2f> Level::getPath(Vec2f start, Vec2f destination, CollisionBox collisionBox)
+std::vector<Vec2f> Level::getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox)
 {
-	// Log::info("Generating path");
-	// TODO: Add checks to see if beyond range
-	start.x       = (int) (start.x / X_STEP) * X_STEP;
-	start.y       = (int) (start.y / Y_STEP) * Y_STEP;
-	destination.x = (int) (destination.x / X_STEP) * X_STEP;
-	destination.y = (int) (destination.y / Y_STEP) * Y_STEP;
+	Vec2i start       = {(int) startPos.x / X_STEP, (int) startPos.y / Y_STEP};
+	Vec2i destination = {(int) dest.x / X_STEP, (int) dest.y / Y_STEP};
+
 	std::vector<Vec2f> path;
-	if(collisionDetection(destination.x, destination.y, collisionBox) /*|| collisionDetection(start.x, start.y)*/)
+	if(collisionDetection(destination.x * X_STEP, destination.y * Y_STEP, collisionBox))
 	{
-		path.push_back(destination);
+		path.push_back(dest);
 		return path;
 	}
 	if(start == destination)
 	{
 		Log::warning("Start is equal to destination, return destination");
-		path.push_back(destination);
+		path.push_back(dest);
 		return path;
 	}
-	std::vector<Node *> openList;   // This will be sorted most cost -> least cost
-	std::vector<Node *> closedList;
-	closedList.reserve((X_MAX / X_STEP) * (Y_MAX / Y_STEP));
-	openList.reserve((X_MAX / X_STEP) * (Y_MAX / Y_STEP));
+	std::vector<Vec2i> openList;   // This will be sorted most cost -> least cost
 
-	Node *startNode = new Node(start, nullptr, 0, distBetweenVec2f(start, destination));
+	bool closedList[(X_MAX * 2) / X_STEP][(Y_MAX * 2) / Y_STEP];
+	memset(closedList, false, sizeof(closedList));
 
-	openList.push_back(startNode);
+	std::array<std::array<Node, (Y_MAX * 2 / Y_STEP)>, (X_MAX * 2 / X_STEP)> nodeMap;
 
-	while(openList.back()->vec != destination)
+	openList.reserve(4 * (X_MAX / X_STEP) + 4 * (Y_MAX / Y_STEP));
+
+	Vec2i startVec            = {X_MAX / X_STEP, Y_MAX / Y_STEP};
+	Vec2i relativeDestination = {destination.x - start.x + startVec.x, destination.y - start.y + startVec.y};
 	{
-		Node *currentNode = openList.back();
+		float hCost                            = distBetweenVec2i(start, destination);
+		nodeMap[startVec.x][startVec.y].vec    = start;
+		nodeMap[startVec.x][startVec.y].parent = {-1, -1};
+		nodeMap[startVec.x][startVec.y].fCost  = hCost;
+		nodeMap[startVec.x][startVec.y].gCost  = 0.0f;
+		nodeMap[startVec.x][startVec.y].hCost  = hCost;
+
+		openList.push_back(startVec);
+	}
+
+	while(openList.back() != relativeDestination)
+	{
+		Vec2i currentPos  = openList.back();
+		Node *currentNode = &nodeMap[currentPos.x][currentPos.y];
 		openList.pop_back();
-		closedList.push_back(currentNode);
+		closedList[currentPos.x][currentPos.y] = true;
 
 		for(int xs = -1; xs < 2; xs++)
 		{
 			for(int ys = -1; ys < 2; ys++)
 			{
-				float nextX = currentNode->vec.x + xs * X_STEP;
-				float nextY = currentNode->vec.y + ys * Y_STEP;
-				if((nextX - destination.x > X_MAX || nextX - destination.x < -X_MAX) && (nextY - destination.y > Y_MAX || nextY - destination.y < -Y_MAX))
-				{
-					Log::warning("Out of bounds following!");
-					path.push_back(destination);
-					for(Node *node : closedList)
-						delete node;
-					for(Node *node : openList)
-						delete node;
-					return path;
-				}
 
-				// if(collisionDetection(nextX, nextY, collisionBox) || collisionDetection(nextX, currentNode->vec.y, collisionBox) || collisionDetection(currentNode->vec.x, nextY, collisionBox))
-				if(directionalCollision(currentNode->vec.x, currentNode->vec.y, xs * X_STEP, ys * Y_STEP, collisionBox))
+				Vec2i nextPos = {currentPos.x + xs, currentPos.y + ys};
+				if(nextPos.x > nodeMap.size() || nextPos.x < 0 || nextPos.y > nodeMap[0].size() || nextPos.y < 0)
 					continue;
 
-				Vec2f currentVec = {nextX, nextY};
-				Node *nextNode   = new Node(currentVec, currentNode, currentNode->gCost + distBetweenVec2f(currentNode->vec, currentVec), distBetweenVec2f(currentVec, destination));
+				if(directionalCollision(currentNode->vec.x * X_STEP, currentNode->vec.y * Y_STEP, xs * X_STEP, ys * Y_STEP, collisionBox))
+					continue;
 
-				if(nextNode->fCost > X_MAX + Y_MAX)
-				{
-					delete nextNode;
+				Vec2i currentVec = {currentNode->vec.x + xs, currentNode->vec.y + ys};
+
+				if(closedList[nextPos.x][nextPos.y])
 					continue;
-				}
-				if(nodeSearch(closedList, *nextNode) != -1)
+
+				float gCost = currentNode->gCost + distBetweenVec2i(currentNode->vec, currentVec);
+				float hCost = distBetweenVec2i(currentVec, destination);
+				float fCost = gCost + hCost;
+				if(nodeMap[nextPos.x][nextPos.y].vec.x != -1)
 				{
-					delete nextNode;
-					continue;
-				}
-				int index = nodeSearch(openList, *nextNode);
-				if(index != -1)
-				{
-					if(nextNode->fCost >= openList[index]->fCost)
-					{
-						delete nextNode;
+					if(fCost >= nodeMap[currentPos.x + xs][currentPos.y + ys].fCost)
 						continue;
-					}
-					delete openList[index];
-					openList.erase(openList.begin() + index);
+					nodeMap[nextPos.x][nextPos.y].parent = currentPos;
+					nodeMap[nextPos.x][nextPos.y].fCost  = fCost;
+					nodeMap[nextPos.x][nextPos.y].gCost  = gCost;
+					nodeMap[nextPos.x][nextPos.y].hCost  = hCost;
+					openList.erase(std::remove(openList.begin(), openList.end(), nextPos), openList.end());
+				}
+				else
+				{
+					nodeMap[currentPos.x + xs][currentPos.y + ys].vec    = currentVec;
+					nodeMap[currentPos.x + xs][currentPos.y + ys].parent = currentPos;
+					nodeMap[currentPos.x + xs][currentPos.y + ys].fCost  = fCost;
+					nodeMap[currentPos.x + xs][currentPos.y + ys].gCost  = gCost;
+					nodeMap[currentPos.x + xs][currentPos.y + ys].hCost  = hCost;
 				}
 
-				int insertIndex = getIndexOfInsertion(openList, *nextNode);
-				if(insertIndex != openList.size() && ((openList.size() > 0 && *openList[insertIndex] > *nextNode) || (openList.size() > 1 && insertIndex != 0 && *openList[insertIndex - 1] < *nextNode)))
-					Log::critical("Given wrong index!", LOGINFO);
-				openList.insert(openList.begin() + insertIndex, nextNode);
+				int insertIndex = getIndexOfInsertion(openList, nodeMap, nextPos);
+
+				openList.insert(openList.begin() + insertIndex, nextPos);
 			}
 		}
 
 		if(openList.size() == 0)
 		{
 			Log::warning("Cannot find route to destination");
-			path.push_back(destination);
-			for(Node *node : closedList)
-				delete node;
-			for(Node *node : openList)
-				delete node;
+			path.push_back(dest);
 			return path;
 		}
 	}
 
-	Node *currentNode = openList.back();
-	while(currentNode->vec != start)
+	Vec2i currentPos = openList.back();
+	while(currentPos != startVec)
 	{
-		path.push_back(currentNode->vec);
-		currentNode = currentNode->parent;
+		Node *currentNode = &nodeMap[currentPos.x][currentPos.y];
+		path.push_back({(float) currentNode->vec.x * X_STEP, (float) currentNode->vec.y * Y_STEP});
+		currentPos = currentNode->parent;
 	}
-
-	for(Node *node : closedList)
-		delete node;
-	for(Node *node : openList)
-		delete node;
-
-	// Log::info("Finished generating");
 
 	return path;
 }

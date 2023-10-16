@@ -139,6 +139,7 @@ void Follower::update()
 		{
 			findingPath = true;
 			std::thread pathThread(&Follower::findPath, this);
+			// findPath();
 			pathThread.detach();
 		}
 		else

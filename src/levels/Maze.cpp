@@ -582,7 +582,7 @@ Tile *Maze::getTile(int x, int y)
 	Room *room = get(roomY, roomX);
 	if(!room)
 	{
-		Log::warning("Trying to access room that doesn't exist!");
+		// Log::warning("Trying to access room that doesn't exist!");
 		return nullptr;
 	}
 

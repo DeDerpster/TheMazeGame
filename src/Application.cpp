@@ -44,7 +44,6 @@ namespace Application   // I've used a namespace here as I know there will only 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		Log::info("THIS BETTER WORK!");
 		window = glfwCreateWindow(windowWidth, windowHeight, "MazeGame", NULL, NULL);
 		if(!window)   // Checks window is not a nullpointer
 		{

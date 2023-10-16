@@ -63,12 +63,13 @@ struct CollisionBox
 
 struct Node
 {
-	Vec2f vec;
-	Node *parent;
+	Vec2i vec;
+	// Node *parent;
+	Vec2i parent;
 	float fCost, gCost, hCost;
 
-	Node(Vec2f vec, Node *parent, double gCost, double hCost)
-		: vec(vec), parent(parent), fCost(gCost + hCost), gCost(gCost), hCost(hCost) {}
+	Node()
+		: vec({-1, -1}), parent({-1, -1}), fCost(0), gCost(0), hCost(0) {}
 };
 
 inline bool operator<(const Node &lhs, const Node &rhs)
@@ -98,45 +99,7 @@ static int nodeSearch(std::vector<Node *> &nodes, Node &node)
 	return -1;
 }
 
-static int getIndexOfInsertion(std::vector<Node *> &nodes, Node &node)   // Gets index of place to put node for a vector sorted Most cost -> Small cost
-{
-	if(nodes.size() == 0)
-		return 0;
-	if(nodes.size() == 1)
-	{
-		if(*nodes[0] > node)
-			return 1;
-		else
-			return 0;
-	}
-	int startSub = 0;
-	int endSub   = nodes.size();
-	int index    = nodes.size() / 2;
-
-	while(startSub != endSub && startSub < endSub)
-	{
-		if(index + 1 == nodes.size())
-			index--;
-		if(*nodes[index] == node || (*nodes[index] > node && *nodes[index + 1] < node))
-			return index + 1;
-		else if(*nodes[index + 1] == node)
-			return index + 2;
-		else if(*nodes[index] > node && *nodes[index + 1] > node)
-			startSub = index + 2;
-		else if(*nodes[index] < node && *nodes[index + 1] < node)
-			endSub = index;
-		else
-		{
-			Log::critical("Node vector is not sorted correctly!", LOGINFO);
-			return -1;
-		}
-
-		index = (startSub + endSub) / 2;
-	}
-
-	// Log::debug("Got to the end of array");
-	return index;
-}
+// static int getIndexOfInsertion(std::vector<Node *> &nodes, Node &node)   // Gets index of place to put node for a vector sorted Most cost -> Small cost
 
 struct Vertex
 {

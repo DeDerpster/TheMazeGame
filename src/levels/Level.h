@@ -5,8 +5,8 @@
 #include "Layer.h"
 #include "Utils.h"
 
-#define X_STEP 25
-#define Y_STEP 25
+#define X_STEP 50
+#define Y_STEP 50
 
 // These are here so I don't have to import the files and cause a infinite loop
 class Tile;
