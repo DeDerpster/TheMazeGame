@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 20.7) (preloaded format=pdflatex 2020.9.17)  17 SEP 2020 15:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 20.7) (preloaded format=pdflatex 2020.9.17)  17 SEP 2020 16:45
 entering extended mode
 **d:/Projects/NEA/docs/Analysis.tex
 (d:/Projects/NEA/docs/Analysis.tex
@@ -164,12 +164,12 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 <img/The Binding of Isaac.jpg, id=11, 1204.5pt x 799.98875pt>
 File: img/The Binding of Isaac.jpg Graphic file (type jpg)
 <use img/The Binding of Isaac.jpg>
-Package pdftex.def Info: img/The Binding of Isaac.jpg  used on input line 37.
+Package pdftex.def Info: img/The Binding of Isaac.jpg  used on input line 38.
 (pdftex.def)             Requested size: 361.35278pt x 239.99847pt.
 <img/Played Exploration Game.PNG, id=12, 403.5075pt x 228.25275pt>
 File: img/Played Exploration Game.PNG Graphic file (type png)
 <use img/Played Exploration Game.PNG>
-Package pdftex.def Info: img/Played Exploration Game.PNG  used on input line 47.
+Package pdftex.def Info: img/Played Exploration Game.PNG  used on input line 48.
 (pdftex.def)             Requested size: 403.50652pt x 228.25218pt.
  [2
 
@@ -177,12 +177,12 @@ Package pdftex.def Info: img/Played Exploration Game.PNG  used on input line 47.
 <img/Importance of games.PNG, id=18, 569.12625pt x 252.34274pt>
 File: img/Importance of games.PNG Graphic file (type png)
 <use img/Importance of games.PNG>
-Package pdftex.def Info: img/Importance of games.PNG  used on input line 60.
+Package pdftex.def Info: img/Importance of games.PNG  used on input line 61.
 (pdftex.def)             Requested size: 569.12486pt x 252.34212pt.
 <img/Era of Games.PNG, id=19, 575.751pt x 228.25275pt>
 File: img/Era of Games.PNG Graphic file (type png)
 <use img/Era of Games.PNG>
-Package pdftex.def Info: img/Era of Games.PNG  used on input line 73.
+Package pdftex.def Info: img/Era of Games.PNG  used on input line 74.
 (pdftex.def)             Requested size: 575.7496pt x 228.25218pt.
  [3
 
@@ -190,12 +190,12 @@ Package pdftex.def Info: img/Era of Games.PNG  used on input line 73.
 <img/Type of ending.PNG, id=25, 513.117pt x 251.7405pt>
 File: img/Type of ending.PNG Graphic file (type png)
 <use img/Type of ending.PNG>
-Package pdftex.def Info: img/Type of ending.PNG  used on input line 80.
+Package pdftex.def Info: img/Type of ending.PNG  used on input line 81.
 (pdftex.def)             Requested size: 513.11575pt x 251.73987pt.
 <img/Inventory system.PNG, id=26, 561.297pt x 239.6955pt>
 File: img/Inventory system.PNG Graphic file (type png)
 <use img/Inventory system.PNG>
-Package pdftex.def Info: img/Inventory system.PNG  used on input line 86.
+Package pdftex.def Info: img/Inventory system.PNG  used on input line 87.
 (pdftex.def)             Requested size: 561.29562pt x 239.6949pt.
  [4
 
@@ -203,12 +203,12 @@ Package pdftex.def Info: img/Inventory system.PNG  used on input line 86.
 <img/Attacking System.PNG, id=32, 483.0045pt x 224.63925pt>
 File: img/Attacking System.PNG Graphic file (type png)
 <use img/Attacking System.PNG>
-Package pdftex.def Info: img/Attacking System.PNG  used on input line 93.
+Package pdftex.def Info: img/Attacking System.PNG  used on input line 94.
 (pdftex.def)             Requested size: 483.00331pt x 224.63869pt.
 <img/Capture.PNG, id=33, 406.51875pt x 215.00325pt>
 File: img/Capture.PNG Graphic file (type png)
 <use img/Capture.PNG>
-Package pdftex.def Info: img/Capture.PNG  used on input line 99.
+Package pdftex.def Info: img/Capture.PNG  used on input line 100.
 (pdftex.def)             Requested size: 406.51775pt x 215.00272pt.
  [5
 
@@ -228,7 +228,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  36i,7n,34p,1013b,286s stack positions out of 5000i,500n,10000p,200000b,50000s
  <C:\Users\hugow\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb>
-Output written on d:/Projects\NEA\docs\Analysis.pdf (7 pages, 700139 bytes).
+Output written on d:/Projects\NEA\docs\Analysis.pdf (7 pages, 700230 bytes).
 PDF statistics:
  71 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
