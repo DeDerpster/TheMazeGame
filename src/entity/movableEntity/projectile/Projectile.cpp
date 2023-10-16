@@ -44,6 +44,7 @@ void Projectile::update()
 		Entity *colE = m_Level->entityCollisionDetection(x + xs, y + ys, m_CollisionBox);
 		if(!isGhost && (m_Level->collisionDetection(x + xs, y + ys, m_CollisionBox) || (colE != nullptr && colE != spawner)))
 		{
+			// TODO: Check if this is valid (or if the enemy has been killed)
 			Mob *mSpawner = dynamic_cast<Mob *>(spawner);
 			if(colE)
 			{

@@ -6,6 +6,7 @@
 #include "Application.h"
 #include "FireStaff.h"
 #include "KeyDefinitions.h"
+#include "MessageManager.h"
 #include "RandomGen.h"
 #include "Utils.h"
 
@@ -229,6 +230,8 @@ bool NPC::eventCallback(const Event::Event &e)
 				Event::ChangeGUIActiveLayer e(InGameGUILayer::npcInteraction);
 				Application::callEvent(e, true);
 
+				MessageManager::sendMessage("NPC: Can I follow you?", MessageManager::Priority::Low);
+
 				return true;
 			}
 			else if(following == m_Level->getPlayer())
@@ -262,10 +265,15 @@ bool NPC::eventCallback(const Event::Event &e)
 
 				Event::ShowAltTileEvent e(true);
 				Application::callEvent(e);
+
+				MessageManager::sendMessage("NPC: How rude!? I will kill you now!", MessageManager::Priority::Medium);
 			}
+			else
+				MessageManager::sendMessage("NPC: Oh okay, fine be like that.", MessageManager::Priority::Low);
 		}
 		else
 		{
+			MessageManager::sendMessage("NPC: Yay! I know we will be best buds!", MessageManager::Priority::Low);
 			// TODO: Make this go through the player to see if they can follow
 			following = m_Level->getPlayer();
 		}

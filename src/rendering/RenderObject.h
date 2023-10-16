@@ -74,12 +74,12 @@ struct RenderObject
 	}
 };
 
-struct RenderColouredObject : public RenderObject
+struct ColouredObject : public RenderObject
 {
 	glm::vec4 colour;
 
-	RenderColouredObject() {}
-	RenderColouredObject(glm::vec2 position, float width, float height, double rotation, bool centered, glm::vec4 colour)
+	ColouredObject() {}
+	ColouredObject(glm::vec2 position, float width, float height, double rotation, bool centered, glm::vec4 colour)
 		: RenderObject(position, width, height, rotation, centered), colour(colour) {}
 
 	// Gets the size of each array of vertices returned by 'convertToColouredVertices'
@@ -188,13 +188,13 @@ struct TexturedObject : public RenderObject
 	}
 };
 
-struct TextObject : public RenderColouredObject
+struct TextObject : public ColouredObject
 {
 	std::string text;
 	float       scale;
 
 	TextObject(std::string text, float scale, glm::vec2 position, float width, float height, double rotation, glm::vec4 colour, bool centered)
-		: RenderColouredObject(position, width, height, rotation, centered, colour), text(text), scale(scale) {}
+		: ColouredObject(position, width, height, rotation, centered, colour), text(text), scale(scale) {}
 
 	// Gets the size of each array of vertices returned by 'convertToCharacterVertices'
 	virtual uint32_t          getSizeOfVertices() override { return 4 * sizeof(TextVertex); }
@@ -202,10 +202,10 @@ struct TextObject : public RenderColouredObject
 	// by going through each character, so this takes in the character and the offset when creating the vertices
 	// This allows to correctly render rotated strings
 	std::array<TextVertex, 4> convertCharacterToVertices(Character *ch, float xOffset, uint16_t texSlot)
-	{   // FIXME: rendering isn't working for 'g' when centered on y axis
+	{
 		float newScale = scale / 100;
 
-		float xPos = position.x + ch->bearing.x * newScale;
+		float xPos = position.x + ch->bearing.x * newScale + xOffset;
 		float yPos = position.y - (ch->size.y - ch->bearing.y) * newScale;
 
 		float w = ch->size.x * newScale;
@@ -221,37 +221,37 @@ struct TextObject : public RenderColouredObject
 			// This centers the object
 			float xHalfSize = width / 2;
 			float yHalfSize = height / 2;
-			leftPoint       = -xHalfSize + xOffset;
-			rightPoint      = -xHalfSize + xOffset + w;
+			leftPoint       = -xHalfSize;
+			rightPoint      = -xHalfSize + w;
 			topPoint        = -yHalfSize + h;
 			bottomPoint     = -yHalfSize;
 		}
 		else
 		{
-			leftPoint   = xOffset;
-			rightPoint  = w + xOffset;
-			topPoint    = h;
-			bottomPoint = 0;
+			leftPoint   = xPos;
+			rightPoint  = xPos + w;
+			topPoint    = yPos + h;
+			bottomPoint = yPos;
 		}
 
 		// Creates 4 vertices that create the character
 		TextVertex v0(
-			rotationMatrix * glm::vec2(leftPoint, topPoint) + position,
+			rotationMatrix * glm::vec2(leftPoint, topPoint) + glm::vec2(xPos, yPos),
 			{0.0f, 0.0f},
 			texSlot,
 			colour);
 		TextVertex v1(
-			rotationMatrix * glm::vec2(rightPoint, topPoint) + position,
+			rotationMatrix * glm::vec2(rightPoint, topPoint) + glm::vec2(xPos, yPos),
 			{1.0f, 0.0f},
 			texSlot,
 			colour);
 		TextVertex v2(
-			rotationMatrix * glm::vec2(rightPoint, bottomPoint) + position,
+			rotationMatrix * glm::vec2(rightPoint, bottomPoint) + glm::vec2(xPos, yPos),
 			{1.0f, 1.0f},
 			texSlot,
 			colour);
 		TextVertex v3(
-			rotationMatrix * glm::vec2(leftPoint, bottomPoint) + position,
+			rotationMatrix * glm::vec2(leftPoint, bottomPoint) + glm::vec2(xPos, yPos),
 			{0.0f, 1.0f},
 			texSlot,
 			colour);

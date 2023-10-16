@@ -9,6 +9,8 @@
 #include "ItemContainer.h"
 #include "WeaponContainer.h"
 
+#include "MessageManager.h"
+
 MIHManager::MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem, GUIInventoryIDCode listenID)
 	: MenuObject(x, y, width, height, layer),
 	  m_BlockSize(blockSize),
@@ -104,12 +106,10 @@ void MIHManager::render()
 				{
 					borderWidth += 1.0f;
 					Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_HoverBorderColour, true, true, true);
-					// TODO: Make a function in the renderer for this - Also turn it off when the game is paused
-					float        scale    = 35.0f;
+
+					float        scale    = 35.0f;   // TODO: Increase this probably
 					Vec2f        mousePos = Event::getMousePos();
-					CollisionBox box      = Render::getTextCollisionBox(*m_Items->getItem(i)->getName(), scale);
-					Render::rectangle(mousePos.x, mousePos.y + 4.0f + box.upperBound.y / 2, 0.0f, box.upperBound.x + 2.0f, box.upperBound.y + 4.0f, {0.3f, 0.3f, 0.3f, 0.7f}, true, true);
-					Render::text(*m_Items->getItem(i)->getName(), mousePos.x, mousePos.y + 5.0f + box.upperBound.y / 2, scale, {1.0f, 1.0f, 1.0f, 1.0f}, true, true);
+					Render::hoverText(*m_Items->getItem(i)->getName(), mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f}, true);
 				}
 				else
 					Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_BorderColour, true, true, true);
@@ -230,7 +230,10 @@ void MIHManager::transferItem(TransferObject *o)
 		}
 
 		if(cancel)
+		{
+			MessageManager::sendMessage("Item cannot be stored there!", MessageManager::Priority::High);
 			return;
+		}
 
 		if(!(oContainer == m_Items && !swap))
 		{

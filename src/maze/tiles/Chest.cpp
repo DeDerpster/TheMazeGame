@@ -44,9 +44,7 @@ void Chest::render()
 		float        scale    = 35.0f;
 		Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
 		std::string  name     = "Chest";
-		CollisionBox box      = Render::getTextCollisionBox(name, scale);
-		Render::rectangle(mousePos.x, mousePos.y + 4.0f + box.upperBound.y / 2, 0.0f, box.upperBound.x + 2.0f, box.upperBound.y + 4.0f, {0.3f, 0.3f, 0.3f, 0.7f});
-		Render::text(name, mousePos.x, mousePos.y + 5.0f + box.upperBound.y / 2, scale, {1.0f, 1.0f, 1.0f, 1.0f}, true);
+		Render::hoverText(name, mousePos.x, mousePos.y, scale, {1.0f, 1.0f, 1.0f, 1.0f}, {0.3f, 0.3f, 0.3f, 0.7f});
 	}
 }
 
