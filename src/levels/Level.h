@@ -1,19 +1,20 @@
 #pragma once
 
+#include "Layer.h"
+
 #include <vector>
+#include <functional>
 
 #include "KeyDefinitions.h"
-#include "Layer.h"
 #include "Utils.h"
-#include "Player.h"
+#include "ItemContainer.h"
 
-class Tile;   // FIXME
-// These are here so I don't have to import the files and cause a infinite loop
-// class Player;
-class Entity;
-class Projectile;
-class Item;
-class Room;
+#include "Entity.h"
+#include "Item.h"
+#include "Player.h"
+#include "Projectile.h"
+#include "Tile.h"
+#include "Room.h"
 
 class Level : public Layer
 {
@@ -25,6 +26,8 @@ class Level : public Layer
 	Player                    m_Player;
 	std::vector<Entity *>     m_Entities;
 	std::vector<Projectile *> m_Projectiles;
+
+	std::function<void(ItemContainer &)> setChestToMenu;
 
 #ifdef DEBUG
 	bool renderAll = false;
@@ -77,6 +80,8 @@ class Level : public Layer
 	bool            directionalCollision(float x, float y, float xs, float ys, CollisionBox box);
 	virtual Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox box);
 
-	virtual void openChest(std::vector<Item *> &items) = 0;
+	virtual void openChest(ItemContainer &items)           = 0;
 	virtual void endLevel()                            = 0;
+
+	void setChestMenuFunc(std::function<void(ItemContainer &)> func) { setChestToMenu = func; }
 };

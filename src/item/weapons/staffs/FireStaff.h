@@ -13,5 +13,5 @@ class FireStaff : public Weapon
 	FireStaff();
 	virtual ~FireStaff() override;
 
-	virtual void attack(Level *level, Mob &e, Direction dir, bool hold) override;
+	virtual void attack(Level *level, Entity &e, Direction dir, bool hold) override;
 };

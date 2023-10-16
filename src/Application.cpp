@@ -138,6 +138,7 @@ ImGuiIO *Application::getImGuiContextImpl()
 
 void Application::updateImpl()   // Updates all the layers
 {
+	Event::update();
 	if(projEffectID == 0)
 		updateWindowSizeImpl(windowWidth, windowHeight);
 	for(int i = layers.size() - 1; i > -1; i--)
@@ -192,11 +193,15 @@ void Application::removeLayerImpl(int index)   // Removes layer
 	layers.erase(layers.begin() + index);
 }
 
-void Application::removeLayerImpl(Layer *layer)
+void Application::removeLayerImpl(Layer *layer, bool deleteLayer)
 {
 	std::vector<Layer *>::iterator index = std::find(layers.begin(), layers.end(), layer);
 	if(index != layers.end())
+	{
+		if(deleteLayer)
+			delete layers[index - layers.begin()];
 		layers.erase(index);
+	}
 	else
 		Log::warning("Cannot find layer to remove!");
 	// for(int i = 0; i < layers.size(); i++)
@@ -223,7 +228,7 @@ void Application::callEventImpl(const Event::Event &e, bool includeOverlay)   //
 		startVal = layers.size();
 	else
 	{
-		if(gameIsPaused)
+		if(gameIsPaused && !e.ignoreIfPaused())
 			return;
 		startVal = overlayStart;
 	}
@@ -232,7 +237,7 @@ void Application::callEventImpl(const Event::Event &e, bool includeOverlay)   //
 	{
 		if(layers[i])
 			layers[i]->eventCallback(e);
-		if(gameIsPaused && i == overlayStart)
+		if(gameIsPaused && i == overlayStart && !e.ignoreIfPaused())
 			break;
 	}
 }

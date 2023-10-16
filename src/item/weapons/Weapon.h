@@ -2,9 +2,10 @@
 
 #include "Item.h"
 
+#include "Entity.h"
 #include "Event.h"
-#include "Level.h"
-#include "Mob.h"
+
+class Level;
 
 class Weapon : public Item
 {
@@ -21,5 +22,5 @@ class Weapon : public Item
 
 	virtual void update();
 
-	virtual void attack(Level *level, Mob &e, Direction dir, bool hold) = 0;
+	virtual void attack(Level *level, Entity &e, Direction dir, bool hold) = 0;
 };

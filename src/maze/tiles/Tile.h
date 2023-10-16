@@ -4,8 +4,8 @@
 
 #include "Camera.h"
 #include "KeyDefinitions.h"
-#include "Level.h"
 
+class Level;   // FIXME
 class Tile
 {
   protected:

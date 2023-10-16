@@ -2,15 +2,22 @@
 
 #include "KeyDefinitions.h"
 
+#include "Mob.h"
+
 FireStaff::FireStaff()
 	: Weapon("Fire Staff", 10.0f, 20, ITEM_STICK) {}
 FireStaff::~FireStaff() {}
 
-void FireStaff::attack(Level *level, Mob &e, Direction dir, bool hold)
+void FireStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
 {
+	Mob *m = dynamic_cast<Mob *>(&e);
 	if(m_Cooldown == 0)
 	{
-		float        damage        = e.getDamage(0.0f, m_Damage);
+		float damage;
+		if(m)
+			damage = m->getDamage(0.0f, m_Damage);
+		else
+			damage = 0.0f;
 		CollisionBox box           = {{25, 20},
                             {60, 20}};
 		float        speed         = 12.5f;
@@ -53,7 +60,10 @@ void FireStaff::attack(Level *level, Mob &e, Direction dir, bool hold)
 		};
 		float maxDistance = 700.0f;
 		level->addProjectile(new Projectile(e.getX(), e.getY(), TILE_SIZE / 2, maxDistance, damage, speed, dir, &e, level, box, collisionFunc));
-		m_Cooldown = e.getWeaponDelay(m_CooldownMax);
-		e.hasUsedWeapon();
+		if(m)
+		{
+			m_Cooldown = m->getWeaponDelay(m_CooldownMax);
+			m->hasUsedWeapon();
+		}
 	}
 }

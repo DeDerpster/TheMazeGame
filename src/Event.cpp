@@ -8,6 +8,8 @@
 
 namespace Event
 {
+	static uint8_t mouseClickedDelay;
+
 	static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
 		KeyboardEvent e(key, scancode, action, mods);
@@ -37,9 +39,19 @@ namespace Event
 
 	static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 	{
-		MouseButton       mButton = static_cast<MouseButton>(button);
-		MouseClickedEvent e(mButton, getMousePos());
-		Application::callEvent(e, true);
+		if(mouseClickedDelay == 0)
+		{
+			MouseButton       mButton = static_cast<MouseButton>(button);
+			MouseClickedEvent e(mButton, getMousePos());
+			Application::callEvent(e, true);
+			mouseClickedDelay = 10;
+		}
+	}
+
+	void update()
+	{
+		if(mouseClickedDelay > 0)
+			mouseClickedDelay--;
 	}
 
 	void init()
@@ -50,6 +62,8 @@ namespace Event
 		glfwSetScrollCallback(window, scroll_callback);
 		glfwSetErrorCallback(error_callback);
 		glfwSetMouseButtonCallback(window, mouse_button_callback);
+
+		mouseClickedDelay = 0;
 	}
 
 	bool isKeyPressed(int key)

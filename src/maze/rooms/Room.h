@@ -4,13 +4,14 @@
 #include "Entity.h"
 #include "Event.h"
 #include "KeyDefinitions.h"
-#include "Level.h"
 #include "Renderer.h"
 #include "Tile.h"
 #include "Utils.h"
 
 #include <array>
 #include <vector>
+
+class Level;
 
 class Room
 {
@@ -39,6 +40,8 @@ class Room
 	Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox box);
 
 	virtual bool isOpen(Direction entrance);
+
+	void addEntity(Entity *e) { m_Entities.push_back(e); }
 
 	virtual void active();
 

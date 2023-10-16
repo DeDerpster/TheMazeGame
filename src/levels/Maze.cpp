@@ -15,6 +15,7 @@
 #include "MenuBackgroundObject.h"
 #include "MenuItemHolderManager.h"
 #include "StatBar.h"
+#include "TransferObject.h"
 
 #include "NPC.h"
 #include "Room.h"
@@ -27,14 +28,16 @@
 
 #define LAYER_MAX_FOR_DIRECTIONS 4
 
+#include <vector>
+
 #define MAZE_MIDPOINT ((float) MAZE_SIZE / 2.0f) * ROOM_PIXEL_SIZE - TILE_SIZE / 2
 
 Maze::Maze()
 	: Level(MAZE_MIDPOINT, MAZE_MIDPOINT, MAZE_SIZE, MAZE_SIZE, {0, 0}),
 	  finishedGenerating(true),
-	  m_OverlayGUI(new GUILayer(this)),
-	  m_InventoryGUI(new GUILayer(this)),
-	  m_ChestGUI(new GUILayer(this))
+	  m_OverlayGUI(new GUILayer(GUILayer::Type::GameOverlay, this)),
+	  m_InventoryGUI(new GUILayer(GUILayer::Type::PlayerInventory, this)),
+	  m_ChestGUI(new GUILayer(GUILayer::Type::ChestInventory, this))
 {
 	// NOTE: Because of how it is rendering the coords (0,0) on the m_Board is the bottom left, not the top left!!
 
@@ -45,125 +48,8 @@ Maze::Maze()
 	// follower->setFollower(&m_Player);
 	m_Entities.push_back(enemy);
 
-	// Item *     item      = new FireStaff();
-	// WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, TILE_SIZE / 2, this, item);
-	// m_Entities.push_back(worldItem);
-	// Item *     item2      = new FireStaff();
-	// WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, TILE_SIZE / 2, this, item2);
-	// m_Entities.push_back(worldItem2);
-
-	auto healthPotionFunc = [](Mob *mob) {
-		mob->changeHealth(100);
-	};
-
-	Item *     potion     = new Potion("Large Health Potion", POTION_HEALTH, healthPotionFunc);
-	WorldItem *worldItem3 = new WorldItem(3800.0f, 3900.0f, TILE_SIZE / 2, this, potion);
-	m_Entities.push_back(worldItem3);
-
-	// Overlay GUI set up
-	{   // TODO: Make these all presets with the gui layer
-		auto clickedFunc = [](int index, Level *level) {
-			level->getPlayer()->setCurrentWeapon(index);
-		};
-		m_OverlayGUI->addMenuObject(new MIHManager(0, 0, 300, 100, 100, m_OverlayGUI, (std::vector<Item *> *) m_Player.getWeapons(), clickedFunc, m_Player.getCurrentWeaponPointer()));
-
-		auto posFunc = [](float *x, float *y, float *width, float *height) {
-			*x      = Application::getWidth() / 2;
-			*y      = 20;
-			*width  = Application::getWidth() / 3;
-			*height = 10;
-		};
-		m_OverlayGUI->addMenuObject(new StatBar(posFunc, m_OverlayGUI, m_Player.getHealthPointer(), m_Player.getMaxHealthPointer()));
-		Application::addOverlay(m_OverlayGUI);
-		activeGUI = m_OverlayGUI;
-	}
-
-	// Inventory GUI set up
-	{
-		auto backgroundPosFunc = [](float *x, float *y, float *width, float *height) {
-			*width  = 550;
-			*height = 575;
-			*x      = Application::getWidth() / 2;
-			*y      = Application::getHeight() / 2 + 75.0f / 2.0f;
-		};
-		auto exitFunc = [this]() {
-			this->returnToGame();
-		};
-		m_InventoryGUI->addMenuObject(new MenuBackground(backgroundPosFunc, m_InventoryGUI, {0.3f, 0.3f, 0.3f, 0.9f}, exitFunc));
-
-		auto clickedFunc = [this](int index, Level *level) {   // TODO: remove the level *
-			this->m_Player.useItemInInventory(index);
-		};
-
-		auto posFunc = [](float *x, float *y, float *width, float *height) {
-			*width  = 500;
-			*height = 400;
-			*x      = Application::getWidth() / 2 - *width / 2;
-			*y      = Application::getHeight() / 2 + *height / 2 - 112.5f;
-		};
-		m_InventoryGUI->addMenuObject(new MIHManager(posFunc, 100, m_InventoryGUI, m_Player.getInventory(), clickedFunc));
-
-		auto clickedWeaponFunc = [this](int index, Level *level) {
-			this->m_Player.setCurrentWeapon(index);
-		};
-		auto posWeaponFunc = [](float *x, float *y, float *width, float *height) {
-			*width  = 300;
-			*height = 100;
-			*x      = Application::getWidth() / 2 - *width / 2;
-			*y      = Application::getHeight() / 2 + 200;
-		};
-		m_InventoryGUI->addMenuObject(new MIHManager(posWeaponFunc, 100, m_OverlayGUI, (std::vector<Item *> *) m_Player.getWeapons(), clickedWeaponFunc, m_Player.getCurrentWeaponPointer()));
-	}
-
-	// Chest GUI set up
-	{
-		auto backgroundPosFunc = [](float *x, float *y, float *width, float *height) {
-			*width  = 900;
-			*height = 675;
-			*x      = Application::getWidth() / 2;
-			*y      = Application::getHeight() / 2 + 75.0f / 2.0f;
-		};
-		auto exitFunc = [this]() {
-			this->returnToGame();
-		};
-		m_ChestGUI->addMenuObject(new MenuBackground(backgroundPosFunc, m_InventoryGUI, {0.3f, 0.3f, 0.3f, 0.9f}, exitFunc));
-
-		auto clickedFunc = [this](int index, Level *level) {   // TODO: remove the level *
-			this->m_Player.useItemInInventory(index);
-		};
-
-		auto posFuncForPlayerInventory = [](float *x, float *y, float *width, float *height) {
-			*width  = 400;
-			*height = 500;
-			*x      = Application::getWidth() / 2 - *width - 10.0f;
-			*y      = Application::getHeight() / 2 + *height / 2 - 112.5f;
-		};
-		m_ChestGUI->addMenuObject(new MIHManager(posFuncForPlayerInventory, 100, m_InventoryGUI, m_Player.getInventory(), clickedFunc));
-
-		auto posFuncForChestInventory = [](float *x, float *y, float *width, float *height) {
-			*width  = 400;
-			*height = 500;
-			*x      = Application::getWidth() / 2 + 10.0f;
-			*y      = Application::getHeight() / 2 + *height / 2 - 112.5f;
-		};
-		MIHManager *chestSection = new MIHManager(posFuncForChestInventory, 100, m_InventoryGUI, nullptr, clickedFunc);
-		m_ChestGUI->addMenuObject(chestSection);
-
-		setChestToMenu = [chestSection](std::vector<Item *> &items) {
-			chestSection->setInventory(&items);
-		};
-
-		auto clickedWeaponFunc = [this](int index, Level *level) {
-			// this->m_Player.setCurrentWeapon(index);
-		};
-		auto posWeaponFunc = [](float *x, float *y, float *width, float *height) {
-			*width  = 300;
-			*height = 100;
-			*x      = Application::getWidth() / 2 - *width / 2;
-			*y      = Application::getHeight() / 2 + 250;
-		};
-		m_ChestGUI->addMenuObject(new MIHManager(posWeaponFunc, 100, m_OverlayGUI, (std::vector<Item *> *) m_Player.getWeapons(), clickedWeaponFunc, m_Player.getCurrentWeaponPointer()));
-	}
+	Application::addOverlay(m_OverlayGUI);
+	activeGUI = m_OverlayGUI;
 
 	Log::info("Maze initialised");
 }
@@ -248,7 +134,11 @@ void Maze::imGuiRender()
 
 bool Maze::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Event::EventType::keyInput)
+	if(e.getType() == Event::EventType::exitGUIMenu)
+	{
+		returnToGame();
+	}
+	else if(e.getType() == Event::EventType::keyInput)
 	{
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
 		if(activeGUI != m_InventoryGUI && ne.key == GLFW_KEY_E && ne.action == GLFW_PRESS)
@@ -534,6 +424,21 @@ void Maze::generate()
 	currentPaths.push_back({midpoint + 1, midpoint});
 	currentPaths.push_back({midpoint, midpoint + 1});
 
+	Item *     item      = new FireStaff();
+	WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, TILE_SIZE / 2, this, item);
+	getMidRoom()->addEntity(worldItem);
+	Item *     item2      = new FireStaff();
+	WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, TILE_SIZE / 2, this, item2);
+	getMidRoom()->addEntity(worldItem2);
+
+	auto healthPotionFunc = [](Mob *mob) {
+		mob->changeHealth(100);
+	};
+
+	Item *     potion     = new Potion("Large Health Potion", POTION_HEALTH, healthPotionFunc);
+	WorldItem *worldItem3 = new WorldItem(3800.0f, 3900.0f, TILE_SIZE / 2, this, potion);
+	getMidRoom()->addEntity(worldItem3);
+
 	multithreadGenerating(MAZE_SIZE * 4 / 5, 1);
 	// TODO: Add check to see if okay maze
 }
@@ -675,7 +580,7 @@ void Maze::updatePaths()
 
 // !SECTION
 
-void Maze::openChest(std::vector<Item *> &items)
+void Maze::openChest(ItemContainer &items)
 {
 	Application::removeLayer(activeGUI);
 	Application::addOverlay(m_ChestGUI);

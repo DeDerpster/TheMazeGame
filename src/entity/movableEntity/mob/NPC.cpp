@@ -139,7 +139,7 @@ void NPC::attack()
 			m_Dir = Direction::south;
 		else
 			m_Dir = Direction::north;
-		m_Weapons[m_CurrentWeapon]->attack(m_Level, *this, m_Dir, true);
+		useCurrentWeapon(true);
 	}
 
 	if(y < attacking->getY() && y + m_Speed < attacking->getY())
@@ -166,7 +166,7 @@ void NPC::attack()
 			m_Dir = Direction::west;
 		else
 			m_Dir = Direction::east;
-		m_Weapons[m_CurrentWeapon]->attack(m_Level, *this, m_Dir, true);
+		useCurrentWeapon(true);
 	}
 
 	if(ratio.x != 0.0f || ratio.y != 0.0f)

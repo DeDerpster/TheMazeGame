@@ -1,8 +1,11 @@
 #include "Mob.h"
-#include "KeyDefinitions.h"
 
 #include "Potion.h"
 #include "Weapon.h"
+
+#include "Application.h"
+#include "KeyDefinitions.h"
+#include "Renderer.h"
 
 #include <math.h>
 
@@ -17,42 +20,44 @@
 		}                                      \
 	}
 
+#define DEFINE_MY_VARS m_Inventory(DEFAULT_INVENTORY_SIZE), m_Weapons(3), m_CurrentWeapon(-1)
+
 Mob::Mob()
-	: MovableEntity(0.0f, 0.0f, TILE_SIZE * 1.25f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(0.0f, 0.0f, TILE_SIZE * 1.25f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y)
-	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level)
-	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, level, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, level, SPRITE_PLAYER), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level, uint16_t spriteID)
-	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, level, spriteID), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, TILE_SIZE * 1.25f, defaultBox, level, spriteID), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, float speed, Level *level, uint16_t spriteID)
-	: MovableEntity(x, y, TILE_SIZE * 1.25f, speed, Direction::south, defaultBox, level, spriteID), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, TILE_SIZE * 1.25f, speed, Direction::south, defaultBox, level, spriteID), StatsMob(), DEFINE_MY_VARS
 {
 	setupAnimations();
 }
 
 Mob::~Mob()
 {
-	for(Weapon *weapon : m_Weapons)
+	/*for(Weapon *weapon : m_Weapons)
 		delete weapon;
 	for(Item *item : m_Inventory)
-		delete item;
+		delete item;*/
 }
 
 void Mob::render()
@@ -117,7 +122,7 @@ void Mob::update()
 	}
 
 	for(Weapon *w : m_Weapons)
-		w->update();
+		static_cast<Weapon *>(w)->update();
 
 	StatsMob::update();
 }
@@ -127,7 +132,7 @@ bool Mob::eventCallback(const Event::Event &e)
 	return MovableEntity::eventCallback(e);
 }
 
-void Mob::useItemInInventory(int index)
+void Mob::useItemInInventory(uint16_t index)
 {
 	if(index > m_Inventory.size())
 	{
@@ -139,7 +144,8 @@ void Mob::useItemInInventory(int index)
 	Weapon *wp   = dynamic_cast<Weapon *>(item);
 	if(wp)
 	{
-		// TODO: Fill this in :D
+		Event::ItemTransfer e(index, &m_Inventory);
+		Application::callEvent(e, true);
 		return;
 	}
 
@@ -150,31 +156,39 @@ void Mob::useItemInInventory(int index)
 		m_Inventory.erase(m_Inventory.begin() + index);
 		return;
 	}
+
 	// NOTE: This is where other stuff will go :D
+}
+
+void Mob::useCurrentWeapon(bool hold)
+{
+	Weapon *weapon = m_Weapons[m_CurrentWeapon];
+	weapon->attack(m_Level, *this, m_Dir, hold);
 }
 
 void Mob::setupAnimations()
 {
-	m_NorthAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_NORTH);
-
-	m_SouthAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_SOUTH);
-
-	m_EastAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_EAST);
-
-	m_WestAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_WEST);
+	m_NorthAnimation = std::make_unique<AnimatedSprite>(ANIMATION_FRAMES, m_SpriteID + SPRITE_NORTH);
+	m_SouthAnimation = std::make_unique<AnimatedSprite>(ANIMATION_FRAMES, m_SpriteID + SPRITE_SOUTH);
+	m_EastAnimation  = std::make_unique<AnimatedSprite>(ANIMATION_FRAMES, m_SpriteID + SPRITE_EAST);
+	m_WestAnimation  = std::make_unique<AnimatedSprite>(ANIMATION_FRAMES, m_SpriteID + SPRITE_WEST);
 }
 
-void Mob::pickUp(Item *item)
+bool Mob::pickUp(Item *item)
 {
 	Weapon *weapon = dynamic_cast<Weapon *>(item);
-	if(weapon && m_Weapons.size() < getMaxActiveWeapons())
+	if(weapon && !m_Weapons.isFull())
 	{
 		m_Weapons.push_back(weapon);
 		if(m_CurrentWeapon == -1)
 			m_CurrentWeapon = 0;
+		return true;
 	}
-	else if(m_Inventory.size() < getMaxInventory())
+	else if(!m_Inventory.isFull())
+	{
 		m_Inventory.push_back(item);
-	else
-		Log::warning("Need to actually do something here!");   // TODO: replace this
+		return true;
+	}
+
+	return false;
 }

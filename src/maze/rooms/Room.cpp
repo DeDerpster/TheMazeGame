@@ -2,6 +2,7 @@
 #include "RoomColours.h"
 
 #include "Application.h"
+#include "Level.h"
 #include "Log.h"
 #include "Sprite.h"
 

@@ -1,9 +1,5 @@
 #pragma once
 
-#include <GLM.h>
-
-#include "Log.h"
-
 enum Direction
 {
 	north = 0,

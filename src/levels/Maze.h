@@ -42,7 +42,6 @@ class Maze : public Level
 	GUILayer *m_InventoryGUI;
 	GUILayer *m_ChestGUI;
 
-	std::function<void(std::vector<Item *> &)> setChestToMenu;
 
 	void addRoom(int x, int y, bool north, bool south, bool east, bool west);
 	void updatePaths();
@@ -74,7 +73,7 @@ class Maze : public Level
 	void moveWest();
 
 	// Functions for interaction with gui layers
-	virtual void openChest(std::vector<Item *> &items) override;
+	virtual void openChest(ItemContainer &items) override;
 	virtual void endLevel() override;
 	void         returnToGame();
 };

@@ -61,9 +61,11 @@ bool WorldItem::eventCallback(const Event::Event &e)
 		Player *player = m_Level->getPlayer();
 		if(doesIntersectWith(Application::getCamera()->convertWindowToLevel(ne.pos)) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
 		{
-			Log::info("Picked up");
-			player->pickUp(m_Item);
-			m_Item = nullptr;
+			if(player->pickUp(m_Item))
+			{
+				Log::info("Picked up");
+				m_Item = nullptr;
+			}
 			return true;
 		}
 	}

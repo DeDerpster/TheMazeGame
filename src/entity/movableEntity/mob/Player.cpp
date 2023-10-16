@@ -21,6 +21,9 @@ Player::Player(float x, float y, Level *level)
 	changeHealth(1000);
 	m_Weapons.push_back(new FireStaff());
 	m_CurrentWeapon = 0;
+
+	m_Inventory.push_back(new FireStaff());
+	m_Inventory.push_back(new FireStaff());
 }
 
 Player::~Player()
@@ -70,7 +73,7 @@ bool Player::eventCallback(const Event::Event &e)
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
 		if(ne.key == GLFW_KEY_SPACE && (ne.action == GLFW_PRESS || ne.action == GLFW_REPEAT) && m_CurrentWeapon != -1)
 		{
-			m_Weapons[m_CurrentWeapon]->attack(m_Level, *this, m_Dir, ne.action == GLFW_REPEAT);
+			useCurrentWeapon(ne.action == GLFW_REPEAT);
 			return true;
 		}
 	}

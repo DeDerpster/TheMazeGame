@@ -2,17 +2,19 @@
 
 #include "Application.h"
 #include "FireStaff.h"
+#include "Level.h"
 #include "Player.h"
 #include "Sprite.h"
 #include "Utils.h"
+#include "KeyDefinitions.h"
 
 Chest::Chest()
-	: Tile(), m_State(Button::State::None)
+	: Tile(), m_Inventory(DEFAULT_INVENTORY_SIZE), m_State(Button::State::None)
 {
 }
 
 Chest::Chest(float x, float y, double rotation, Level *level, bool isDud)
-	: Tile(x, y, rotation, BASIC_CHEST, true, level), m_State(Button::State::None), m_IsDud(isDud)
+	: Tile(x, y, rotation, BASIC_CHEST, true, level), m_Inventory(DEFAULT_INVENTORY_SIZE), m_State(Button::State::None), m_IsDud(isDud)
 {
 	if(!m_IsDud)
 		generateInventory();
@@ -20,8 +22,6 @@ Chest::Chest(float x, float y, double rotation, Level *level, bool isDud)
 
 Chest::~Chest()
 {
-	for(Item *item : m_Inventory)
-		delete item;
 }
 
 void Chest::generateInventory()
@@ -39,7 +39,7 @@ CollisionBox Chest::getCollisionBox()
 void Chest::render()
 {
 	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID);
-	if(m_State == Button::State::Hover)
+	if(m_State == Button::State::Hover && !Application::getIsPaused())
 	{
 		float        scale    = 35.0f;
 		Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());

@@ -2,9 +2,12 @@
 
 #include "Utils.h"
 
+#include "Container.h"
+
 namespace Event
 {
 	void  init();
+	void  update();
 	bool isKeyPressed(int key);
 	Vec2f getMousePos();
 
@@ -28,12 +31,15 @@ namespace Event
 		mouseClicked,
 		windowResize,
 		mazeMovedEvent,
-		showAltTileEvent
+		showAltTileEvent,
+		itemTransfer,
+		exitGUIMenu
 	};
 
 	struct Event
 	{
 		virtual EventType const getType() const = 0;
+		virtual bool            ignoreIfPaused() const = 0;
 	};
 
 	struct KeyboardEvent : Event
@@ -43,6 +49,7 @@ namespace Event
 		KeyboardEvent(int key, int scancode, int action, int mods)
 			: key(key), scancode(scancode), action(action), mods(mods) {}
 		virtual EventType const getType() const override { return EventType::keyInput; }
+		virtual bool            ignoreIfPaused() const override { return false; }
 	};
 
 	struct ScrollEvent : Event
@@ -52,6 +59,7 @@ namespace Event
 		ScrollEvent(double xoffset, double yoffset)
 			: xoffset(xoffset), yoffset(yoffset) {}
 		virtual EventType const getType() const override { return EventType::scroll; }
+		virtual bool            ignoreIfPaused() const override { return false; }
 	};
 
 	struct WindowResizeEvent : Event
@@ -62,6 +70,7 @@ namespace Event
 		WindowResizeEvent(int originalWidth, int originalHeight, int newWidth, int newHeight)
 			: oWidth(originalWidth), oHeight(originalHeight), width(newWidth), height(newHeight) {}
 		virtual EventType const getType() const override { return EventType::windowResize; }
+		virtual bool            ignoreIfPaused() const override { return true; }
 	};
 
 	struct MouseClickedEvent : Event
@@ -72,6 +81,7 @@ namespace Event
 		MouseClickedEvent(MouseButton button, Vec2f pos)
 			: button(button), pos(pos) {}
 		virtual EventType const getType() const override { return EventType::mouseClicked; }
+		virtual bool            ignoreIfPaused() const override { return false; }
 	};
 
 	struct MazeMovedEvent : Event
@@ -81,6 +91,7 @@ namespace Event
 		MazeMovedEvent(float changeX, float changeY)
 			: changeX(changeX), changeY(changeY) {}
 		virtual EventType const getType() const override { return EventType::mazeMovedEvent; }
+		virtual bool            ignoreIfPaused() const override { return true; }
 	};
 
 	struct ShowAltTileEvent : Event
@@ -90,7 +101,27 @@ namespace Event
 		ShowAltTileEvent(bool showAlt)
 			: showAlt(showAlt) {}
 		virtual EventType const getType() const override { return EventType::showAltTileEvent; }
+		virtual bool            ignoreIfPaused() const override { return true; }
 	};
+
+	struct ItemTransfer : Event
+	{
+		uint16_t    index;
+		IContainer *container;
+
+		ItemTransfer(uint16_t index, IContainer *container)
+			: index(index), container(container) {}
+		virtual EventType const getType() const override { return EventType::itemTransfer; }
+		virtual bool            ignoreIfPaused() const override { return false; }
+	};
+
+	struct ExitGUIMenuEvent : Event
+	{
+		ExitGUIMenuEvent() {}
+		virtual EventType const getType() const override { return EventType::exitGUIMenu; }
+		virtual bool            ignoreIfPaused() const override { return true; }
+	};
+
 }   // namespace Application
 
 #define GLFW_KEY_UNKNOWN -1

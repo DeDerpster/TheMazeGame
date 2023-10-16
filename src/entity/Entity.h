@@ -6,7 +6,6 @@
 #include "Utils.h"
 
 class Level;
-
 class Entity
 {
   protected:

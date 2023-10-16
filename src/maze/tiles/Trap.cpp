@@ -1,5 +1,6 @@
 #include "Trap.h"
 
+#include "Level.h"
 #include "Utils.h"
 
 Trap::Trap()

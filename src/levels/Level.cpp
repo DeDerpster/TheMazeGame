@@ -5,12 +5,11 @@
 #include <memory>
 
 #include "AStarUtils.h"
+#include "Application.h"
 #include "Entity.h"
-#include "Player.h"
 #include "Projectile.h"
 #include "Room.h"
 #include "Tile.h"
-#include "Application.h"
 
 Level::Level(float playerStartX, float playerStartY, int width, int height, Vec2i offsetStart)
 	: Layer(),

@@ -3,6 +3,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include "Level.h"
+
 uint32_t factorial(int num)
 {
 	uint32_t output = 1;
@@ -51,10 +53,5 @@ bool doesPointIntersectWithBox(Vec2f point, Vec2f pos, CollisionBox box)
 
 bool doesBoxIntersectWithBox(Vec2f pos1, CollisionBox box1, Vec2f pos2, CollisionBox box2)
 {
-	bool lowerLeft  = doesPointIntersectWithBox({pos1.x + box1.lowerBound.x, pos1.y + box1.lowerBound.y}, pos2, box2);
-	bool lowerRight = doesPointIntersectWithBox({pos1.x + box1.upperBound.x, pos1.y + box1.lowerBound.y}, pos2, box2);
-	bool upperLeft  = doesPointIntersectWithBox({pos1.x + box1.lowerBound.x, pos1.y + box1.upperBound.y}, pos2, box2);
-	bool upperRight = doesPointIntersectWithBox({pos1.x + box1.upperBound.x, pos1.y + box1.upperBound.y}, pos2, box2);
-
-	return lowerLeft || lowerRight || upperLeft || upperRight;
+	return !(pos1.x + box1.upperBound.x < pos2.x + box2.lowerBound.x || pos1.x + box1.lowerBound.x > pos2.x + box2.upperBound.x || pos1.y + box1.upperBound.y < pos2.y + box2.lowerBound.y || pos1.y + box1.lowerBound.y > pos2.y + box2.upperBound.y);
 }

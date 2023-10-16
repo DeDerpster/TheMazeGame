@@ -3,4 +3,5 @@ target_sources(${PROJECT_NAME} PRIVATE Button.cpp
                                        StatBar.cpp
                                        MenuObject.cpp
                                        MenuBackgroundObject.cpp
-                                       Text.cpp)
+                                       Text.cpp
+                                       TransferObject.cpp)

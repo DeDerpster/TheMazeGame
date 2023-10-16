@@ -17,7 +17,7 @@ class Particle
 	uint16_t m_Age;
 
   public:
-	Particle(int x, int y, float size, Vec2f dir, uint16_t lifetime, glm::vec4 colour);
+	Particle(float x, float y, float size, Vec2f dir, uint16_t lifetime, glm::vec4 colour);
 	~Particle();
 
 	virtual void render();

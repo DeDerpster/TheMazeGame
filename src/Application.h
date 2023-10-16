@@ -41,7 +41,7 @@ class Application
 	static void addLayer(Layer *layer, int index) { get().addLayerImpl(layer, index); }
 	static void addOverlay(Layer *layer) { get().addOverlayImpl(layer); }
 	static void removeLayer(int index) { get().removeLayerImpl(index); }
-	static void removeLayer(Layer *layer) { get().removeLayerImpl(layer); }
+	static void removeLayer(Layer *layer, bool deleteLayer = false) { get().removeLayerImpl(layer, deleteLayer); }
 
 	static void callEvent(const Event::Event &e, bool includeOverlay = false) { get().callEventImpl(e, includeOverlay); }
 	static void setEffect(Effect::RenderEffect *e, bool includeOverlay = false) { get().setEffectImpl(e, includeOverlay); }
@@ -92,7 +92,7 @@ class Application
 	void addLayerImpl(Layer *layer, int index);
 	void addOverlayImpl(Layer *layer);
 	void removeLayerImpl(int index);
-	void removeLayerImpl(Layer *layer);
+	void removeLayerImpl(Layer *layer, bool deleteLayer);
 
 	void callEventImpl(const Event::Event &e, bool includeOverlay = false);
 	void setEffectImpl(Effect::RenderEffect *e, bool includeOverlay = false);

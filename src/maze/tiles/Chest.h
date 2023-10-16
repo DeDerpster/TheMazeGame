@@ -2,13 +2,14 @@
 
 #include "Button.h"
 #include "Item.h"
+#include "ItemContainer.h"
 #include "Tile.h"
 #include "Utils.h"
 
 class Chest : public Tile
 {
   protected:
-	std::vector<Item *> m_Inventory;
+	ItemContainer       m_Inventory;
 	Button::State       m_State;
 	bool                m_IsDud;
 
@@ -28,7 +29,7 @@ class Chest : public Tile
 	virtual void imGuiRender() override;
 #endif
 
-	std::vector<Item *> &getInventory()
+	ItemContainer &getInventory()
 	{
 		return m_Inventory;
 	}

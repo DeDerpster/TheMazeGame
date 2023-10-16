@@ -2,20 +2,19 @@
 
 #include "MovableEntity.h"
 
-#include <vector>
-
 #include "AnimatedSprite.h"
+#include "ItemContainer.h"
+#include "WeaponContainer.h"
 #include "Item.h"
 #include "StatsMob.h"
 #include "Utils.h"
-
-class Weapon;
+#include "Weapon.h"
 
 class Mob : public MovableEntity, public StatsMob
 {
   protected:
-	std::vector<Item *>   m_Inventory;
-	std::vector<Weapon *> m_Weapons;
+	ItemContainer         m_Inventory;
+	WeaponContainer       m_Weapons;
 	int                   m_CurrentWeapon;
 
 	std::unique_ptr<AnimatedSprite> m_NorthAnimation;
@@ -35,7 +34,7 @@ class Mob : public MovableEntity, public StatsMob
 	Mob(float x, float y, float speed, Level *level, uint16_t spriteID);
 	virtual ~Mob() override;
 
-	void pickUp(Item *item);   // TODO: Make this into a bool to tell it whether it can pick it up
+	bool pickUp(Item *item);
 
 	virtual void render();
 	virtual void update();
@@ -43,13 +42,18 @@ class Mob : public MovableEntity, public StatsMob
 
 	virtual bool deleteMe() { return isDead(); }
 
-	const std::vector<Weapon *> *getWeapons() { return &m_Weapons; }
-	const std::vector<Item *> *  getInventory() { return &m_Inventory; }
+	ItemContainer *                  getInventory() { return &m_Inventory; }
+	WeaponContainer *                getWeapons() { return &m_Weapons; }
 	int *                        getCurrentWeaponPointer() { return &m_CurrentWeapon; }
 	void                         setCurrentWeapon(int currentWeapon) { m_CurrentWeapon = currentWeapon; }
-	void                         useItemInInventory(int index);
+	void                                     useItemInInventory(uint16_t index);
 
-	void setIsInControl(bool i_isInControl) { isInControl = i_isInControl; }
+	void useCurrentWeapon(bool hold);
+
+	void setIsInControl(bool i_isInControl)
+	{
+		isInControl = i_isInControl;
+	}
 #ifdef DEBUG
 	virtual void imGuiRender() = 0;
 #endif
