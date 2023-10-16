@@ -4,22 +4,24 @@
 #include <math.h>
 
 Mob::Mob()
-	: Entity(), m_Speed(7.0f), isMoving(false), m_CollisionBox({{(float) Tile::TILE_SIZE * 0.37f, (float) -Tile::TILE_SIZE * 0.04f}, {(float) Tile::TILE_SIZE * 0.6f, (float) Tile::TILE_SIZE * 0.2f}}), m_Dir(Direction::SOUTH)
+	: Entity(0.0f, 0.0f, nullptr, {{(float) Tile::TILE_SIZE * 0.37f, (float) -Tile::TILE_SIZE * 0.04f}, {(float) Tile::TILE_SIZE * 0.6f, (float) Tile::TILE_SIZE * 0.2f}}), m_Speed(7.0f), isMoving(false), m_Dir(Direction::SOUTH)
 {
 }
 
 Mob::Mob(float x, float y)
-	: Entity(x, y), m_Speed(7.0f), isMoving(false), m_CollisionBox({{(float) Tile::TILE_SIZE * 0.37f, (float) -Tile::TILE_SIZE * 0.04f}, {(float) Tile::TILE_SIZE * 0.6f, (float) Tile::TILE_SIZE * 0.2f}}), m_Dir(Direction::SOUTH)
+	: Entity(x, y, nullptr, {{(float) Tile::TILE_SIZE * 0.37f, (float) -Tile::TILE_SIZE * 0.04f}, {(float) Tile::TILE_SIZE * 0.6f, (float) Tile::TILE_SIZE * 0.2f}}), m_Speed(7.0f), isMoving(false), m_Dir(Direction::SOUTH)
 {
 }
 
 Mob::Mob(float x, float y, Level *level)
-	: Entity(x, y, level), m_Speed(7.0f), isMoving(false), m_CollisionBox({{(float) Tile::TILE_SIZE * 0.37f, (float) -Tile::TILE_SIZE * 0.04f}, {(float) Tile::TILE_SIZE * 0.6f, (float) Tile::TILE_SIZE * 0.2f}}), m_Dir(Direction::SOUTH)
+	: Entity(x, y, level, {{(float) Tile::TILE_SIZE * 0.37f, (float) -Tile::TILE_SIZE * 0.04f}, {(float) Tile::TILE_SIZE * 0.6f, (float) Tile::TILE_SIZE * 0.2f}}), m_Speed(7.0f), isMoving(false), m_Dir(Direction::SOUTH)
 {
 }
 
 Mob::~Mob()
 {
+	for(Item *item : inventory)
+		delete item;
 }
 
 void Mob::move(float xa, float ya)
@@ -77,4 +79,9 @@ void Mob::move(Vec2f ratio)
 		float timesBy      = std::sqrt((sumSquared * speedSquared) / (ratio.x * ratio.x + ratio.y * ratio.y));
 		move((ratio.x * timesBy) / sum, (ratio.y * timesBy) / sum);
 	}
+}
+
+void Mob::pickUp(Item *item)
+{
+	inventory.push_back(item);
 }

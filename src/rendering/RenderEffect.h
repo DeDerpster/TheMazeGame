@@ -33,7 +33,7 @@ namespace Effect
 		}
 		virtual void const setEffect(Shader &s) const override
 		{
-			s.SetUniform4f(m_Name, vec[0], vec[1], vec[2], vec[3]);
+			s.setUniform4f(m_Name, vec[0], vec[1], vec[2], vec[3]);
 		}
 	};
 
@@ -49,7 +49,7 @@ namespace Effect
 		}
 		virtual void const setEffect(Shader &s) const override
 		{
-			s.SetUniformMat4f(m_Name, mat);
+			s.setUniformMat4f(m_Name, mat);
 		}
 	};
 }   // namespace Effect

@@ -7,7 +7,7 @@
 #include "Sprite.h"
 
 Tile::Tile(int x, int y, double rotation, int texID, bool isSolid)
-	: m_TexID(texID), x(x), y(y), rotation(rotation), m_IsSolid(isSolid)
+	: m_SpriteID(texID), x(x), y(y), rotation(rotation), m_IsSolid(isSolid)
 {
 }
 
@@ -21,7 +21,7 @@ void Tile::render(float secX, float secY)
 	float boardX = secX + ((float) x) * TILE_SIZE;   // These are the coordinates relative to the board, not the screen! - that is calculated in the shader
 	float boardY = secY + ((float) y) * TILE_SIZE;
 	if(Application::isInFrame(boardX, boardY))
-		Sprite::Sprite::getSprite(m_TexID)->render(boardX, boardY, rotation, TILE_SIZE);
+		Render::Sprite::getSprite(m_SpriteID)->render(boardX, boardY, rotation, TILE_SIZE);
 }
 
 void Tile::update()

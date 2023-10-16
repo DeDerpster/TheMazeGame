@@ -29,19 +29,19 @@ Follower::~Follower()
 void Follower::setupAnimations()
 {
 	Log::info("Setting up Animations for follower");
-	m_NorthAnimation = std::make_unique<Sprite::AnimatedSprite>(2);
+	m_NorthAnimation = std::make_unique<Render::AnimatedSprite>(2);
 	m_NorthAnimation->addSprite(PLAYER_NORTH_1);
 	m_NorthAnimation->addSprite(PLAYER_NORTH_2);
 
-	m_SouthAnimation = std::make_unique<Sprite::AnimatedSprite>(2);
+	m_SouthAnimation = std::make_unique<Render::AnimatedSprite>(2);
 	m_SouthAnimation->addSprite(PLAYER_SOUTH_1);
 	m_SouthAnimation->addSprite(PLAYER_SOUTH_2);
 
-	m_EastAnimation = std::make_unique<Sprite::AnimatedSprite>(2);
+	m_EastAnimation = std::make_unique<Render::AnimatedSprite>(2);
 	m_EastAnimation->addSprite(PLAYER_EAST_1);
 	m_EastAnimation->addSprite(PLAYER_EAST_2);
 
-	m_WestAnimation = std::make_unique<Sprite::AnimatedSprite>(2);
+	m_WestAnimation = std::make_unique<Render::AnimatedSprite>(2);
 	m_WestAnimation->addSprite(PLAYER_WEST_1);
 	m_WestAnimation->addSprite(PLAYER_WEST_2);
 }
@@ -65,7 +65,7 @@ void Follower::findPath()
 	// Vec2f ratio = {0.0f, 0.0f};
 
 	// for(Vec2f vec : path)
-	// Sprite::Sprite::getSprite(DEBUG_CIRCLE)->render(vec.x, vec.y, 0.0f, Tile::TILE_SIZE * ((float) X_STEP / 100.0f));
+	// Render::Sprite::getSprite(DEBUG_CIRCLE)->render(vec.x, vec.y, 0.0f, Tile::TILE_SIZE * ((float) X_STEP / 100.0f));
 	// Application::renderBuffers();
 	float availiableDist = m_Speed;
 	while(availiableDist > 0.0f && path->size() > 0)
@@ -153,16 +153,16 @@ void Follower::render()
 		switch(m_Dir)
 		{
 		case Direction::NORTH:
-			Sprite::Sprite::getSprite(PLAYER_NORTH)->render(RENDER_ARGUMENTS);
+			Render::Sprite::getSprite(PLAYER_NORTH)->render(RENDER_ARGUMENTS);
 			break;
 		case Direction::SOUTH:
-			Sprite::Sprite::getSprite(PLAYER_SOUTH)->render(RENDER_ARGUMENTS);
+			Render::Sprite::getSprite(PLAYER_SOUTH)->render(RENDER_ARGUMENTS);
 			break;
 		case Direction::EAST:
-			Sprite::Sprite::getSprite(PLAYER_EAST)->render(RENDER_ARGUMENTS);
+			Render::Sprite::getSprite(PLAYER_EAST)->render(RENDER_ARGUMENTS);
 			break;
 		default:
-			Sprite::Sprite::getSprite(PLAYER_WEST)->render(RENDER_ARGUMENTS);
+			Render::Sprite::getSprite(PLAYER_WEST)->render(RENDER_ARGUMENTS);
 			break;
 		}
 	}
@@ -176,6 +176,7 @@ void Follower::imGuiRender()
 }
 #endif
 
-void Follower::eventCallback(Application::Event &e)
+bool Follower::eventCallback(const Application::Event &e)
 {
+	return false;
 }

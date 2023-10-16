@@ -11,28 +11,28 @@
 
 namespace Render   // Puts this in its own namespace
 {
-	class Renderer
+	class SmartBuffer
 	{
 	  private:
-		int          m_Offset;       // Stores the offset to the end of the used buffer
-		unsigned int m_BufferSize;   // Stores the size of the buffer
-		unsigned int maxVertices;    // Stores the maximum amount of vertices the renderer can store
+		int      m_Offset;
+		uint32_t m_BufferSize;
+		uint32_t maxVertices;
 
-		// These are the variables needed to render
 		std::unique_ptr<VertexArray>  m_VAO;
 		std::unique_ptr<IndexBuffer>  m_IndexBuffer;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 
-		void addToBuffer(const std::array<Vertex, 4> &vertices);   // Adds an array of 4 vertices to the buffer (a square)
-		void draw() const;                                         // This draws all elements in the vertex buffer - but does NOT reset it
-		void resetBuffer();                                        // Resets the buffer, so that the buffer does not overflow
-
 	  public:
-		Renderer(unsigned int maxVertices);
-		~Renderer();
+		SmartBuffer(uint32_t maxVertices, void (*layoutCreator)(VertexBufferLayout &));
+		~SmartBuffer();
 
-		void clear() const;   // Resets the window
-		void render();        // This goes through all the sprites and renders anything added to their buffer
+		bool addToBuffer(const void *vertices, uint32_t size);
+		void resetBuffer();
+		void draw() const;
+
+		uint32_t getBufferSize() { return m_BufferSize; }
+		bool     canStore(uint32_t size) { return m_Offset + size <= m_BufferSize; }
+		bool     isEmpty() { return m_Offset == 0; }
 	};
 
 	// This creates a quad of vertices (a square) from given coordinates and rotation...

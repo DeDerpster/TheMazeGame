@@ -157,7 +157,7 @@ struct Vertex
 		: position(position), texCoords(texCoords), texID(texID) {}
 };
 
-namespace Sprite
+namespace Render
 {
 	struct Object
 	{

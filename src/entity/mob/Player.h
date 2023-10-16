@@ -6,10 +6,10 @@
 class Player : public Mob
 {
   private:
-	std::unique_ptr<Sprite::AnimatedSprite> m_NorthAnimation;
-	std::unique_ptr<Sprite::AnimatedSprite> m_SouthAnimation;
-	std::unique_ptr<Sprite::AnimatedSprite> m_EastAnimation;
-	std::unique_ptr<Sprite::AnimatedSprite> m_WestAnimation;
+	std::unique_ptr<Render::AnimatedSprite> m_NorthAnimation;
+	std::unique_ptr<Render::AnimatedSprite> m_SouthAnimation;
+	std::unique_ptr<Render::AnimatedSprite> m_EastAnimation;
+	std::unique_ptr<Render::AnimatedSprite> m_WestAnimation;
 
 	void setupAnimations();
 
@@ -25,5 +25,5 @@ class Player : public Mob
 	virtual void imGuiRender() override;
 #endif
 
-	virtual void eventCallback(Application::Event &e) override;
+	virtual bool eventCallback(const Application::Event &e) override;
 };

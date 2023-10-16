@@ -1,13 +1,13 @@
 #include "Sprite.h"
 
-namespace Sprite
+namespace Render
 {
 	std::vector<std::unique_ptr<Sprite>> Sprite::sprites;
 
 	Sprite::Sprite(const char *texturePath)
 	{
 		m_Texture = std::make_unique<Texture>(texturePath);
-		// m_TexID   = -1;
+		// m_SpriteID   = -1;
 	}
 
 	Sprite::~Sprite()

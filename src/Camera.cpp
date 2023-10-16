@@ -55,6 +55,10 @@ void Camera::update()
 			x += moveSpeed;
 		}
 	}
+}
+
+void Camera::render()
+{
 	if(updateView)
 	{
 		std::string         name = "u_MVP";
@@ -163,7 +167,7 @@ void Camera::setY(float newY)
 	y = newY;
 }
 
-void Camera::setAnchor(Entity *e)
+void Camera::setAnchor(Mob *e)
 {
 	lockOnAnchor = true;
 	m_Anchor     = e;
@@ -178,4 +182,11 @@ float Camera::getZoom()
 void Camera::changeUpdateView()
 {
 	updateView = true;
+}
+
+Vec2f Camera::convertWindowToLevel(Vec2f inp)
+{
+	float nx = x + (2 * inp.x - Application::getWidth()) / (2 * zoomPercentage);
+	float ny = y + (2 * inp.y - Application::getHeight()) / (2 * zoomPercentage);
+	return {nx, ny};
 }

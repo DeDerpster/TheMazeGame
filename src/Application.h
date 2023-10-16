@@ -19,7 +19,6 @@ namespace Application
 
 	void update();
 	void render();
-	void renderBuffers();
 #ifdef DEBUG
 	void imGuiRender();
 #endif
@@ -32,6 +31,7 @@ namespace Application
 
 	void callEvent(const Event &e, bool includeOverlay = false);
 	void setEffect(const Effect::RenderEffect &e, bool includeOverlay = false);
+	void setOverlayEffect(const Effect::RenderEffect &e);
 
 	void updateWindowSize(int width, int height);
 	bool isWindowOpen();

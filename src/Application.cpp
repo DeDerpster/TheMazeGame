@@ -1,12 +1,16 @@
 #include "Core.h"
 
+#include <functional>
 #include <vector>
 
 #include "Application.h"
 #include "Renderer.h"
 #include "Sprite.h"
+#include "Text.h"
 #include "Tile.h"
 #include "glDebug.h"
+
+#include "VertexBufferLayout.h"
 
 #include "Event.h"
 #include "Log.h"
@@ -14,15 +18,14 @@
 namespace Application   // I've used a namespace here as I know there will only be one version of the application
 {
 	// SECTION: Variables
-	GLFWwindow *      window;   // Stores the GLFW winodow
-	Camera            camera(4500.0f, 4500.0f);
-	Render::Renderer *renderer;
+	static GLFWwindow *window;   // Stores the GLFW winodow
+	static Camera      camera(4500.0f, 4500.0f);
 
-	glm::mat4 proj;   // Stores the projection mapping for the window
-	int       windowWidth, windowHeight;
+	static glm::mat4 proj;   // Stores the projection mapping for the window
+	static int       windowWidth, windowHeight;
 
-	int                  overlayStart;
-	std::vector<Layer *> layers;   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time)
+	static int                  overlayStart;
+	static std::vector<Layer *> layers;   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time)
 	// !SECTION
 
 	// SECTION: Initialises
@@ -55,7 +58,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 		proj = glm::ortho(0.0f, (float) windowWidth, 0.0f, (float) windowHeight, -100.0f, 100.0f);
 
 		glfwMakeContextCurrent(window);   // Makes context and makes it so that the program can only run at 60fps or lower (for a more constant framerate)
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 
 		eventInit();   // Initialises the events (in Event.h)
 
@@ -71,8 +74,11 @@ namespace Application   // I've used a namespace here as I know there will only 
 		// Enables the default blending
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-		renderer = new Render::Renderer(3528);
-		Sprite::Sprite::init();   // Initialises all the sprites
+
+		if(!Render::Text::init())
+			return false;
+
+		Render::Sprite::init();   // Initialises all the sprites
 		return true;
 	}
 
@@ -86,8 +92,6 @@ namespace Application   // I've used a namespace here as I know there will only 
 			if(layers[i])
 				delete layers[i];
 		}
-
-		delete renderer;
 
 #ifdef DEBUG
 		ImGui_ImplOpenGL3_Shutdown();   // Shuts down ImGui
@@ -125,6 +129,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 			return false;
 		}
 	}
+
 	ImGuiIO *getImGuiContext()
 	{
 		ImGui::CreateContext();   // Creates ImGui context
@@ -156,38 +161,22 @@ namespace Application   // I've used a namespace here as I know there will only 
 	void update()   // Updates all the layers
 	{
 		for(int i = 0; i < layers.size(); i++)
-		{
-			if(layers[i])
-				layers[i]->update();
-		}
+			layers[i]->update();
 		camera.update();
 	}
 
 	void render()   // Renders all the layers
 	{
+		camera.render();
 		for(int i = 0; i < layers.size(); i++)
-		{
-			if(layers[i])
-			{
-				layers[i]->render();
-				renderer->render();
-			}
-		}
-	}
-
-	void renderBuffers()
-	{
-		renderer->render();
+			layers[i]->render();
 	}
 
 #ifdef DEBUG
 	void imGuiRender()   // Renders ImGui in all the layers
 	{
 		for(int i = 0; i < layers.size(); i++)
-		{
-			if(layers[i])
-				layers[i]->imGuiRender();
-		}
+			layers[i]->imGuiRender();
 		camera.imGuiRender();
 	}
 #endif
@@ -259,10 +248,21 @@ namespace Application   // I've used a namespace here as I know there will only 
 			endVal = overlayStart;
 
 		for(int i = 0; i < endVal; i++)
-		{
-			if(layers[i])
-				layers[i]->setEffect(e);
-		}
+			layers[i]->setEffect(e);
+	}
+
+	void setOverlayEffect(const Effect::RenderEffect &e)
+	{
+		for(int i = overlayStart; i < layers.size(); i++)
+			layers[i]->setEffect(e);
+	}
+
+	Vec2f getMousePos()
+	{
+		double xPos, yPos;
+		glfwGetCursorPos(window, &xPos, &yPos);
+
+		return {(float) xPos, windowHeight - (float) yPos};
 	}
 	// !SECTION
 

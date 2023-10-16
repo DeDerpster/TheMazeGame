@@ -7,10 +7,13 @@
 #include "Application.h"
 #include "Log.h"
 #include "RandomGen.h"
+#include "VertexBufferLayout.h"
 
 #include "EmptyRoom.h"
 #include "Follower.h"
 #include "Tile.h"
+
+#include "WorldItem.h"
 
 #define LAYER_MAX_FOR_DIRECTIONS 4
 
@@ -24,21 +27,33 @@ Maze::Maze()
 
 	m_Shader = std::make_unique<Shader>("res/shaders/BasicShader.glsl");
 
+	auto bufferInit = [](VertexBufferLayout &layout) {
+		layout.push<float>(2);
+		layout.push<float>(2);
+		layout.push<float>(1);
+	};
+
+	m_Buffer = std::make_unique<Render::SmartBuffer>(3528, bufferInit);
+
 	m_Shader->bind();
 
 	int samplers[32];
 	for(int i = 0; i < 32; i++)
 		samplers[i] = i;
-	m_Shader->SetUniform1iv("u_Textures", 32, samplers);
+	m_Shader->setUniform1iv("u_Textures", 32, samplers);
 
 	float zoomLevel = 1.0f;
-	m_Shader->SetUniform4f("u_Zoom", zoomLevel, zoomLevel, 1.0f, 1.0f);
+	m_Shader->setUniform4f("u_Zoom", zoomLevel, zoomLevel, 1.0f, 1.0f);
 
 	Application::getCamera()->setAnchor(&m_Player);
 
 	Follower *follower = new Follower(3800.0f, 4500.0f, this);
 	follower->setFollower(&m_Player);
 	m_Entities.push_back(follower);
+
+	Item *     item      = new Item(ITEM_STICK, "Debug Stick");
+	WorldItem *worldItem = new WorldItem(4000.0f, 4000.0f, this, item);
+	m_Entities.push_back(worldItem);
 
 	Log::info("Maze initialised");
 }
@@ -59,6 +74,7 @@ Maze::~Maze()
 // Level overrides
 void Maze::render()
 {
+	m_Shader->bind();
 	float multiple = ROOM_SIZE * Tile::TILE_SIZE;
 	int   midpoint = BOARD_SIZE / 2 + 1;
 #ifdef DEBUG
@@ -104,12 +120,15 @@ void Maze::render()
 		get(midpoint, midpoint - 1)->render((midpoint - 1) * multiple, midpoint * multiple);
 
 #endif
-	Application::renderBuffers();
+	Render::spriteRender(*m_Buffer);
 	for(Entity *entity : m_Entities)
-		entity->render();
-	Application::renderBuffers();
+	{
+		if(Application::getCamera()->isInFrame(entity->getX(), entity->getY()))
+			entity->render();
+	}
+	Render::spriteRender(*m_Buffer);
 	m_Player.render();
-	m_Shader->bind();
+	Render::spriteRender(*m_Buffer);
 }
 
 void Maze::update()
@@ -165,8 +184,20 @@ void Maze::update()
 		Application::getCamera()->changeUpdateView();
 	}
 
-	for(Entity *entity : m_Entities)
-		entity->update();
+	std::vector<Entity *>::iterator i = m_Entities.begin();
+
+	while(i != m_Entities.end())
+	{
+		(*i)->update();
+		if((*i)->deleteMe())
+		{
+			Log::info("Deleting entity!");
+			delete *i;
+			m_Entities.erase(i);
+		}
+		else
+			++i;
+	}
 
 	// TODO: Add check to see if all of the pathsNorth... are all false - so will need to reset the maze
 	for(int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
@@ -186,25 +217,16 @@ void Maze::imGuiRender()
 	}
 	ImGui::Checkbox("Render all", &renderAll);
 	m_Player.imGuiRender();
-	/*if(ImGui::Button("Move north"))
-		moveNorth();
-	if(ImGui::Button("Move south"))
-		moveSouth();
-	if(ImGui::Button("Move east"))
-		moveEast();
-	if(ImGui::Button("Move west"))
-		moveWest();*/
 }
 #endif
 
 bool Maze::eventCallback(const Application::Event &e)
 {
-	return false;
-}
-
-bool Maze::setEffect(const Effect::RenderEffect &e)
-{
-	e.setEffect(*m_Shader);
+	for(Entity *entity : m_Entities)
+	{
+		if(entity->eventCallback(e))
+			return true;
+	}
 	return false;
 }
 
@@ -465,28 +487,11 @@ void Maze::generatePaths(int layerMax, int startMax, bool isInSubThread)
 
 void Maze::multithreadGenerating(int layerMax, int startMax)
 {
-	/*addRoomAtX          = -1;   // TODO: should probably change this to a struct or something
-	addRoomAtY          = -1;   // This is for multithreading
-	addRoomEntrances[0] = false;
-	addRoomEntrances[1] = false;
-	addRoomEntrances[2] = false;
-	addRoomEntrances[3] = false;*/
-
 	if(!finishedGenerating)
 		Log::critical("Stacked maze generating!!", LOGINFO);
 	finishedGenerating = false;
 	std::thread t1(&Maze::generatePaths, this, layerMax, startMax, true);   // This starts the multithreading
 	t1.detach();
-	/*while(!finishedGenerating)
-	{
-		if(addRoomAtX != -1 && addRoomAtY != -1)
-		{   // NOTE: An error is called when you try to create empty room from thread - this is because openGL does not support it
-			board[coordsToIndex(addRoomAtX, addRoomAtY)] = new EmptyRoom(addRoomEntrances);
-			addRoomAtX                                   = -1;
-			addRoomAtY                                   = -1;
-		}
-	}
-	t1.join();   // This waits for the thread to be done*/
 }
 
 void Maze::generate()

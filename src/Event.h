@@ -1,15 +1,31 @@
 #pragma once
 
+#include "Utils.h"
+
 namespace Application
 {
 	void eventInit();
 	bool isKeyPressed(int key);
+	Vec2f getMousePos();
+
+	enum MouseButton
+	{
+		leftButton = 0,
+		rightButton,
+		middleButton,
+		button4,
+		button5,
+		button6,
+		button7,
+		button8,
+	};
 
 	enum EventType
 	{
 		keyInput,
 		scroll,
 		mouseMove,
+		mouseClicked,
 		windowResize,
 	};
 
@@ -44,5 +60,15 @@ namespace Application
 		WindowResizeEvent(int originalWidth, int originalHeight, int newWidth, int newHeight)
 			: oWidth(originalWidth), oHeight(originalHeight), width(newWidth), height(newHeight) {}
 		virtual EventType const getType() const override { return EventType::windowResize; }
+	};
+
+	struct MouseClickedEvent : Event
+	{
+		MouseButton button;
+		Vec2f       pos;
+
+		MouseClickedEvent(MouseButton button, Vec2f pos)
+			: button(button), pos(pos) {}
+		virtual EventType const getType() const override { return EventType::mouseClicked; }
 	};
 }   // namespace Application

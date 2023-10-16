@@ -34,10 +34,10 @@ class Level : public Layer
 #endif
 
 	virtual bool eventCallback(const Application::Event &e) = 0;
-	virtual bool setEffect(const Effect::RenderEffect &e)   = 0;
 
 	virtual Tile *              getTile(int x, int y) = 0;
 	virtual Player *            getPlayer() { return nullptr; }
 	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox);
+
 	bool                        collisionDetection(float nextX, float nextY, CollisionBox collisionBox);
 };

@@ -30,7 +30,6 @@ add_subdirectory(src)
 
 find_package (Threads)
 if(Threads_FOUND)
-    message(STATUS "FOUND threads package")
     target_link_libraries (${PROJECT_NAME} PUBLIC Threads::Threads)
 else()
     target_link_libraries(${PROJECt_NAME} PUBLIC Dependencies/pthreadWin32)
@@ -41,11 +40,23 @@ if (OpenGL_FOUND)
     target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::GL)
 endif()
 
+# add_subdirectory(Dependencies/FreeType)
+if(CMAKE_SYSTEM_NAME MATCHES Windows)
+    set(${FREETYPE_INCLUDE_DIRS} Dependencies/FreeType/include)
+    add_subdirectory(Dependencies/FreeType)
+    target_link_libraries(${PROJECT_NAME} PUBLIC freetype)
+else()
+find_package(Freetype REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${FREETYPE_LIBRARIES})
+    target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
+    target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/FreeType/include)
+endif()
+
+
 add_subdirectory(Dependencies/GLFW)
 include_directories(Dependencies/GLFW/include)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
-target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/GLFW/include)
 target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/GLEW/include)
 
 # pre-processor definitions

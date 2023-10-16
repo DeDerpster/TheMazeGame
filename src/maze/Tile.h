@@ -7,7 +7,7 @@
 class Tile
 {
   private:
-	int    m_TexID;
+	int    m_SpriteID;
 	int    x, y;
 	double rotation;
 	bool   m_IsSolid;

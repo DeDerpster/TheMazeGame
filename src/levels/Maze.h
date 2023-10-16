@@ -67,7 +67,6 @@ class Maze : public Level
 	virtual void imGuiRender() override;
 #endif
 	virtual bool eventCallback(const Application::Event &e) override;
-	virtual bool setEffect(const Effect::RenderEffect &e) override;
 
 	void generate();
 	void moveNorth();

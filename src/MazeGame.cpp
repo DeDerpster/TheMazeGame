@@ -11,11 +11,13 @@
 #include "Layer.h"
 
 #include "Maze.h"
+#include "TextLayer.h"
 
 #include "Tile.h"
 
 #include "Camera.h"
 
+#include <chrono>
 #include <thread>
 
 // This is the game loop that keeps the game running
@@ -30,7 +32,17 @@ void gameLoop()
 		Maze *maze = new Maze();
 		maze->generate();              // Generates the maze
 		Application::addLayer(maze);   // Adds it to the layers
+
+		TextLayer *textLayer = new TextLayer();
+		Application::addOverlay(textLayer);
 	}
+
+	int          fps = 0;
+	int          ups = 0;
+	const double ns  = 1000000000.0f / 60.0f;
+
+	auto   lastTime = std::chrono::high_resolution_clock::now();
+	double delta    = 1.0f;
 
 	// Application::update();
 	while(Application::isWindowOpen())
@@ -40,11 +52,18 @@ void gameLoop()
 #endif
 		glClear(GL_COLOR_BUFFER_BIT);   // Resets the screen
 
+		auto now = std::chrono::high_resolution_clock::now();
+		delta += (double) std::chrono::duration_cast<std::chrono::nanoseconds>(now - lastTime).count() / ns;
+		lastTime = now;
 		// Updates and renders the application
-		// std::thread updateThread(&Application::update);
-		Application::update();
+		while(delta >= 1)
+		{
+			Application::update();
+			ups++;
+			delta--;
+		}
+		fps++;
 		Application::render();
-		// updateThread.join();
 
 #ifdef DEBUG   // Renders all the ImGui interface to make it easier while debugging
 		ImGui_ImplOpenGL3_NewFrame();

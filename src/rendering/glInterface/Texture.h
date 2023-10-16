@@ -12,6 +12,7 @@ class Texture
 
   public:
 	Texture(const std::string &path);
+	Texture(uint32_t width, uint32_t height, unsigned char *buffer);
 	~Texture();
 
 	void bind(unsigned int slot = 0) const;

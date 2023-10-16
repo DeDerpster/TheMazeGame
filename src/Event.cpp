@@ -20,6 +20,9 @@ namespace Application
 		callEvent(e);
 		updateWindowSize(width, height);
 		glViewport(0, 0, width, height);
+		std::string         name = "u_MVP";
+		Effect::UniformMat4 effect(name, Application::getProj());
+		Application::setOverlayEffect(effect);
 	}
 
 	static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
@@ -33,6 +36,15 @@ namespace Application
 		Log::error(description, LOGINFO);
 	}
 
+	static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+	{
+		MouseButton       mButton = static_cast<MouseButton>(button);
+		MouseClickedEvent e(mButton, getMousePos());
+		// Log::variable("Mouse X", e.pos.x);
+		// Log::variable("Mouse Y", e.pos.y);
+		callEvent(e);
+	}
+
 	void eventInit()
 	{
 		GLFWwindow *window = static_cast<GLFWwindow *>(getWindow());
@@ -40,6 +52,7 @@ namespace Application
 		glfwSetWindowSizeCallback(window, window_size_callback);
 		glfwSetScrollCallback(window, scroll_callback);
 		glfwSetErrorCallback(error_callback);
+		glfwSetMouseButtonCallback(window, mouse_button_callback);
 	}
 
 	bool isKeyPressed(int key)
@@ -47,4 +60,5 @@ namespace Application
 		int keystate = glfwGetKey(static_cast<GLFWwindow *>(getWindow()), key);
 		return keystate == GLFW_PRESS || keystate == GLFW_REPEAT;
 	}
+
 }   // namespace Application

@@ -19,6 +19,7 @@ add_subdirectory(layers)
 add_subdirectory(entity)
 add_subdirectory(levels)
 add_subdirectory(utils)
+add_subdirectory(item)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                             maze
@@ -28,4 +29,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                             entity
                             layers
                             levels
-                            utils)
+                            utils
+                            item)
