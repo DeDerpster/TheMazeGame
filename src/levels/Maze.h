@@ -56,6 +56,9 @@ class Maze : public Level
 	EntranceState shouldBeOpen(Room *room, int nextEntrance, int prob, int *pathCount);
 	void          forceEntrance(EntranceState *north, EntranceState *south, EntranceState *east, EntranceState *west);
 
+	void playerDeath();
+	void resetMaze();
+
   public:
 	Maze();
 	~Maze();
@@ -76,5 +79,8 @@ class Maze : public Level
 	Room *                      get(int y, int x);
 	virtual Tile *              getTile(int x, int y) override;
 	virtual Player *            getPlayer() override { return &m_Player; }
+
 	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox) override;
+
+	virtual Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox collisionBox) override;
 };

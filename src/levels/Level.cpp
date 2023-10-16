@@ -33,6 +33,16 @@ bool Level::collisionDetection(float nextX, float nextY, CollisionBox collisionB
 	return lowerLeft || lowerRight || upperLeft || upperRight;
 }
 
+Entity *Level::entityCollisionDetection(float nextX, float nextY, CollisionBox collisionBox)
+{
+	for(Entity *e : m_Entities)
+	{
+		if(e->hasCollidedWith(nextX, nextY, collisionBox))
+			return e;
+	}
+	return nullptr;
+}
+
 bool Level::directionalCollision(float x, float y, float xs, float ys, CollisionBox collisionBox)
 {
 	if(xs == 0 || ys == 0)

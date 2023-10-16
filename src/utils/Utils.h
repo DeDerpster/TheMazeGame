@@ -1,5 +1,6 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <vector>
 
@@ -71,7 +72,7 @@ static float distBetweenVec2f(const Vec2f &start, const Vec2f &end)
 struct CollisionBox
 {
 	Vec2f lowerBound, upperBound;
-};
+};   // Lowerbound is the Bottom Left, upperbound is the top right
 
 struct Node
 {
@@ -179,3 +180,5 @@ namespace Render
 		float  size;
 	};
 }   // namespace Sprite
+
+uint32_t factorial(int num);

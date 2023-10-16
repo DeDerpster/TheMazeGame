@@ -8,12 +8,17 @@
 		{25, 20}, { 60, 20 } \
 	}
 
-Projectile::Projectile(float startX, float startY, float damage, Direction dir, Entity *spawner, Level *level)
+Projectile::Projectile(float startX, float startY, float damage, Direction dir, Mob *spawner, Level *level)
 	: MovableEntity(startX, startY, 7.0f, dir, defaultBox, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false)
 {
 }
 
-Projectile::Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Entity *spawner, Level *level, CollisionBox box)
+Projectile::Projectile(float startX, float startY, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box)
+	: MovableEntity(startX, startY, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false)
+{
+}
+
+Projectile::Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box)
 	: MovableEntity(startX, startY, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(maxDistance), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false)
 {
 }
@@ -34,8 +39,20 @@ void Projectile::update()
 			xs = m_Speed;
 		else
 			xs = -m_Speed;
-		if(!isGhost && m_Level->collisionDetection(x + xs, y + ys, m_CollisionBox))
+		Entity *colE = m_Level->entityCollisionDetection(x + xs, y + ys, m_CollisionBox);
+		if(!isGhost && (m_Level->collisionDetection(x + xs, y + ys, m_CollisionBox) || (colE != nullptr && colE != spawner)))
+		{
+			if(colE)
+			{
+				Mob *mob = dynamic_cast<Mob *>(colE);
+				if(mob)
+					mob->changeHealth(-m_Damage);
+				spawner->hasHitTarget(m_Damage);
+			}
+			else
+				spawner->hasMissedTarget();
 			hasCollided = true;
+		}
 		else
 		{
 			isMoving = true;
@@ -48,4 +65,15 @@ void Projectile::update()
 void Projectile::render()
 {
 	Render::Sprite::getSprite(m_SpriteID)->render(x, y, directionToRotation(m_Dir), m_Size);
+}
+
+void Projectile::changeX(float changeBy)
+{
+	x += changeBy;
+	m_StartPos.x += changeBy;
+}
+void Projectile::changeY(float changeBy)
+{
+	y += changeBy;
+	m_StartPos.y += changeBy;
 }

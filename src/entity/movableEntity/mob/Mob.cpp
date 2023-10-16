@@ -1,6 +1,8 @@
 #include "Mob.h"
 #include "Tile.h"
 
+#include "Weapon.h"
+
 #include <math.h>
 
 #define defaultBox                             \
@@ -10,30 +12,36 @@
 			(float) -Tile::TILE_SIZE * 0.04f}, \
 		{                                      \
 			(float) Tile::TILE_SIZE * 0.6f,    \
-				(float) Tile::TILE_SIZE * 0.2f \
+				(float) Tile::TILE_SIZE * 1.0f \
 		}                                      \
 	}
 
 Mob::Mob()
-	: MovableEntity(0.0f, 0.0f, defaultBox, nullptr, SPRITE_PLAYER), m_CurrentWeapon(-1)
+	: MovableEntity(0.0f, 0.0f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y)
-	: MovableEntity(x, y, defaultBox, nullptr, SPRITE_PLAYER), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level)
-	: MovableEntity(x, y, defaultBox, level, SPRITE_PLAYER), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, defaultBox, level, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level, uint16_t spriteID)
-	: MovableEntity(x, y, defaultBox, level, spriteID), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, defaultBox, level, spriteID), StatsMob(), m_CurrentWeapon(-1)
+{
+	setupAnimations();
+}
+
+Mob::Mob(float x, float y, float speed, Level *level, uint16_t spriteID)
+	: MovableEntity(x, y, speed, Direction::south, defaultBox, level, spriteID), StatsMob(), m_CurrentWeapon(-1)
 {
 	setupAnimations();
 }
@@ -105,6 +113,11 @@ void Mob::update()
 			break;
 		}
 	}
+
+	for(Weapon *w : m_Weapons)
+		w->update();
+
+	StatsMob::update();
 }
 
 void Mob::setupAnimations()

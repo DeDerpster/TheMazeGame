@@ -10,6 +10,7 @@
 #include "VertexBufferLayout.h"
 
 #include "EmptyRoom.h"
+#include "Enemy.h"
 #include "Follower.h"
 #include "Tile.h"
 
@@ -49,12 +50,12 @@ Maze::Maze()
 
 	Application::getCamera()->setAnchor(&m_Player);
 
-	Follower *follower = new Follower(3800.0f, 4500.0f, this);
-	follower->setFollower(&m_Player);
-	m_Entities.push_back(follower);
+	Enemy *enemy = new Enemy(3800.0f, 4500.0f, this);
+	// follower->setFollower(&m_Player);
+	m_Entities.push_back(enemy);
 
 	Item *     item      = new FireStaff();
-	WorldItem *worldItem = new WorldItem(4000.0f, 4000.0f, this, item);
+	WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, this, item);
 	m_Entities.push_back(worldItem);
 
 	Log::info("Maze initialised");
@@ -130,6 +131,11 @@ void Maze::render()
 	}
 	Render::spriteRender(*m_Buffer);
 	m_Player.render();
+	for(Projectile *projectile : m_Projectiles)
+	{
+		if(Application::getCamera()->isInFrame(projectile->getX(), projectile->getY()))
+			projectile->render();
+	}
 	Render::spriteRender(*m_Buffer);
 }
 
@@ -170,43 +176,74 @@ void Maze::update()
 		moveWest();
 		movedPlayer = true;
 	}
-	if(changeXBy != 0)
-	{
-		for(Entity *entity : m_Entities)
-			entity->changeX(changeXBy);
-	}
-	if(changeYBy != 0)
-	{
-		for(Entity *entity : m_Entities)
-			entity->changeY(changeYBy);
-	}
+
 	m_Player.update();
+
 	if(movedPlayer)
 	{
 		Application::getCamera()->changeUpdateView();
 	}
 
-	std::vector<Entity *>::iterator iter = m_Entities.begin();
-
-	while(iter != m_Entities.end())
+	for(auto it = m_Entities.begin(); it != m_Entities.end();)
 	{
-		(*iter)->update();
-		if((*iter)->deleteMe())
+		(*it)->update();
+		if(changeXBy != 0)
+			(*it)->changeX(changeXBy);
+		if(changeYBy != 0)
+			(*it)->changeY(changeYBy);
+		if((*it)->deleteMe() || (*it)->getX() < 0 || (*it)->getX() > width * Tile::TILE_SIZE || (*it)->getY() < 0 || (*it)->getY() > height * Tile::TILE_SIZE)
 		{
-			delete *iter;
-			m_Entities.erase(iter);
+			delete *it;
+			it = m_Entities.erase(it);
 		}
 		else
-			++iter;
+			++it;
 	}
 
-	// TODO: Add check to see if all of the pathsNorth... are all false - so will need to reset the maze
-	for(int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
+	for(auto it = m_Projectiles.begin(); it != m_Projectiles.end();)
 	{
-		if(board[i])   // This makes sure that the board[i] is not a nullptr - so that it won't throw any errors
-			board[i]->update();
+		(*it)->update();
+		if(changeXBy != 0)
+			(*it)->changeX(changeXBy);
+		if(changeYBy != 0)
+			(*it)->changeY(changeYBy);
+		if((*it)->deleteMe() || (*it)->getX() < 0 || (*it)->getX() > width * Tile::TILE_SIZE || (*it)->getY() < 0 || (*it)->getY() > height * Tile::TILE_SIZE)
+		{
+			delete *it;
+			it = m_Projectiles.erase(it);
+		}
+		else
+			++it;
 	}
-	// TODO: change this so it only updates the 9 center ones
+
+	if(finishedGenerating)
+	{
+		bool noEntrances = true;
+		for(int i = 0; i < BOARD_SIZE; i++)
+		{
+			if(pathsNorth[i] || pathsSouth[i] || pathsEast[i] || pathsWest[i])
+			{
+				noEntrances = false;
+				break;
+			}
+		}
+
+		if(noEntrances)
+			resetMaze();
+	}
+
+	int midpoint = BOARD_SIZE / 2 + 1;
+	for(int x = midpoint - 1; x < midpoint + 2; x++)
+	{
+		for(int y = midpoint - 1; y < midpoint + 2; y++)
+		{
+			if(get(y, x))
+				get(y, x)->update();
+		}
+	}
+
+	if(m_Player.deleteMe())
+		playerDeath();
 }
 
 #ifdef DEBUG
@@ -231,6 +268,36 @@ bool Maze::eventCallback(const Application::Event &e)
 	if(m_Player.eventCallback(e))
 		return true;
 	return false;
+}
+
+void Maze::playerDeath()
+{
+	Log::info("Player has died");
+	m_Player.resetStats();
+	resetMaze();
+}
+
+void Maze::resetMaze()
+{
+	Log::info("Resetting the maze!");
+	for(Entity *e : m_Entities)
+		delete e;
+	m_Entities.clear();
+
+	for(Projectile *p : m_Projectiles)
+		delete p;
+	m_Projectiles.clear();
+
+	for(int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
+	{
+		if(board[i])
+		{
+			delete board[i];
+			board[i] = nullptr;
+		}
+	}
+
+	generate();
 }
 
 // SECTION: Rooms
@@ -663,6 +730,13 @@ void Maze::updatePaths()
 		if(get(i, 0) && get(i, 0)->isOpen(WEST_ENTRANCE))
 			pathsWest[i] = true;
 	}
+}
+
+Entity *Maze::entityCollisionDetection(float nextX, float nextY, CollisionBox collisionBox)
+{
+	if(m_Player.hasCollidedWith(nextX, nextY, collisionBox))
+		return &m_Player;
+	return Level::entityCollisionDetection(nextX, nextY, collisionBox);
 }
 // !SECTION
 

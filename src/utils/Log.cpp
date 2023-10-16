@@ -95,7 +95,6 @@ namespace Log
 #ifdef DEBUG
 	#ifdef IS_ON_WINDOWS
 		__debugbreak();
-			// __builtin_trap();
 	#else
 		__builtin_trap();
 	#endif

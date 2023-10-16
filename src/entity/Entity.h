@@ -39,9 +39,18 @@ class Entity
 	}
 	virtual bool deleteMe() { return false; }
 
-	void  changeX(float changeBy) { x += changeBy; }
-	void  changeY(float changeBy) { y += changeBy; }
+	virtual void changeX(float changeBy) { x += changeBy; }
+	virtual void changeY(float changeBy) { y += changeBy; }
 	void  setLevel(Level *level) { m_Level = level; }
+
+	bool hasCollidedWith(float xs, float ys, CollisionBox box)
+	{
+		if(xs + box.lowerBound.x >= x + m_CollisionBox.upperBound.x || x + m_CollisionBox.lowerBound.x >= xs + box.upperBound.x)
+			return false;
+		if(ys + box.upperBound.y <= y + m_CollisionBox.lowerBound.y || y + m_CollisionBox.upperBound.y <= ys + box.lowerBound.y)
+			return false;
+		return true;
+	}
 
 #ifdef DEBUG
 	virtual void imGuiRender()

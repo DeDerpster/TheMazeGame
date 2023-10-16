@@ -34,4 +34,10 @@ namespace Random
 		std::uniform_int_distribution<int> distribution(min, max);
 		return distribution(generator);
 	}
+
+	int getWeightedNum(std::vector<float> nums)
+	{
+		std::discrete_distribution<int> distribution(nums.begin(), nums.end());
+		return distribution(generator);
+	}
 }   // namespace Random

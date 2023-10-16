@@ -16,13 +16,15 @@ MovableEntity::~MovableEntity() {}
 
 void MovableEntity::move(float xa, float ya)
 {
+	CollisionBox newBox = {m_CollisionBox.lowerBound,
+						   {m_CollisionBox.upperBound.x, m_CollisionBox.upperBound.y / 4.0f}};
 	if(!isGhost)
 	{
-		if(m_Level->collisionDetection(x + xa, y, m_CollisionBox))
+		if(m_Level->collisionDetection(x + xa, y, newBox))
 			xa = 0;
-		if(m_Level->collisionDetection(x, y + ya, m_CollisionBox))
+		if(m_Level->collisionDetection(x, y + ya, newBox))
 			ya = 0;
-		if((xa == 0 && ya == 0) || m_Level->collisionDetection(x + xa, y + ya, m_CollisionBox))
+		if((xa == 0 && ya == 0) || m_Level->collisionDetection(x + xa, y + ya, newBox))
 		{
 			isMoving = false;
 			return;
