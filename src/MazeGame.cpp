@@ -1,7 +1,11 @@
 #include "Core.h"
 
+#include <chrono>
+#include <thread>
+
 #include "glDebug.h"
 
+#include "Camera.h"
 #include "Renderer.h"
 
 #include "Application.h"
@@ -10,18 +14,9 @@
 
 #include "Layer.h"
 #include "Maze.h"
-#include "TextLayer.h"
 #include "ParticleLayer.h"
 
 #include "Tile.h"
-
-#include "Camera.h"
-
-#include <chrono>
-#include <thread>
-
-#include "ObjectEffect.h"
-#include "ParticleSpawner.h"
 
 // This is the game loop that keeps the game running
 void gameLoop()
@@ -39,8 +34,7 @@ void gameLoop()
 		ParticleLayer *particleLayer = new ParticleLayer();
 		Application::addLayer(particleLayer);
 
-		TextLayer *textLayer = new TextLayer();
-		Application::addOverlay(textLayer);
+		// Application::addOverlay(textLayer);
 	}
 
 	int          fps = 0;
@@ -50,7 +44,6 @@ void gameLoop()
 	auto   lastTime = std::chrono::high_resolution_clock::now();
 	double delta    = 1.0f;
 
-	// Application::update();
 	while(Application::isWindowOpen())
 	{
 #ifdef DEBUG
@@ -103,8 +96,6 @@ void gameLoop()
 
 int main(void)
 {
-	// Initialises the logging system and the application
-	// Log::init();
 	// TODO: Add check to see if there was a problem booting up
 
 	Event::init();   // Initialises the events (in Event.h)
@@ -112,8 +103,6 @@ int main(void)
 	Log::info("Initialised program");
 
 	gameLoop();   // Starts the game loop
-
-	// Application::terminate();   // Terminates the application
 
 	return 0;
 }

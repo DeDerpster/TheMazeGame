@@ -2,7 +2,6 @@
 
 #include "Entity.h"
 #include "Item.h"
-#include "Text.h"
 #include "Tile.h"
 
 class WorldItem : public Entity

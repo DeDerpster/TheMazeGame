@@ -43,6 +43,12 @@ ParticleSpawner::~ParticleSpawner()
 {
 }
 
+void ParticleSpawner::render()
+{
+	for(Particle p : m_Particles)
+		p.render();
+}
+
 void ParticleSpawner::update()
 {
 	if(m_Age != m_Lifetime)
@@ -56,7 +62,7 @@ void ParticleSpawner::update()
 				Vec2f    dir      = {(float) xGen / 10, (float) yGen / 10};
 				float    size     = (float) Random::getNum((int) (m_ParticleMinSize * 10), (int) (m_ParticleMaxSize * 10)) / 10;
 				uint16_t lifetime = Random::getNum(m_ParticleMinLifeTime, m_ParticleMaxLifeTime);
-				m_Particles.emplace_back(x, y, size, dir, lifetime);
+				m_Particles.emplace_back(x, y, size, dir, lifetime, m_Colour);
 			}
 		}
 		m_Age++;

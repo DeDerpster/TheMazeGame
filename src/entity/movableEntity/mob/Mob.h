@@ -18,10 +18,10 @@ class Mob : public MovableEntity, public StatsMob
 	std::vector<Weapon *> m_Weapons;
 	int                   m_CurrentWeapon;
 
-	std::unique_ptr<Render::AnimatedSprite> m_NorthAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_SouthAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_EastAnimation;
-	std::unique_ptr<Render::AnimatedSprite> m_WestAnimation;
+	std::unique_ptr<AnimatedSprite> m_NorthAnimation;
+	std::unique_ptr<AnimatedSprite> m_SouthAnimation;
+	std::unique_ptr<AnimatedSprite> m_EastAnimation;
+	std::unique_ptr<AnimatedSprite> m_WestAnimation;
 
 	bool isInControl = false;
 

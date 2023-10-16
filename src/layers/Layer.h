@@ -1,17 +1,18 @@
 #pragma once
 
+#include <vector>
+
 #include "Event.h"
-#include "RenderEffect.h"
 #include "Renderer.h"
 #include "Shader.h"
+#include "ShaderEffect.h"
 
 #include <memory>
 
 class Layer
 {
   protected:
-	std::unique_ptr<Shader> m_Shader;
-	std::unique_ptr<Render::SmartBuffer> m_Buffer;
+	std::vector<uint16_t> m_ShaderEffectsIDs;
 
   public:
 	Layer();
@@ -22,6 +23,8 @@ class Layer
 	virtual bool eventCallback(const Event::Event &e)       = 0;
 
 	virtual bool setEffect(Effect::RenderEffect *e);
+
+	std::vector<uint16_t> &getShaderEffects() { return m_ShaderEffectsIDs; }
 
 #ifdef DEBUG
 	virtual void imGuiRender();

@@ -20,6 +20,7 @@ class Spawner
 	Spawner(float x, float y, Level *level, uint16_t lifetime);
 	~Spawner();
 
+	virtual void render() = 0;
 	virtual void update();
 	virtual bool eventCallback(const Event::Event &e);
 

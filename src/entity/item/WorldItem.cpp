@@ -21,9 +21,10 @@ WorldItem::~WorldItem()
 void WorldItem::render()
 {
 	if(m_Item)
+	{
 		m_Item->render(x, y, 0.0f, 50);
-
-	// Render::Text::addToBuffer(*m_Item->getName(), x - Application::getCamera()->getX(), y - Application::getCamera()->getY(), 0.5, {0.0f, 0.0f, 0.0f, 1.0f});
+		// Render::text(*m_Item->getName(), x, y, 0.5f, {0.0f, 0.0f, 0.0f, 1.0f});
+	}
 }
 void WorldItem::update() {}
 bool WorldItem::eventCallback(const Event::Event &e)
@@ -35,9 +36,6 @@ bool WorldItem::eventCallback(const Event::Event &e)
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
 		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
-
-		// Log::variable("Mouse X", convPos.x);
-		// Log::variable("Mouse Y", convPos.y);
 
 		Player *player = m_Level->getPlayer();
 		if(doesIntersectWith(Application::getCamera()->convertWindowToLevel(ne.pos)) && distBetweenVec2f({player->getX(), player->getY()}, {x, y}) < 5 * Tile::TILE_SIZE)

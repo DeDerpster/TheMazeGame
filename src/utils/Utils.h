@@ -1,8 +1,8 @@
 #pragma once
 
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include <vector>
+
+#include "GLM.h"
 
 #include "Log.h"
 
@@ -14,17 +14,6 @@ enum Direction
 	west
 };
 
-static float directionToRotation(Direction dir)
-{
-	if(dir == Direction::north)
-		return 0.0f;
-	else if(dir == Direction::south)
-		return M_PI;
-	else if(dir == Direction::east)
-		return M_PI_2;
-	else
-		return 3.0f * M_PI_2;
-}
 
 struct Vec2i
 {
@@ -38,13 +27,6 @@ inline bool operator!=(const Vec2i &lhs, const Vec2i &rhs)
 inline bool operator==(const Vec2i &lhs, const Vec2i &rhs)
 {
 	return lhs.x == rhs.x && lhs.y == rhs.y;
-}
-static float distBetweenVec2i(const Vec2i &start, const Vec2i &end)
-{
-	float xDist = end.x - start.x;
-	float yDist = end.y - start.y;
-
-	return std::sqrt(xDist * xDist + yDist * yDist);   // Uses Pythagorus
 }
 
 struct Vec2f
@@ -61,13 +43,6 @@ inline bool operator==(const Vec2f &lhs, const Vec2f &rhs)
 	return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
-static float distBetweenVec2f(const Vec2f &start, const Vec2f &end)
-{
-	float xDist = end.x - start.x;
-	float yDist = end.y - start.y;
-
-	return std::sqrt(xDist * xDist + yDist * yDist);   // Uses Pythagorus
-}
 
 struct CollisionBox
 {
@@ -112,7 +87,11 @@ static int nodeSearch(std::vector<Node *> &nodes, Node &node)
 	return -1;
 }
 
-// static int getIndexOfInsertion(std::vector<Node *> &nodes, Node &node)   // Gets index of place to put node for a vector sorted Most cost -> Small cost
+uint32_t factorial(int num);
+float directionToRotation(Direction dir);
+float distBetweenVec2i(const Vec2i &start, const Vec2i &end);
+float distBetweenVec2f(const Vec2f &start, const Vec2f &end);
+
 template <size_t ySize, size_t xSize>
 int getIndexOfInsertion(std::vector<Vec2i> positions, std::array<std::array<Node, ySize>, xSize> &nodeMap, Vec2i nextPos)
 {
@@ -158,27 +137,3 @@ int getIndexOfInsertion(std::vector<Vec2i> positions, std::array<std::array<Node
 
 	return index;
 }
-
-struct Vertex
-{
-	glm::vec2 position;
-	Vec2f     texCoords;
-	float     texID;
-
-	Vertex() {}
-	Vertex(glm::vec2 position, Vec2f texCoords, float texID)
-		: position(position), texCoords(texCoords), texID(texID) {}
-};
-
-namespace Render
-{
-	struct Object
-	{
-		float  x;
-		float  y;
-		double rotation;
-		float  size;
-	};
-}   // namespace Sprite
-
-uint32_t factorial(int num);

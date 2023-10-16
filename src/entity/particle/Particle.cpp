@@ -2,13 +2,18 @@
 
 #include "Application.h"
 
-Particle::Particle(int x, int y, float size, Vec2f dir, uint16_t lifetime)
-	: x(x), y(y), m_Size(size), m_Dir(dir), m_Lifetime(lifetime), m_Age(0)
+Particle::Particle(int x, int y, float size, Vec2f dir, uint16_t lifetime, glm::vec4 colour)
+	: x(x), y(y), m_Size(size), m_Dir(dir), m_Lifetime(lifetime), m_Age(0), m_Colour(colour)
 {
 }
 
 Particle::~Particle()
 {
+}
+
+void Particle::render()
+{
+	Render::rectangle(x, y, 0.0f, m_Size, m_Size, m_Colour);
 }
 
 void Particle::update()

@@ -33,6 +33,6 @@ namespace Effect
 
 		ParticleSpawner *  getObject() { return m_Spawner; }
 		void               setObjectToNull() { m_Spawner = nullptr; }
-		virtual EffectType getType() const override { return EffectType::ObjectParticleSpawner; }
+		virtual EffectType getType() const override { return EffectType::objectParticleSpawner; }
 	};
 }   // namespace Effect

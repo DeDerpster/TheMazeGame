@@ -11,14 +11,16 @@ class Particle
 	float x, y;
 	float m_Size;
 	Vec2f m_Dir;
+	glm::vec4 m_Colour;
 
 	uint16_t m_Lifetime;
 	uint16_t m_Age;
 
   public:
-	Particle(int x, int y, float size, Vec2f dir, uint16_t lifetime);
+	Particle(int x, int y, float size, Vec2f dir, uint16_t lifetime, glm::vec4 colour);
 	~Particle();
 
+	virtual void render();
 	virtual void update();
 	virtual bool eventCallback(const Event::Event &e);
 

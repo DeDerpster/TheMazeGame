@@ -6,8 +6,9 @@ namespace Effect
 {
 	enum EffectType
 	{
-		ShaderEffect,
-		ObjectParticleSpawner
+		shaderEffect,
+		removeShaderEffect,
+		objectParticleSpawner
 	};
 
 	class RenderEffect

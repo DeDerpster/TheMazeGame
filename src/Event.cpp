@@ -21,9 +21,6 @@ namespace Event
 		Application::callEvent(e);
 		Application::updateWindowSize(width, height);
 		glViewport(0, 0, width, height);
-		std::string         name = "u_MVP";
-		Effect::UniformMat4 effect(name, Application::getProj());
-		Application::setOverlayEffect(&effect);
 	}
 
 	static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
@@ -41,8 +38,6 @@ namespace Event
 	{
 		MouseButton       mButton = static_cast<MouseButton>(button);
 		MouseClickedEvent e(mButton, getMousePos());
-		// Log::variable("Mouse X", e.pos.x);
-		// Log::variable("Mouse Y", e.pos.y);
 		Application::callEvent(e);
 	}
 

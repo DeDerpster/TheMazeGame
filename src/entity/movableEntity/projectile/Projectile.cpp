@@ -70,7 +70,7 @@ bool Projectile::eventCallback(const Event::Event &e)
 
 void Projectile::render()
 {
-	Render::Sprite::getSprite(m_SpriteID)->render(x, y, directionToRotation(m_Dir), m_Size);
+	Sprite::getSprite(m_SpriteID)->render(x, y, directionToRotation(m_Dir), m_Size, m_Size);
 }
 
 void Projectile::changeX(float changeBy)

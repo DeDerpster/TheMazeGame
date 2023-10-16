@@ -8,43 +8,6 @@
 
 #include "Event.h"
 
-/*namespace Application
-{
-	bool init();
-	void terminate();
-#ifdef DEBUG
-	ImGuiIO *getImGuiContext();
-	bool     setupImGui();
-#endif
-
-	void update();
-	void render();
-#ifdef DEBUG
-	void imGuiRender();
-#endif
-
-	void addLayer(Layer *layer);
-	void addLayer(Layer *layer, int index);
-	void addOverlay(Layer *layer);
-	void removeLayer(int index);
-	void removeLayer(Layer *layer);
-
-	void callEvent(const Event &e, bool includeOverlay = false);
-	void setEffect(Effect::RenderEffect *e, bool includeOverlay = false);
-	void setOverlayEffect(Effect::RenderEffect *e);
-
-	void updateWindowSize(int width, int height);
-	bool isWindowOpen();
-	void swapBuffers();
-	bool isInFrame(float x, float y);
-
-	Camera *  getCamera();
-	glm::mat4 getProj();
-	int       getWidth();
-	int       getHeight();
-	void *    getWindow();
-}   // namespace Application */
-
 class Application
 {
   public:
@@ -86,7 +49,7 @@ class Application
 	static void updateWindowSize(int width, int height) { get().updateWindowSizeImpl(width, height); }
 	static bool isWindowOpen() { return get().isWindowOpenImpl(); }
 	static void swapBuffers() { get().swapBuffersImpl(); }
-	static bool isInFrame(float x, float y) { return get().isInFrameImpl(x, y); }
+	static bool isInFrame(float x, float y, float width, float height) { return get().isInFrameImpl(x, y, width, height); }
 
 	static Camera *  getCamera() { return get().getCameraImpl(); }
 	static glm::mat4 getProj() { return get().getProjImpl(); }
@@ -105,6 +68,8 @@ class Application
 
 	int                  overlayStart;
 	std::vector<Layer *> layers;   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time
+
+	uint16_t projEffectID;
 
 	Application();
 
@@ -130,7 +95,7 @@ class Application
 	void updateWindowSizeImpl(int width, int height);
 	bool isWindowOpenImpl();
 	void swapBuffersImpl();
-	bool isInFrameImpl(float x, float y);
+	bool isInFrameImpl(float x, float y, float width, float height);
 
 	Camera *  getCameraImpl();
 	glm::mat4 getProjImpl();

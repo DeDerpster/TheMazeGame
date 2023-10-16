@@ -28,25 +28,6 @@ Maze::Maze()
 	board.resize(BOARD_SIZE * BOARD_SIZE, nullptr);   // It is resized, because all positions are used straight away and fills any data slots will nullptr
 	currentPaths.reserve(2 * BOARD_SIZE);             // The data is reserved here because not all the data is needed, but it could be used and so for efficiency, it is reserved on init
 
-	m_Shader = std::make_unique<Shader>("res/shaders/BasicShader.glsl");
-
-	auto bufferInit = [](VertexBufferLayout &layout) {
-		layout.push<float>(2);
-		layout.push<float>(2);
-		layout.push<float>(1);
-	};
-
-	m_Buffer = std::make_unique<Render::SmartBuffer>(3528, bufferInit);
-
-	m_Shader->bind();
-
-	int samplers[32];
-	for(int i = 0; i < 32; i++)
-		samplers[i] = i;
-	m_Shader->setUniform1iv("u_Textures", 32, samplers);
-
-	m_Shader->setUniform4f("u_Zoom", 1.0f, 1.0f, 1.0f, 1.0f);
-
 	Application::getCamera()->setAnchor(&m_Player);
 
 	Enemy *enemy = new Enemy(3800.0f, 4500.0f, this);
@@ -76,7 +57,7 @@ Maze::~Maze()
 // Level overrides
 void Maze::render()
 {
-	m_Shader->bind();
+	// m_Shader->bind();
 	float multiple = ROOM_SIZE * Tile::TILE_SIZE;
 	int   midpoint = BOARD_SIZE / 2 + 1;
 #ifdef DEBUG
@@ -122,20 +103,22 @@ void Maze::render()
 		get(midpoint, midpoint - 1)->render((midpoint - 1) * multiple, midpoint * multiple);
 
 #endif
-	Render::spriteRender(*m_Buffer);
+	// spriteRender(*m_Buffer);
+	Render::render(m_ShaderEffectsIDs);
 	for(Entity *entity : m_Entities)
 	{
-		if(Application::getCamera()->isInFrame(entity->getX(), entity->getY()))
+		if(Application::getCamera()->isInFrame(entity->getX(), entity->getY(), Tile::TILE_SIZE, Tile::TILE_SIZE))
 			entity->render();
 	}
-	Render::spriteRender(*m_Buffer);
+	// spriteRender(*m_Buffer);
+	Render::render(m_ShaderEffectsIDs);
 	m_Player.render();
 	for(Projectile *projectile : m_Projectiles)
 	{
-		if(Application::getCamera()->isInFrame(projectile->getX(), projectile->getY()))
+		if(Application::getCamera()->isInFrame(projectile->getX(), projectile->getY(), Tile::TILE_SIZE, Tile::TILE_SIZE))
 			projectile->render();
 	}
-	Render::spriteRender(*m_Buffer);
+	// spriteRender(*m_Buffer);
 }
 
 void Maze::update()

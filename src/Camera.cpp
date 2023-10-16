@@ -9,13 +9,13 @@
 #include "ShaderEffect.h"
 
 Camera::Camera()
-	: x(0.0f), y(0.0f), zoomPercentage(1.0f), moveSpeed(10.0f), moveLock(false), updateView(true), lockOnAnchor(false), m_Anchor(nullptr)
+	: x(0.0f), y(0.0f), zoomPercentage(1.0f), moveSpeed(10.0f), moveLock(false), updateView(true), lockOnAnchor(false), m_Anchor(nullptr), m_ZoomEffectID(0), m_PositionEffectID(0)
 {
 	Log::info("Initialised Camera");
 }
 
 Camera::Camera(float x, float y)
-	: x(x), y(y), zoomPercentage(1.0f), moveSpeed(10.0f), moveLock(false), updateView(true), lockOnAnchor(false), m_Anchor(nullptr)
+	: x(x), y(y), zoomPercentage(1.0f), moveSpeed(10.0f), moveLock(false), updateView(true), lockOnAnchor(false), m_Anchor(nullptr), m_ZoomEffectID(0), m_PositionEffectID(0)
 {
 }
 
@@ -59,9 +59,7 @@ void Camera::render()
 {
 	if(updateView)
 	{
-		std::string         name = "u_MVP";
-		Effect::UniformMat4 effect(name, Application::getProj() * getView());
-		Application::setEffect(&effect, false);
+		updatePositionEffect();
 		updateView = false;
 	}
 }
@@ -76,10 +74,7 @@ void Camera::imGuiRender()
 	ImGui::SliderFloat("Zoom", &zoomPercentage, 0.05f, 2.0f);
 	if(before != zoomPercentage)
 	{
-		std::string         name = "u_Zoom";
-		float               zoom = zoomPercentage;
-		Effect::UniformVec4 zoomEffect(name, glm::vec4(zoom, zoom, 1.0f, 1.0f));
-		Application::setEffect(&zoomEffect);
+		updateZoomEffect();
 	}
 	if(ImGui::Checkbox("Camera Lock", &lockOnAnchor))
 	{
@@ -104,9 +99,7 @@ bool Camera::eventCallback(const Event::Event &e)
 		if(zoomPercentage < 0.25f)
 			zoomPercentage = 0.25f;
 
-		std::string         name = "u_Zoom";
-		Effect::UniformVec4 zoomEffect(name, glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
-		Application::setEffect(&zoomEffect);
+		updateZoomEffect();
 
 		updateView = true;
 
@@ -116,10 +109,6 @@ bool Camera::eventCallback(const Event::Event &e)
 	{
 		const Event::WindowResizeEvent &ne = static_cast<const Event::WindowResizeEvent &>(e);
 
-		//int widthChange  = ne.oWidth - ne.width;
-		//int heightChange = ne.oHeight - ne.height;
-		//x += ((float) widthChange) / 2;
-		//y += ((float) heightChange) / 2;
 		updateView = true;
 		return true;
 	}
@@ -135,15 +124,51 @@ bool Camera::setEffect(const Effect::RenderEffect &e)
 	return false;
 }
 
-glm::mat4 Camera::getView()
+uint16_t Camera::getPositionEffectID()
 {
-	return glm::translate(glm::mat4(1.0f), glm::vec3(Application::getWidth() / 2 - x * zoomPercentage, Application::getHeight() / 2 - y * zoomPercentage, 0.0f));
+	if(m_PositionEffectID == 0)
+		setShaderEffects();
+	return m_PositionEffectID;
+}
+uint16_t Camera::getZoomEffectID()
+{
+	if(m_ZoomEffectID == 0)
+		setShaderEffects();
+	return m_ZoomEffectID;
+}
+void Camera::setShaderEffects()
+{
+	{
+		std::string name   = "u_MVP";
+		m_PositionEffectID = Effect::ShaderEffects::sendShaderEffect(name, Application::getProj() * glm::translate(glm::mat4(1.0f), glm::vec3(Application::getWidth() / 2 - x * zoomPercentage, Application::getHeight() / 2 - y * zoomPercentage, 0.0f)));
+	}
+
+	{
+		std::string name = "u_Zoom";
+		m_ZoomEffectID   = Effect::ShaderEffects::sendShaderEffect(name, glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
+	}
 }
 
-bool Camera::isInFrame(float objX, float objY)
+void Camera::updatePositionEffect()
 {
-	// TODO: Fix this so it accounts for zoom!
-	return objX + 100 > x - Application::getWidth() / (zoomPercentage * 2) && objX - 100 <= x + Application::getWidth() / (zoomPercentage * 2) && objY + 100 > y - Application::getHeight() / (zoomPercentage * 2) && objY - 100 <= y + Application::getHeight() / (zoomPercentage * 2);
+	if(m_PositionEffectID == 0)
+		setShaderEffects();
+
+	Effect::UniformMat4 *effect = static_cast<Effect::UniformMat4 *>(Effect::ShaderEffects::getShaderEffect(m_PositionEffectID));
+	effect->setMat(Application::getProj() * glm::translate(glm::mat4(1.0f), glm::vec3(Application::getWidth() / 2 - x * zoomPercentage, Application::getHeight() / 2 - y * zoomPercentage, 0.0f)));
+}
+void Camera::updateZoomEffect()
+{
+	if(m_ZoomEffectID == 0)
+		setShaderEffects();
+
+	Effect::UniformVec4 *effect = static_cast<Effect::UniformVec4 *>(Effect::ShaderEffects::getShaderEffect(m_ZoomEffectID));   // TODO: Make this a dynamic cast
+	effect->setVec(glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
+}
+
+bool Camera::isInFrame(float objX, float objY, float width, float height)
+{
+	return objX + width > x - Application::getWidth() / (zoomPercentage * 2) && objX - width <= x + Application::getWidth() / (zoomPercentage * 2) && objY + 100 > y - Application::getHeight() / (zoomPercentage * 2) && objY - 100 <= y + Application::getHeight() / (zoomPercentage * 2);
 	return true;
 }
 

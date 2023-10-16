@@ -10,10 +10,11 @@ out vec4 v_TextColour;
 out float v_TexIndex;
 
 uniform mat4 u_MVP;
+uniform vec4 u_Zoom;
 
 void main()
 {
-    gl_Position = u_MVP * position;
+    gl_Position = u_MVP * (u_Zoom * position);
     v_TexCoords = texCoord;
     v_TextColour = textColour;
     v_TexIndex = texIndex;

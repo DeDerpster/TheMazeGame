@@ -5,20 +5,15 @@
 #include "Log.h"
 #include "Renderer.h"
 
-VertexBuffer::VertexBuffer(const void *data, unsigned int size)
+VertexBuffer::VertexBuffer(const void *data, uint32_t size)
+	: m_Offset(0), m_BufferSize(size)
 {
 	GLCall(glGenBuffers(1, &m_RendererID));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
 	if(data)
-	{
-		GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
-		isDynamic = false;
-	}
+		Log::error("Tried to create a static buffer!", LOGINFO);
 	else
-	{
 		GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW));
-		isDynamic = true;
-	}
 }
 
 VertexBuffer::~VertexBuffer()
@@ -39,14 +34,23 @@ void VertexBuffer::unbind() const
 void VertexBuffer::clearBufferData()
 {
 	GLCall(glClearNamedBufferData(m_RendererID, GL_RGBA16, GL_RGBA, GL_UNSIGNED_BYTE, nullptr););
+	m_Offset = 0;   // Resets the offset
 }
 
-void VertexBuffer::addToBuffer(int offset, int size, const void *data)
+bool VertexBuffer::addToBuffer(const void *vertices, uint32_t size)
 {
-	if(isDynamic)
+	// Checks if the buffer is full and if it is it reports the error
+	if(!canStore(size))
 	{
-		GLCall(glNamedBufferSubData(m_RendererID, offset, size, data));
+		Log::error("Render buffer full!", LOGINFO);
+		return false;
 	}
 	else
-		Log::error("Tried to add data to static buffer", LOGINFO);
+	{
+		// Adds to the vertex buffer
+		GLCall(glNamedBufferSubData(m_RendererID, m_Offset, size, vertices));
+
+		m_Offset += size;   // Adds to the m_Offset so it correctly positions the next vertices
+		return true;
+	}
 }

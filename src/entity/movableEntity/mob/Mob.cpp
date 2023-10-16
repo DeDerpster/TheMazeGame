@@ -54,7 +54,7 @@ Mob::~Mob()
 
 void Mob::render()
 {
-#define RENDER_ARGUMENTS x, y, 0.0f, Tile::TILE_SIZE * 1.25f
+#define RENDER_ARGUMENTS x, y, 0.0f, Tile::TILE_SIZE * 1.25f, Tile::TILE_SIZE * 1.25f
 	if(isMoving)
 	{
 		switch(m_Dir)
@@ -78,16 +78,16 @@ void Mob::render()
 		switch(m_Dir)
 		{
 		case Direction::north:
-			Render::Sprite::getSprite(m_SpriteID + SPRITE_NORTH)->render(RENDER_ARGUMENTS);
+			Sprite::getSprite(m_SpriteID + SPRITE_NORTH)->render(RENDER_ARGUMENTS);
 			break;
 		case Direction::south:
-			Render::Sprite::getSprite(m_SpriteID + SPRITE_SOUTH)->render(RENDER_ARGUMENTS);
+			Sprite::getSprite(m_SpriteID + SPRITE_SOUTH)->render(RENDER_ARGUMENTS);
 			break;
 		case Direction::east:
-			Render::Sprite::getSprite(m_SpriteID + SPRITE_EAST)->render(RENDER_ARGUMENTS);
+			Sprite::getSprite(m_SpriteID + SPRITE_EAST)->render(RENDER_ARGUMENTS);
 			break;
 		default:
-			Render::Sprite::getSprite(m_SpriteID + SPRITE_WEST)->render(RENDER_ARGUMENTS);
+			Sprite::getSprite(m_SpriteID + SPRITE_WEST)->render(RENDER_ARGUMENTS);
 			break;
 		}
 	}
@@ -127,13 +127,13 @@ bool Mob::eventCallback(const Event::Event &e)
 
 void Mob::setupAnimations()
 {
-	m_NorthAnimation = std::make_unique<Render::AnimatedSprite>(2, m_SpriteID + SPRITE_NORTH);
+	m_NorthAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_NORTH);
 
-	m_SouthAnimation = std::make_unique<Render::AnimatedSprite>(2, m_SpriteID + SPRITE_SOUTH);
+	m_SouthAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_SOUTH);
 
-	m_EastAnimation = std::make_unique<Render::AnimatedSprite>(2, m_SpriteID + SPRITE_EAST);
+	m_EastAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_EAST);
 
-	m_WestAnimation = std::make_unique<Render::AnimatedSprite>(2, m_SpriteID + SPRITE_WEST);
+	m_WestAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_WEST);
 }
 
 void Mob::pickUp(Item *item)

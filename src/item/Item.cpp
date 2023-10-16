@@ -16,7 +16,7 @@ Item::~Item()
 
 void Item::render(float x, float y, double rotation, float size)
 {
-	Render::Sprite::getSprite(m_SpriteID)->render(x, y, rotation, size);
+	Sprite::getSprite(m_SpriteID)->render(x, y, rotation, size, size);
 }
 
 int          Item::getSpriteID() { return m_SpriteID; }

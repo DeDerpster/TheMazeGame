@@ -3,10 +3,7 @@
 #include "GLM.h"
 
 #include "Layer.h"
-
 #include "Mob.h"
-
-class Entity;
 
 class Camera
 {
@@ -18,6 +15,8 @@ class Camera
 	bool  updateView;
 	bool  lockOnAnchor;
 	Mob * m_Anchor;
+	uint16_t m_ZoomEffectID;
+	uint16_t m_PositionEffectID;
 
   public:
 	Camera();
@@ -32,8 +31,12 @@ class Camera
 	bool eventCallback(const Event::Event &e);
 	bool setEffect(const Effect::RenderEffect &e);
 
-	glm::mat4 getView();
-	bool      isInFrame(float x, float y); // TODO: add Collision box
+	uint16_t  getPositionEffectID();
+	uint16_t  getZoomEffectID();
+	void      setShaderEffects();
+	void      updatePositionEffect();
+	void      updateZoomEffect();
+	bool      isInFrame(float x, float y, float width, float height);
 	void      setLock(bool locked);
 	void      setX(float newX);
 	void      setY(float newY);
