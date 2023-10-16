@@ -1,6 +1,6 @@
 #include "Maze.h"
 
-#include "ImGui.h"
+#include <ImGui.h>
 #include <algorithm>
 #include <string>
 
@@ -8,6 +8,11 @@
 #include "Log.h"
 #include "RandomGen.h"
 #include "VertexBufferLayout.h"
+
+#include "Button.h"
+#include "GUILayer.h"
+#include "MenuItemHolderManager.h"
+#include "StatBar.h"
 
 #include "EmptyRoom.h"
 #include "Enemy.h"
@@ -37,6 +42,27 @@ Maze::Maze()
 	Item *     item      = new FireStaff();
 	WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, this, item);
 	m_Entities.push_back(worldItem);
+	Item *     item2      = new FireStaff();
+	WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, this, item2);
+	m_Entities.push_back(worldItem2);
+
+	// Setting up overlay
+	GUILayer *guiLayer = new GUILayer();
+	// auto      func     = []() {
+	//     Application::setIsPaused(!Application::getIsPaused());
+	// };
+	// guiLayer->addMenuObject(new Button({"Hello"}, 50, 25, 100, 50, func));
+
+	guiLayer->addMenuObject(new MIHManager(0, 0, 3, 1, 100, (std::vector<Item *> &) m_Player.getWeapons(), m_Player.getCurrentWeaponIndex()));
+
+	auto posFunc = [](float *x, float *y, float *width, float *height) {
+		*x      = Application::getWidth() / 2;
+		*y      = 20;
+		*width  = Application::getWidth() / 3;
+		*height = 10;
+	};
+	guiLayer->addMenuObject(new StatBar(posFunc, m_Player.getHealthPointer(), m_Player.getMaxHealthPointer()));
+	Application::addOverlay(guiLayer);
 
 	Log::info("Maze initialised");
 }

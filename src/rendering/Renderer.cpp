@@ -155,15 +155,16 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 		e->setEffect(*m_TextShader);
 		e->setEffect(*m_SimpleShader);
 	}
+	simpleRender(m_BottomLayerObjectBuffer);
 	spriteRender();
-	simpleRender();
+	simpleRender(m_ObjectBuffer);
 	textRender();
 
 }
 
-void Render::simpleRender()
+void Render::simpleRender(std::vector<RenderColouredObject *> &buffer)
 {
-	if(m_ObjectBuffer.size() == 0)   // Checks the buffer is not empty
+	if(buffer.size() == 0)   // Checks the buffer is not empty
 		return;
 
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
@@ -175,7 +176,7 @@ void Render::simpleRender()
 
 	m_SimpleShader->bind();
 	// Goes through all the objects in the buffer and renders them
-	for(RenderColouredObject *obj : m_ObjectBuffer)
+	for(RenderColouredObject *obj : buffer)
 	{
 		// Checks if the buffer is full or the buffer is too big and draws what there is
 		if(!m_VertexBuffer->canStore(4 * sizeof(ColouredVertex)))
@@ -184,12 +185,12 @@ void Render::simpleRender()
 			m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
 		}
 		// Adds the current object to the buffer by creating its quad (this is for memory efficiency)
-		auto vertices = createColouredQuad(obj->position.x, obj->position.y, obj->rotation, obj->width, obj->height, obj->colour);
+		auto vertices = createColouredQuad(obj->position.x, obj->position.y, obj->rotation, obj->width, obj->height, obj->colour, obj->centered);
 		m_VertexBuffer->addToBuffer((void *) &vertices, 4 * sizeof(ColouredVertex));
 		delete obj;
 	}
 
-	m_ObjectBuffer.clear();
+	buffer.clear();
 
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
@@ -234,7 +235,7 @@ void Render::spriteRender()
 				Sprite::getSprite(i)->bind(0);
 			}
 			// Adds the current object to the buffer by creating its quad (this is for memory efficiency)
-			auto vertices = createQuad(obj.position.x, obj.position.y, obj.rotation, obj.width, obj.height, currentTexSlot);
+			auto vertices = createQuad(obj.position.x, obj.position.y, obj.rotation, obj.width, obj.height, currentTexSlot, obj.centered);
 			m_VertexBuffer->addToBuffer((void *) &vertices, 4 * sizeof(Vertex));
 		}
 		// Clears the buffer of the sprite as it will all be rendered*/
@@ -325,28 +326,61 @@ void Render::textRender()
 	m_TextObjBuffer.clear();
 }
 
-void Render::spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID)
+void Render::spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID, bool isOverlay)
 {
 	CollisionBox box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
-	if(Application::isInFrame(x, y, box))
+	if(isOverlay || Application::isInFrame(x, y, box))
 		Sprite::getSprite(spriteID)->render(x, y, rotation, width, height);
 }
 
-void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool centerX)   // NOTE: Scale is a percentage
+void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool centerX, bool centerY, bool isOverlay)   // NOTE: Scale is a percentage
 {
 	CollisionBox box = getTextCollisionBox(text, scale);
 	if(centerX)
 		x -= box.upperBound.x / 2;
+	if(centerY)
+		y -= box.upperBound.y / 2;
 
-	if(Application::isInFrame(x, y, box))
+	if(isOverlay || Application::isInFrame(x, y, box))
 		m_TextObjBuffer.push_back(new TextObj(text, {x, y}, scale, colour));
 }
 
-void Render::rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour)
+void Render::rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, bool isCentered, bool isOverlay, bool bottomLayer)
 {
-	CollisionBox box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
-	if(Application::isInFrame(x, y, box))
-		m_ObjectBuffer.push_back(new RenderColouredObject({x, y}, rotation, width, height, colour));
+	CollisionBox box;
+	if(isCentered)
+		box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
+	else
+		box = {{0, 0}, {width, height}};
+
+	if(isOverlay || Application::isInFrame(x, y, box))
+	{
+		if(bottomLayer)
+			m_BottomLayerObjectBuffer.push_back(new RenderColouredObject({x, y}, rotation, width, height, isCentered, colour));
+		else
+			m_ObjectBuffer.push_back(new RenderColouredObject({x, y}, rotation, width, height, isCentered, colour));
+	}
+}
+
+void Render::rectangleImpl(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, bool isCentered, bool isOverlay, bool bottomLayer)
+{
+	float tempX, tempY;   // Stores the x and y position of the botton corner of the rectangle
+	if(isCentered)
+	{
+		tempX = x - width / 2;
+		tempY = y - height / 2;
+	}
+	else
+	{
+		tempX = x;
+		tempY = y;
+	}
+	rectangle(x, y, 0.0f, width, height, colour, isCentered, isOverlay, bottomLayer);
+
+	rectangle(tempX, tempY, 0.0f, width, borderWidth, borderColour, false, isOverlay, bottomLayer);
+	rectangle(tempX, tempY, 0.0f, borderWidth, height, borderColour, false, isOverlay, bottomLayer);
+	rectangle(tempX, tempY + height - borderWidth, 0.0f, width, borderWidth, borderColour, false, isOverlay, bottomLayer);
+	rectangle(tempX + width - borderWidth, tempY, 0.0f, borderWidth, height, borderColour, false, isOverlay, bottomLayer);
 }
 
 float Render::getTextWidthImpl(std::string &text, float scale)

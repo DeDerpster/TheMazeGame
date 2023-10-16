@@ -1,4 +1,5 @@
 target_sources(${PROJECT_NAME} PRIVATE Button.cpp
-                                       ItemHolder.cpp
+                                       MenuItemHolderManager.cpp
                                        StatBar.cpp
+                                       MenuObject.cpp
                                        Text.cpp)

@@ -3,8 +3,8 @@
 class StatsMob
 {
   private:
-	uint16_t m_Stat_Health, m_Stat_MaxHealth;
-	uint16_t m_Stat_Stamina, m_Stat_MaxStamina;
+	float m_Stat_Health, m_Stat_MaxHealth;
+	float m_Stat_Stamina, m_Stat_MaxStamina;
 
 	uint16_t m_Stat_RegenDelay, m_Stat_MaxRegenDelay;
 
@@ -21,13 +21,13 @@ class StatsMob
 
 	virtual void update();
 
-	void  dealDamage(int damage);
-	void  changeHealth(int changeBy);
-	void  changeStamina(int changeBy);
-	void  changeConfidence(int changeBy);
-	void  changeBoredom(int changeBy);
+	void  dealDamage(float damage);
+	void  changeHealth(float changeBy);
+	void  changeStamina(float changeBy);
+	void  changeConfidence(float changeBy);
+	void  changeBoredom(float changeBy);
 	float getDamage(float minDamage, float maxDamage);
-	void  hasHitTarget(int damageDealt);
+	void  hasHitTarget(float damageDealt);
 	void  hasMissedTarget();
 	void  hasUsedWeapon();
 	void  resetStats();
@@ -35,9 +35,14 @@ class StatsMob
 	int getWeaponDelay(int delay);
 
 	bool     isDead();
-	uint16_t getHeath();
-	uint16_t getMaxHeath();
-	uint16_t getStamina();
-	uint16_t getMaxStamina();
+	float    getHeath();
+	float    getMaxHeath();
+	float    getStamina();
+	float    getMaxStamina();
 	uint16_t getAttractiveness();
+
+	const float *getHealthPointer();
+	const float *getMaxHealthPointer();
+	const float *getStaminaPointer();
+	const float *getMaxStaminaPointer();
 };

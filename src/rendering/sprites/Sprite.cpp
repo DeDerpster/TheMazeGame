@@ -13,7 +13,7 @@ Sprite::~Sprite()
 
 void Sprite::render(float x, float y, double rotation, float width, float height)
 {
-	m_Buffer.push_back({{x, y}, rotation, width, height});
+	m_Buffer.push_back({{x, y}, rotation, width, height, true});
 }
 
 void Sprite::bind(unsigned int slot)

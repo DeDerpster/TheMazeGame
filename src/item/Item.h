@@ -12,7 +12,7 @@ class Item
 	Item(const char *name, uint32_t spriteID);
 	virtual ~Item();
 
-	void render(float x, float y, double rotation, float size);
+	void render(float x, float y, double rotation, float size, bool isOverlay = false);
 
 	int          getSpriteID();
 	std::string *getName();

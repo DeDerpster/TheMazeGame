@@ -46,7 +46,7 @@ void Projectile::update()
 			{
 				Mob *mob = dynamic_cast<Mob *>(colE);
 				if(mob)
-					mob->changeHealth(-m_Damage);
+					mob->dealDamage(m_Damage);
 				spawner->hasHitTarget(m_Damage);
 			}
 			else

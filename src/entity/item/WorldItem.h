@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Button.h"
 #include "Entity.h"
 #include "Item.h"
 #include "Tile.h"
@@ -8,6 +9,7 @@ class WorldItem : public Entity
 {
   protected:
 	Item *m_Item;
+	Button::State m_State;
 
   public:
 	WorldItem(Item *item);

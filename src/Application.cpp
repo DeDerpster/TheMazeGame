@@ -21,7 +21,8 @@ Application::Application()
 	  windowWidth(940),
 	  windowHeight(540),
 	  proj(glm::ortho(0.0f, (float) windowWidth, 0.0f, (float) windowHeight, -100.0f, 100.0f)),
-	  overlayStart(0)
+	  overlayStart(0),
+	  gameIsPaused(false)
 {   // This initialises everything
 	layers.reserve(2);
 
@@ -139,7 +140,11 @@ void Application::updateImpl()   // Updates all the layers
 	if(projEffectID == 0)
 		updateWindowSizeImpl(windowWidth, windowHeight);
 	for(int i = layers.size() - 1; i > -1; i--)
+	{
 		layers[i]->update();
+		if(gameIsPaused && i == overlayStart)
+			break;
+	}
 	camera.update();
 }
 
@@ -204,18 +209,25 @@ void Application::removeLayerImpl(Layer *layer)
 // SECTION: Events & Effects
 void Application::callEventImpl(const Event::Event &e, bool includeOverlay)   // Sends event through the layers
 {
-	int endVal;
+	if(camera.eventCallback(e))
+		return;
+
+	int startVal;
 	if(includeOverlay)
-		endVal = layers.size();
+		startVal = layers.size();
 	else
-		endVal = overlayStart;
+	{
+		if(gameIsPaused)
+			return;
+		startVal = overlayStart;
+	}
 
-	camera.eventCallback(e);
-
-	for(int i = 0; i < endVal; i++)
+	for(int i = startVal - 1; i > -1; i--)
 	{
 		if(layers[i])
 			layers[i]->eventCallback(e);
+		if(gameIsPaused && i == overlayStart)
+			break;
 	}
 }
 

@@ -28,10 +28,11 @@ struct RenderObject
 	glm::vec2 position;
 	double    rotation;
 	float     width, height;
+	bool      centered;
 
 	RenderObject() {}
-	RenderObject(glm::vec2 position, double rotation, float width, float height)
-		: position(position), rotation(rotation), width(width), height(height) {}
+	RenderObject(glm::vec2 position, double rotation, float width, float height, bool centered)
+		: position(position), rotation(rotation), width(width), height(height), centered(centered) {}
 };
 
 struct RenderColouredObject : RenderObject
@@ -39,8 +40,8 @@ struct RenderColouredObject : RenderObject
 	glm::vec4 colour;
 
 	RenderColouredObject() {}
-	RenderColouredObject(glm::vec2 position, double rotation, float width, float height, glm::vec4 colour)
-		: RenderObject(position, rotation, width, height), colour(colour) {}
+	RenderColouredObject(glm::vec2 position, double rotation, float width, float height, bool centered, glm::vec4 colour)
+		: RenderObject(position, rotation, width, height, centered), colour(colour) {}
 };
 
 struct ColouredVertex
@@ -116,18 +117,20 @@ class Render
 	std::unordered_map<char, Character> characters;
 
 	std::vector<RenderColouredObject *> m_ObjectBuffer;
+	std::vector<RenderColouredObject *> m_BottomLayerObjectBuffer;
 
 	Render();
 
 	void renderImpl(std::vector<uint16_t> &shaderEffects);
-	void simpleRender();
+	void simpleRender(std::vector<RenderColouredObject *> &buffer);
 	void spriteRender();
 	void textRender();
 	void draw(VertexArray &vao) const;
 
-	void spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID);
-	void textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool centerX);
-	void rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour);
+	void spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID, bool isOverlay);
+	void textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool centerX, bool centerY, bool isOverlay);
+	void rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, bool isCentered, bool isOverlay, bool bottomLayer);
+	void rectangleImpl(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, bool isCentered, bool isOverlay, bool bottomLayer);
 
 	float        getTextWidthImpl(std::string &text, float scale);
 	float        getTextHeightImpl(std::string &text, float scale);
@@ -143,10 +146,11 @@ class Render
 	~Render();
 
 	static void render(std::vector<uint16_t> &shaderEffects) { get().renderImpl(shaderEffects); }
-	static void sprite(float x, float y, double rotation, float size, uint16_t spriteID) { get().spriteImpl(x, y, rotation, size, size, spriteID); }
-	static void sprite(float x, float y, double rotation, float width, float height, uint16_t spriteID) { get().spriteImpl(x, y, rotation, width, height, spriteID); }
-	static void text(std::string &text, float x, float y, float scale, glm::vec4 colour, bool centerX = false) { get().textImpl(text, x, y, scale, colour, centerX); }
-	static void rectangle(float x, float y, double rotation, float width, float height, glm::vec4 colour) { get().rectangleImpl(x, y, rotation, width, height, colour); }
+	static void sprite(float x, float y, double rotation, float size, uint16_t spriteID, bool isOverlay = false) { get().spriteImpl(x, y, rotation, size, size, spriteID, isOverlay); }
+	static void sprite(float x, float y, double rotation, float width, float height, uint16_t spriteID, bool isOverlay = false) { get().spriteImpl(x, y, rotation, width, height, spriteID, isOverlay); }
+	static void text(std::string &text, float x, float y, float scale, glm::vec4 colour, bool centerX = false, bool centerY = false, bool isOverlay = false) { get().textImpl(text, x, y, scale, colour, centerX, centerY, isOverlay); }
+	static void rectangle(float x, float y, double rotation, float width, float height, glm::vec4 colour, bool isCentered = true, bool isOverlay = false, bool bottomLayer = false) { get().rectangleImpl(x, y, rotation, width, height, colour, isCentered, isOverlay, bottomLayer); }
+	static void rectangle(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, bool isCentered = true, bool isOverlay = false, bool bottomLayer = false) { get().rectangleImpl(x, y, width, height, colour, borderWidth, borderColour, isCentered, isOverlay, bottomLayer); }
 
 	static float        getTextWidth(std::string &text, float scale) { return get().getTextWidthImpl(text, scale); }
 	static float        getTextHeight(std::string &text, float scale) { return get().getTextHeightImpl(text, scale); }

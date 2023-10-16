@@ -40,9 +40,10 @@ class Mob : public MovableEntity, public StatsMob
 	virtual void update();
 	virtual bool eventCallback(const Event::Event &e);
 
-	// void changeHealth(float changeBy) { m_Health += changeBy; }
-
 	virtual bool deleteMe() { return isDead(); }
+
+	const std::vector<Weapon *> &getWeapons() { return m_Weapons; }
+	int *                        getCurrentWeaponIndex() { return &m_CurrentWeapon; }
 
 	void setIsInControl(bool i_isInControl) { isInControl = i_isInControl; }
 #ifdef DEBUG

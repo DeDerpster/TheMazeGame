@@ -11,22 +11,23 @@ namespace Event
 	static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
 		KeyboardEvent e(key, scancode, action, mods);
-		Application::callEvent(e);
+		Application::callEvent(e, true);
 	}
 
 	static void window_size_callback(GLFWwindow *window, int width, int height)
 	{
 		//windowSizeChange(windowWidth - width, windowHeight - height);
-		WindowResizeEvent e(Application::getWidth(), Application::getHeight(), width, height);
-		Application::callEvent(e);
 		Application::updateWindowSize(width, height);
 		glViewport(0, 0, width, height);
+
+		WindowResizeEvent e(Application::getWidth(), Application::getHeight(), width, height);
+		Application::callEvent(e, true);
 	}
 
 	static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 	{
 		ScrollEvent e(xoffset, yoffset);
-		Application::callEvent(e);
+		Application::callEvent(e, true);
 	}
 
 	static void error_callback(int error, const char *description)
@@ -38,7 +39,7 @@ namespace Event
 	{
 		MouseButton       mButton = static_cast<MouseButton>(button);
 		MouseClickedEvent e(mButton, getMousePos());
-		Application::callEvent(e);
+		Application::callEvent(e, true);
 	}
 
 	void init()

@@ -57,6 +57,9 @@ class Application
 	static int       getHeight() { return get().getHeightImpl(); }
 	static void *    getWindow() { return get().getWindowImpl(); }
 
+	static bool getIsPaused() { return get().gameIsPaused; }
+	static void setIsPaused(bool paused) { get().gameIsPaused = paused; }
+
   private:
 	static Application s_Instance;
 
@@ -70,6 +73,8 @@ class Application
 	std::vector<Layer *> layers;   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time
 
 	uint16_t projEffectID;
+
+	bool gameIsPaused;
 
 	Application();
 

@@ -110,7 +110,7 @@ bool Camera::eventCallback(const Event::Event &e)
 		const Event::WindowResizeEvent &ne = static_cast<const Event::WindowResizeEvent &>(e);
 
 		updateView = true;
-		return true;
+		return false;
 	}
 	else if(e.getType() == Event::EventType::mazeMovedEvent)
 	{
@@ -167,7 +167,7 @@ void Camera::updateZoomEffect()
 }
 
 bool Camera::isInFrame(float objX, float objY, CollisionBox &box)
-{
+{   // TODO: Try and make the buffer of 1 tiles slightly smaller :D
 	return objX + box.upperBound.x + Tile::TILE_SIZE >  x - Application::getWidth()  / (zoomPercentage * 2)
 		&& objX + box.lowerBound.x - Tile::TILE_SIZE <= x + Application::getWidth()  / (zoomPercentage * 2)
 		&& objY + box.upperBound.y + Tile::TILE_SIZE >  y - Application::getHeight() / (zoomPercentage * 2)

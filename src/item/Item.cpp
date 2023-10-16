@@ -14,9 +14,9 @@ Item::~Item()
 {
 }
 
-void Item::render(float x, float y, double rotation, float size)
+void Item::render(float x, float y, double rotation, float size, bool isOverlay)
 {
-	Sprite::getSprite(m_SpriteID)->render(x, y, rotation, size, size);
+	Render::sprite(x, y, rotation, size, m_SpriteID, isOverlay);
 }
 
 int          Item::getSpriteID() { return m_SpriteID; }

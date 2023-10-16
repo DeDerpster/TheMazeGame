@@ -40,16 +40,18 @@ void StatsMob::update()
 	}
 }
 
-void StatsMob::dealDamage(int damage)
+void StatsMob::dealDamage(float damage)
 {
 	// TODO: Have strength and agility lower this
 	if(m_Stat_Health < damage)
 		m_Stat_Health = 0;
 	else
 		m_Stat_Health -= damage;
+
+	m_Stat_RegenDelay = 100;
 }
 
-void StatsMob::changeHealth(int changeBy)
+void StatsMob::changeHealth(float changeBy)
 {
 	if(changeBy < 0 && m_Stat_Health < -changeBy)
 		m_Stat_Health = 0;
@@ -59,7 +61,7 @@ void StatsMob::changeHealth(int changeBy)
 		m_Stat_Health += changeBy;
 }
 
-void StatsMob::changeStamina(int changeBy)
+void StatsMob::changeStamina(float changeBy)
 {
 	if(changeBy < 0 && m_Stat_Stamina < -changeBy)
 		m_Stat_Stamina = 0;
@@ -69,7 +71,7 @@ void StatsMob::changeStamina(int changeBy)
 		m_Stat_Stamina += changeBy;
 }
 
-void StatsMob::changeConfidence(int changeBy)
+void StatsMob::changeConfidence(float changeBy)
 {
 	if(m_Stat_Confidence + changeBy < 0)
 		m_Stat_Confidence = 0;
@@ -79,7 +81,7 @@ void StatsMob::changeConfidence(int changeBy)
 		m_Stat_Confidence += changeBy;
 }
 
-void StatsMob::changeBoredom(int changeBy)
+void StatsMob::changeBoredom(float changeBy)
 {
 	if(m_Stat_Boredom + changeBy < 0)
 		m_Stat_Boredom = 0;
@@ -107,7 +109,7 @@ float StatsMob::getDamage(float minDamage, float maxDamage)
 	return minDamage + range * percentage;
 }
 
-void StatsMob::hasHitTarget(int damageDealt)
+void StatsMob::hasHitTarget(float damageDealt)
 {
 	changeConfidence(1 + damageDealt / 10);
 	changeBoredom(-5);
@@ -132,11 +134,16 @@ int StatsMob::getWeaponDelay(int delay)
 }
 
 bool     StatsMob::isDead() { return m_Stat_Health == 0; }
-uint16_t StatsMob::getHeath() { return m_Stat_Health; }
-uint16_t StatsMob::getMaxHeath() { return m_Stat_MaxHealth; }
-uint16_t StatsMob::getStamina() { return m_Stat_Stamina; }
-uint16_t StatsMob::getMaxStamina() { return m_Stat_MaxStamina; }
+float    StatsMob::getHeath() { return m_Stat_Health; }
+float    StatsMob::getMaxHeath() { return m_Stat_MaxHealth; }
+float    StatsMob::getStamina() { return m_Stat_Stamina; }
+float    StatsMob::getMaxStamina() { return m_Stat_MaxStamina; }
 uint16_t StatsMob::getAttractiveness() { return m_Stat_Attractiveness; }
+
+const float *StatsMob::getHealthPointer() { return &m_Stat_Health; }
+const float *StatsMob::getMaxHealthPointer() { return &m_Stat_MaxHealth; }
+const float *StatsMob::getStaminaPointer() { return &m_Stat_Stamina; }
+const float *StatsMob::getMaxStaminaPointer() { return &m_Stat_MaxStamina; }
 
 void StatsMob::resetStats()
 {

@@ -4,13 +4,13 @@
 #include "Player.h"
 
 WorldItem::WorldItem(Item *item)
-	: Entity(0.0f, 0.0f, {{-50.0f, -50.0f}, {50.0f, 50.0f}}, nullptr, item->getSpriteID()), m_Item(item) {}
+	: Entity(0.0f, 0.0f, {{-25.0f, -25.0f}, {25.0f, 25.0f}}, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
 
 WorldItem::WorldItem(float x, float y, Item *item)
-	: Entity(x, y, {{-50.0f, -50.0f}, {50.0f, 50.0f}}, nullptr, item->getSpriteID()), m_Item(item) {}
+	: Entity(x, y, {{-25.0f, -25.0f}, {25.0f, 25.0f}}, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
 
 WorldItem::WorldItem(float x, float y, Level *level, Item *item)
-	: Entity(x, y, {{-50.0f, -50.0f}, {50.0f, 50.0f}}, level, item->getSpriteID()), m_Item(item) {}
+	: Entity(x, y, {{-25.0f, -25.0f}, {25.0f, 25.0f}}, level, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
 
 WorldItem::~WorldItem()
 {
@@ -23,12 +23,29 @@ void WorldItem::render()
 	if(m_Item)
 	{
 		m_Item->render(x, y, 0.0f, 50);
-		float scale = 35.0f;
-		// float textWidth = Render::getTextWidth(*m_Item->getName(), scale);
-		Render::text(*m_Item->getName(), x /* - textWidth / 2*/, y + m_CollisionBox.lowerBound.y, scale, {0.0f, 0.0f, 0.0f, 1.0f}, true);
+		if(m_State == Button::State::Hover)
+		{
+			float scale = 35.0f;
+			Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
+			CollisionBox box      = Render::getTextCollisionBox(*m_Item->getName(), scale);
+			Render::rectangle(mousePos.x, mousePos.y + 4.0f + box.upperBound.y / 2, 0.0f, box.upperBound.x + 2.0f, box.upperBound.y + 4.0f, {0.3f, 0.3f, 0.3f, 0.7f});
+			Render::text(*m_Item->getName(), mousePos.x, mousePos.y + 5.0f, scale, {1.0f, 1.0f, 1.0f, 1.0f}, true);
+		}
 	}
 }
-void WorldItem::update() {}
+
+void WorldItem::update()
+{
+	if(m_Item)
+	{
+		Vec2f mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
+
+		if(mousePos.x > x + m_CollisionBox.lowerBound.x && mousePos.x < x + m_CollisionBox.upperBound.x && mousePos.y > y + m_CollisionBox.lowerBound.y && mousePos.y < y + m_CollisionBox.upperBound.y)
+			m_State = Button::State::Hover;
+		else
+			m_State = Button::State::None;
+	}
+}
 bool WorldItem::eventCallback(const Event::Event &e)
 {
 	if(!m_Item)

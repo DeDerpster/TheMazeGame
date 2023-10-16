@@ -12,9 +12,12 @@
 #include "Log.h"
 #include "RandomGen.h"
 
+#include "GUILayer.h"
 #include "Layer.h"
 #include "Maze.h"
 #include "ParticleLayer.h"
+
+#include "Button.h"
 
 #include "Tile.h"
 
@@ -33,8 +36,6 @@ void gameLoop()
 
 		ParticleLayer *particleLayer = new ParticleLayer();
 		Application::addLayer(particleLayer);
-
-		// Application::addOverlay(textLayer);
 	}
 
 	int          fps = 0;
