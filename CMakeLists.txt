@@ -21,6 +21,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/${CMAKE_SYSTEM_NAME}
 set(CMAKE_CXX_STANDARD 17) # This is because windows doesn't support c++20 fully yet - quite buggy
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND CURRENT_MODE MATCHES "DEBUG")
+    set(CMAKE_CXX_FLAGS "/DEBUG[:FULL]")
+endif()
+
+
 include(CTest)
 enable_testing()
 

@@ -2,7 +2,7 @@
 
 namespace Render
 {
-	std::vector<std::unique_ptr<Sprite>> Sprite::sprites;
+	std::array<std::unique_ptr<Sprite>, NUM_OF_SPRITES> Sprite::sprites;
 
 	Sprite::Sprite(const char *texturePath)
 	{

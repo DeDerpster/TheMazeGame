@@ -44,6 +44,8 @@ class Entity
 	void  setLevel(Level *level) { m_Level = level; }
 
 #ifdef DEBUG
-	virtual void imGuiRender() = 0;
+	virtual void imGuiRender()
+	{
+	}
 #endif
 };

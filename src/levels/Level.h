@@ -11,11 +11,13 @@
 // These are here so I don't have to import the files and cause a infinite loop
 class Tile;
 class Player;
+class Entity;
 
 class Level : public Layer
 {
   protected:
 	int width, height;
+	std::vector<Entity *> m_Entities;
 
 	bool collisionPointDetection(float nextX, float nextY);
 	bool directionalCollision(float x, float y, float xs, float ys, CollisionBox collisionBox);
@@ -25,7 +27,11 @@ class Level : public Layer
 	{
 	}
 	Level(int width, int height): width(width), height(height) {}
-	virtual ~Level() override {}
+	virtual ~Level() override
+	{
+		for(Entity *entity : m_Entities)
+			delete entity;
+	}
 
 	virtual void render() = 0;
 	virtual void update() = 0;
@@ -39,5 +45,7 @@ class Level : public Layer
 	virtual Player *            getPlayer() { return nullptr; }
 	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox);
 
-	bool                        collisionDetection(float nextX, float nextY, CollisionBox collisionBox);
+	virtual void addEntity(Entity *e) { m_Entities.push_back(e); }
+
+	bool collisionDetection(float nextX, float nextY, CollisionBox collisionBox);
 };

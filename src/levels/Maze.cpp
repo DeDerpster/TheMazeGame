@@ -65,8 +65,8 @@ Maze::~Maze()
 		if(board[i])
 			delete board[i];
 	}
-	for(Entity *entity : m_Entities)
-		delete entity;
+	// for(Entity *entity : m_Entities)
+	// delete entity;
 	Log::info("Maze destroyed");
 }
 
@@ -183,19 +183,18 @@ void Maze::update()
 		Application::getCamera()->changeUpdateView();
 	}
 
-	std::vector<Entity *>::iterator i = m_Entities.begin();
+	std::vector<Entity *>::iterator iter = m_Entities.begin();
 
-	while(i != m_Entities.end())
+	while(iter != m_Entities.end())
 	{
-		(*i)->update();
-		if((*i)->deleteMe())
+		(*iter)->update();
+		if((*iter)->deleteMe())
 		{
-			Log::info("Deleting entity!");
-			delete *i;
-			m_Entities.erase(i);
+			delete *iter;
+			m_Entities.erase(iter);
 		}
 		else
-			++i;
+			++iter;
 	}
 
 	// TODO: Add check to see if all of the pathsNorth... are all false - so will need to reset the maze
@@ -226,6 +225,8 @@ bool Maze::eventCallback(const Application::Event &e)
 		if(entity->eventCallback(e))
 			return true;
 	}
+	if(m_Player.eventCallback(e))
+		return true;
 	return false;
 }
 

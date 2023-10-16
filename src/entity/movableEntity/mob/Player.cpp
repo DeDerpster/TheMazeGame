@@ -1,4 +1,6 @@
 #include "Player.h"
+
+#include "Projectile.h"
 #include "Tile.h"
 
 Player::Player()
@@ -21,35 +23,35 @@ Player::~Player()
 
 void Player::update()
 {
-	if(isInControl)
-	{
-		Vec2f ratio = {0, 0};
-		if(Application::isKeyPressed(GLFW_KEY_W) || Application::isKeyPressed(GLFW_KEY_UP))
+		if(isInControl)
 		{
-			ratio.y += 1.0f;
-		}
-		if(Application::isKeyPressed(GLFW_KEY_S) || Application::isKeyPressed(GLFW_KEY_DOWN))
-		{
-			ratio.y -= 1.0f;
-		}
-		if(Application::isKeyPressed(GLFW_KEY_A) || Application::isKeyPressed(GLFW_KEY_LEFT))
-		{
-			ratio.x -= 1.0f;
-		}
-		if(Application::isKeyPressed(GLFW_KEY_D) || Application::isKeyPressed(GLFW_KEY_RIGHT))
-		{
-			ratio.x += 1.0f;
-		}
+			Vec2f ratio = {0, 0};
+			if(Application::isKeyPressed(GLFW_KEY_W) || Application::isKeyPressed(GLFW_KEY_UP))
+			{
+				ratio.y += 1.0f;
+			}
+			if(Application::isKeyPressed(GLFW_KEY_S) || Application::isKeyPressed(GLFW_KEY_DOWN))
+			{
+				ratio.y -= 1.0f;
+			}
+			if(Application::isKeyPressed(GLFW_KEY_A) || Application::isKeyPressed(GLFW_KEY_LEFT))
+			{
+				ratio.x -= 1.0f;
+			}
+			if(Application::isKeyPressed(GLFW_KEY_D) || Application::isKeyPressed(GLFW_KEY_RIGHT))
+			{
+				ratio.x += 1.0f;
+			}
 
-		if(ratio.x != 0 || ratio.y != 0)
-		{
-			move(ratio);
-		}
-		else
-			isMoving = false;
+			if(ratio.x != 0 || ratio.y != 0)
+			{
+				move(ratio);
+			}
+			else
+				isMoving = false;
 
-		Mob::update();
-	}
+			Mob::update();
+		}
 }
 
 void Player::render()
@@ -59,6 +61,13 @@ void Player::render()
 
 bool Player::eventCallback(const Application::Event &e)
 {
+	if(e.getType() == Application::EventType::keyInput)
+	{
+		Log::info("Get input");
+		const Application::KeyboardEvent &ne = static_cast<const Application::KeyboardEvent &>(e);
+		if(ne.key == GLFW_KEY_SPACE && ne.action == GLFW_PRESS)
+			m_Level->addEntity(new Projectile(x, y, 1000.0f, 10.0f, 10.0f, m_Dir, this, m_Level));
+	}
 	return false;
 }
 

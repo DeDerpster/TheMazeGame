@@ -1,3 +1,5 @@
+#pragma once
+
 #include "MovableEntity.h"
 
 class Projectile : public MovableEntity
@@ -10,6 +12,12 @@ class Projectile : public MovableEntity
 	bool    hasCollided;
 
   public:
-	Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, float width, float height, Entity *spawner, Level *level);
+	Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Entity *spawner, Level *level);
 	virtual ~Projectile() {}
-}
+
+	virtual void update() override;
+	virtual void render() override;
+	virtual bool eventCallback(const Application::Event &e) override { return false; }
+
+	virtual bool deleteMe() override { return hasCollided; }
+};

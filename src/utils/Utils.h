@@ -13,6 +13,18 @@ enum Direction
 	west
 };
 
+static float directionToRotation(Direction dir)
+{
+	if(dir == Direction::north)
+		return 0.0f;
+	else if(dir == Direction::south)
+		return M_PI;
+	else if(dir == Direction::east)
+		return M_PI_2;
+	else
+		return 3.0f * M_PI_2;
+}
+
 struct Vec2i
 {
 	int x, y;
