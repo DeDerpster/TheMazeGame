@@ -75,7 +75,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
     target_compile_definitions(${PROJECT_NAME} PUBLIC IS_ON_LINUX)
     add_library(glew STATIC IMPORTED GLOBAL)
 
-    set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/dependencies/glew/lib/libGLEW.a )
+    set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/dependencies/glew/lib/linux/libGLEW.a )
     set_target_properties(glew PROPERTIES INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/dependencies/glew/include )
 
     target_link_libraries(${PROJECT_NAME} PUBLIC glew)
