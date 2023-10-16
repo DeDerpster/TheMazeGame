@@ -52,7 +52,12 @@ void MIHManager::render()
 		float nextY = m_BlockSize / 2 + y + yOffset * m_BlockSize;
 
 		float borderWidth = 2.0f;
-		if(i == mouseHoverBlock)
+		if(i == *m_ActiveItem)
+		{
+			borderWidth += 3.0f;
+			Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_ActiveBorderColour, true, true, true);
+		}
+		else if(i == mouseHoverBlock)
 		{
 			borderWidth += 1.0f;
 			Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_HoverBorderColour, true, true, true);
@@ -61,12 +66,7 @@ void MIHManager::render()
 			Vec2f        mousePos = Event::getMousePos();
 			CollisionBox box      = Render::getTextCollisionBox(*m_Items[i]->getName(), scale);
 			Render::rectangle(mousePos.x, mousePos.y + 4.0f + box.upperBound.y / 2, 0.0f, box.upperBound.x + 2.0f, box.upperBound.y + 4.0f, {0.3f, 0.3f, 0.3f, 0.7f}, true, true);
-			Render::text(*m_Items[i]->getName(), mousePos.x, mousePos.y + 5.0f, scale, {1.0f, 1.0f, 1.0f, 1.0f}, true, false, true);
-		}
-		else if(i == *m_ActiveItem)
-		{
-			borderWidth += 3.0f;
-			Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_ActiveBorderColour, true, true, true);
+			Render::text(*m_Items[i]->getName(), mousePos.x, mousePos.y + 5.0f + box.upperBound.y / 2, scale, {1.0f, 1.0f, 1.0f, 1.0f}, true, true);
 		}
 		else
 			Render::rectangle(nextX, nextY, m_BlockSize, m_BlockSize, m_BackgroundColour, borderWidth, m_BorderColour, true, true, true);

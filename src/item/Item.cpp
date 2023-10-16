@@ -1,6 +1,6 @@
 #include "Item.h"
 
-#include "Sprite.h"
+#include "Renderer.h"
 
 Item::Item()
 	: m_SpriteID(0), m_Name("I am an item")

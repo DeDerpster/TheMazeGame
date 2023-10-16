@@ -9,6 +9,7 @@
 #include FT_FREETYPE_H
 
 Render::Render()
+	: orderBuffersByYAxisSetting(false)
 {
 // Text initialisation
 	FT_Library ft;
@@ -94,8 +95,8 @@ Render::Render()
 	VertexBufferLayout textLayout = {
 		{ShaderDataType::Float2, "position"},
 		{ShaderDataType::Float2, "texCoord"},
-		{ShaderDataType::Float4, "texColour"},
 		{ShaderDataType::Float, "texIndex"},
+		{ShaderDataType::Float4, "texColour"},
 	};
 	m_TextVAO->addBuffer(*m_VertexBuffer, textLayout);   // Adds it to the VAO
 	m_IndexBuffer->bind();
@@ -126,7 +127,7 @@ Render::Render()
 
 Render::~Render()
 {
-	for(TextObj *obj : m_TextObjBuffer)
+	for(TextObject *obj : m_TextObjBuffer)
 		delete obj;
 	for(RenderColouredObject *obj : m_ObjectBuffer)
 		delete obj;
@@ -143,6 +144,7 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 	m_TextShader->setUniformMat4f("u_MVP", Application::getProj());
 	m_SimpleShader->setUniformMat4f("u_MVP", Application::getProj());
 
+	// Sets effects given
 	for(uint16_t id : shaderEffects)
 	{
 		if(id == 0)
@@ -155,11 +157,14 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 		e->setEffect(*m_TextShader);
 		e->setEffect(*m_SimpleShader);
 	}
+	// Renders
 	simpleRender(m_BottomLayerObjectBuffer);
 	spriteRender();
 	simpleRender(m_ObjectBuffer);
 	textRender();
 
+	// Resets settings
+	orderBuffersByYAxisSetting = false;
 }
 
 void Render::simpleRender(std::vector<RenderColouredObject *> &buffer)
@@ -178,15 +183,15 @@ void Render::simpleRender(std::vector<RenderColouredObject *> &buffer)
 	// Goes through all the objects in the buffer and renders them
 	for(RenderColouredObject *obj : buffer)
 	{
+		auto vertices = obj->convertToColouredVertices();
 		// Checks if the buffer is full or the buffer is too big and draws what there is
-		if(!m_VertexBuffer->canStore(4 * sizeof(ColouredVertex)))
+		if(!m_VertexBuffer->canStore(obj->getSizeOfVertices()))
 		{
 			draw(*m_SimpleVAO);
 			m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
 		}
 		// Adds the current object to the buffer by creating its quad (this is for memory efficiency)
-		auto vertices = createColouredQuad(obj->position.x, obj->position.y, obj->rotation, obj->width, obj->height, obj->colour, obj->centered);
-		m_VertexBuffer->addToBuffer((void *) &vertices, 4 * sizeof(ColouredVertex));
+		m_VertexBuffer->addToBuffer((void *) &vertices, obj->getSizeOfVertices());
 		delete obj;
 	}
 
@@ -201,59 +206,51 @@ void Render::simpleRender(std::vector<RenderColouredObject *> &buffer)
 
 void Render::spriteRender()
 {
+	if(m_SpriteBuffer.size() == 0)
+		return;
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
-		// draw();
 		m_VertexBuffer->clearBufferData();
 		Log::warning("Vertex Buffer was not empty!");
 	}
 
 	m_SpriteShader->bind();
 	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
-	for(int i = 0; i < NUM_OF_SPRITES; i++)
+	for(TexturedObject *obj : m_SpriteBuffer)
 	{
-		// Gets the buffer from the sprite
-		std::vector<RenderObject> *buffer = Sprite::getSprite(i)->getBuffer();
-		if(buffer->size() == 0)   // Checks the buffer is not empty
-			continue;
-
-		// Binds the sprite texture to then currentTexSlot
-		Sprite::getSprite(i)->bind(currentTexSlot);
-
-		// Goes through all the objects in the buffer and renders them
-		for(RenderObject obj : *buffer)
+		uint8_t texSlot = Texture::getBoundSlot(Sprite::getSprite(obj->spriteID)->getTexture());
+		if(texSlot == 32)
 		{
-			// Checks if the buffer is full or the buffer is too big and draws what there is
-			if(!m_VertexBuffer->canStore(4 * sizeof(Vertex)))
+			texSlot = currentTexSlot;
+			currentTexSlot++;
+			if(currentTexSlot == 32)
 			{
 				draw(*m_SpriteVAO);
 				m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
 				currentTexSlot = 0;                  // resets this as all the textures have been rendered
-
-				// Rebinds the texture so it is in the correct slot
-				Sprite::getSprite(i)->unbind();
-				Sprite::getSprite(i)->bind(0);
+				Texture::clearBufferSlots();
 			}
-			// Adds the current object to the buffer by creating its quad (this is for memory efficiency)
-			auto vertices = createQuad(obj.position.x, obj.position.y, obj.rotation, obj.width, obj.height, currentTexSlot, obj.centered);
-			m_VertexBuffer->addToBuffer((void *) &vertices, 4 * sizeof(Vertex));
+			Sprite::getSprite(obj->spriteID)->bind(texSlot);
 		}
-		// Clears the buffer of the sprite as it will all be rendered*/
-		Sprite::getSprite(i)->clearBuffer();
-		currentTexSlot++;
-		if(currentTexSlot == 32)
+		auto vertices = obj->convertToTexturedVertices(texSlot);
+		// Checks if the buffer is full or the buffer is too big and draws what there is
+		if(!m_VertexBuffer->canStore(obj->getSizeOfVertices()))
 		{
 			draw(*m_SpriteVAO);
 			m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
 			currentTexSlot = 0;                  // resets this as all the textures have been rendered
+			Texture::clearBufferSlots();
 		}
+		// Adds the current object to the buffer by creating its quad (this is for memory efficiency)
+		m_VertexBuffer->addToBuffer((void *) &vertices, obj->getSizeOfVertices());
+		delete obj;
 	}
-
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
 		draw(*m_SpriteVAO);
 		m_VertexBuffer->clearBufferData();
 	}
+	m_SpriteBuffer.clear();
 }
 
 void Render::textRender()
@@ -263,27 +260,20 @@ void Render::textRender()
 
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
 	{
-		// draw();
 		m_VertexBuffer->clearBufferData();
 		Log::warning("Vertex Buffer was not empty!");
 	}
 
 	m_TextShader->bind();
 	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to
-	for(TextObj *text : m_TextObjBuffer)
+	for(TextObject *text : m_TextObjBuffer)
 	{
+		float xOffset = 0.0f;
 		if(text->text.empty())
 			continue;
 		for(std::string::const_iterator c = text->text.begin(); c != text->text.end(); c++)
 		{
 			Character *ch = &characters[*c];
-			float      newScale = text->scale / 100;
-
-			float xPos = text->position.x + ch->bearing.x * newScale;
-			float yPos = text->position.y - (ch->size.y - ch->bearing.y) * newScale;
-
-			float w = ch->size.x * newScale;
-			float h = ch->size.y * newScale;
 
 			uint8_t texSlot = Texture::getBoundSlot(ch->texture);
 			if(texSlot == 32)
@@ -297,23 +287,23 @@ void Render::textRender()
 					currentTexSlot = 0;                  // resets this as all the textures have been rendered
 					Texture::clearBufferSlots();
 				}
+				ch->texture->bind(texSlot);
 			}
 
-			ch->texture->bind(texSlot);
 
-			if(!m_VertexBuffer->canStore(4 * sizeof(TextVertex)))
+			std::array<TextVertex, 4> vertices = text->convertCharacterToVertices(ch, xOffset, texSlot);
+			if(!m_VertexBuffer->canStore(text->getSizeOfVertices()))
 			{
 				draw(*m_SpriteVAO);
 				m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
 				currentTexSlot = 0;                  // resets this as all the textures have been rendered
 				Texture::clearBufferSlots();
 			}
-
-			std::array<TextVertex, 4> vertices = createTextQuad(xPos, yPos, 0.0f, w, h, text->colour, texSlot, false);
-			m_VertexBuffer->addToBuffer((const void *) &vertices, 4 * sizeof(TextVertex));
+			m_VertexBuffer->addToBuffer((const void *) &vertices, text->getSizeOfVertices());
 
 			// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-			text->position.x += (ch->advance >> 6) * newScale;   // bitshift by 6 to get value in pixels (2^6 = 64)
+			float newScale = text->scale / 100;
+			xOffset += (ch->advance >> 6) * newScale;   // bitshift by 6 to get value in pixels (2^6 = 64)
 		}
 	}
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
@@ -321,7 +311,7 @@ void Render::textRender()
 		draw(*m_TextVAO);
 		m_VertexBuffer->clearBufferData();
 	}
-	for(TextObj *obj : m_TextObjBuffer)
+	for(TextObject *obj : m_TextObjBuffer)
 		delete obj;
 	m_TextObjBuffer.clear();
 }
@@ -330,19 +320,72 @@ void Render::spriteImpl(float x, float y, double rotation, float width, float he
 {
 	CollisionBox box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
 	if(isOverlay || Application::isInFrame(x, y, box))
-		Sprite::getSprite(spriteID)->render(x, y, rotation, width, height);
+	{
+		TexturedObject *obj              = new TexturedObject({x, y}, width, height, rotation, true, spriteID);
+
+		if(orderBuffersByYAxisSetting && m_SpriteBuffer.size() > 0)
+		{
+			if(m_SpriteBuffer.size() == 1)
+			{
+				if(m_SpriteBuffer[0]->position.y > y)
+					m_SpriteBuffer.push_back(obj);
+				else
+					m_SpriteBuffer.insert(m_SpriteBuffer.begin(), obj);
+			}
+			else
+			{
+				int startSub = 0;
+				int endSub   = m_SpriteBuffer.size();
+				int index    = m_SpriteBuffer.size() / 2;
+
+				int indexOfInsertion = 0;
+
+				while(startSub != endSub && startSub < endSub)
+				{
+					if(index + 1 == m_SpriteBuffer.size())
+						index--;
+
+					float thisY    = m_SpriteBuffer[index]->position.y;
+					float nextY    = m_SpriteBuffer[index + 1]->position.y;
+
+					if(thisY == y || (thisY > y && nextY < y))
+					{
+						index++;
+						break;
+					}
+					else if(nextY == y)
+					{
+						index += 2;
+						break;
+					}
+					else if(thisY > y && nextY > y)
+						startSub = index + 2;
+					else if(thisY < y && nextY < y)
+						endSub = index;
+					else
+					{
+						Log::critical("Vector is not sorted correctly!", LOGINFO);
+						indexOfInsertion = m_SpriteBuffer.size();
+						break;
+					}
+
+					index = (startSub + endSub) / 2;
+				}
+
+				m_SpriteBuffer.insert(m_SpriteBuffer.begin() + index, obj);
+			}
+		}
+		else
+			m_SpriteBuffer.push_back(obj);
+	}
 }
 
-void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool centerX, bool centerY, bool isOverlay)   // NOTE: Scale is a percentage
+void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool isCentered, bool isOverlay)   // NOTE: Scale is a percentage
 {
 	CollisionBox box = getTextCollisionBox(text, scale);
-	if(centerX)
-		x -= box.upperBound.x / 2;
-	if(centerY)
-		y -= box.upperBound.y / 2;
 
 	if(isOverlay || Application::isInFrame(x, y, box))
-		m_TextObjBuffer.push_back(new TextObj(text, {x, y}, scale, colour));
+		m_TextObjBuffer.push_back(new TextObject(text, scale, {x, y}, box.upperBound.x, box.upperBound.y, 0.0f, colour, isCentered));
 }
 
 void Render::rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, bool isCentered, bool isOverlay, bool bottomLayer)
@@ -356,9 +399,9 @@ void Render::rectangleImpl(float x, float y, double rotation, float width, float
 	if(isOverlay || Application::isInFrame(x, y, box))
 	{
 		if(bottomLayer)
-			m_BottomLayerObjectBuffer.push_back(new RenderColouredObject({x, y}, rotation, width, height, isCentered, colour));
+			m_BottomLayerObjectBuffer.push_back(new RenderColouredObject({x, y}, width, height, rotation, isCentered, colour));
 		else
-			m_ObjectBuffer.push_back(new RenderColouredObject({x, y}, rotation, width, height, isCentered, colour));
+			m_ObjectBuffer.push_back(new RenderColouredObject({x, y}, width, height, rotation, isCentered, colour));
 	}
 }
 
@@ -427,178 +470,6 @@ CollisionBox Render::getTextCollisionBoxImpl(std::string &text, float scale)
 	return {{0.0f, 0.0f}, {textWidth, textHeight}};
 }
 
-std::array<Vertex, 4> Render::createQuadImpl(float x, float y, double rotation, float width, float height, uint32_t texID, bool centering)
-{
-	// Creates a 2d rotation matrix, so that the object can be rotated
-	glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
-
-	float leftPoint, rightPoint, topPoint, bottomPoint;
-	if(centering)
-	{
-		// This centers the object
-		float xHalfSize = width / 2;
-		float yHalfSize = height / 2;
-		leftPoint       = -xHalfSize;
-		rightPoint      = xHalfSize;
-		topPoint        = yHalfSize;
-		bottomPoint     = -yHalfSize;
-	}
-	else
-	{
-		leftPoint   = 0;
-		rightPoint  = width;
-		topPoint    = height;
-		bottomPoint = 0;
-	}
-
-	// Creates 4 vertices that create the square
-	Vertex v0(
-		rotationMatrix * glm::vec2(leftPoint, bottomPoint) + glm::vec2(x, y),
-		{0.0f, 0.0f},
-		texID);
-
-	Vertex v1(
-		rotationMatrix * glm::vec2(rightPoint, bottomPoint) + glm::vec2(x, y),
-		{1.0f, 0.0f},
-		texID);
-
-	Vertex v2(
-		rotationMatrix * glm::vec2(rightPoint, topPoint) + glm::vec2(x, y),
-		{1.0f, 1.0f},
-		texID);
-
-	Vertex v3(
-		rotationMatrix * glm::vec2(leftPoint, topPoint) + glm::vec2(x, y),
-		{0.0f, 1.0f},
-		texID);
-
-	return {v0, v1, v2, v3};
-
-}
-
-std::array<glm::vec2, 4> Render::createVecQuadImpl(float x, float y, double rotation, float width, float height, bool centering)
-{
-	// Creates a 2d rotation matrix, so that the object can be rotated
-	glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
-
-	float leftPoint, rightPoint, topPoint, bottomPoint;
-	if(centering)
-	{
-		// This centers the object
-		float xHalfSize = width / 2;
-		float yHalfSize = height / 2;
-		leftPoint       = -xHalfSize;
-		rightPoint      = xHalfSize;
-		topPoint        = yHalfSize;
-		bottomPoint     = -yHalfSize;
-	}
-	else
-	{
-		leftPoint   = 0;
-		rightPoint  = width;
-		topPoint    = height;
-		bottomPoint = 0;
-	}
-
-	// Creates 4 vertices that create the square
-	glm::vec2 v0 = rotationMatrix * glm::vec2(leftPoint, bottomPoint) + glm::vec2(x, y);
-	glm::vec2 v1 = rotationMatrix * glm::vec2(rightPoint, bottomPoint) + glm::vec2(x, y);
-	glm::vec2 v2 = rotationMatrix * glm::vec2(rightPoint, topPoint) + glm::vec2(x, y);
-	glm::vec2 v3 = rotationMatrix * glm::vec2(leftPoint, topPoint) + glm::vec2(x, y);
-
-	return {v0, v1, v2, v3};
-}
-
-std::array<ColouredVertex, 4> Render::createColouredQuadImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, bool centering)
-{
-	// Creates a 2d rotation matrix, so that the object can be rotated
-	glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
-
-	float leftPoint, rightPoint, topPoint, bottomPoint;
-	if(centering)
-	{
-		// This centers the object
-		float xHalfSize = width / 2;
-		float yHalfSize = height / 2;
-
-		leftPoint       = -xHalfSize;
-		rightPoint      = xHalfSize;
-		topPoint        = yHalfSize;
-		bottomPoint     = -yHalfSize;
-	}
-	else
-	{
-		leftPoint   = 0;
-		rightPoint  = width;
-		topPoint    = height;
-		bottomPoint = 0;
-	}
-
-	// Creates 4 vertices that create the square
-	ColouredVertex v0(
-		rotationMatrix * glm::vec2(leftPoint, bottomPoint) + glm::vec2(x, y),
-		colour);
-	ColouredVertex v1(
-		rotationMatrix * glm::vec2(rightPoint, bottomPoint) + glm::vec2(x, y),
-		colour);
-	ColouredVertex v2(
-		rotationMatrix * glm::vec2(rightPoint, topPoint) + glm::vec2(x, y),
-		colour);
-	ColouredVertex v3(
-		rotationMatrix * glm::vec2(leftPoint, topPoint) + glm::vec2(x, y),
-		colour);
-
-	return {v0, v1, v2, v3};
-}
-std::array<TextVertex, 4> Render::createTextQuadImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, uint32_t texID, bool centering)
-{
-	// Creates a 2d rotation matrix, so that the object can be rotated
-	glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});
-
-	float leftPoint, rightPoint, topPoint, bottomPoint;
-	if(centering)
-	{
-		// This centers the object
-		float xHalfSize = width / 2;
-		float yHalfSize = height / 2;
-		leftPoint       = -xHalfSize;
-		rightPoint      = xHalfSize;
-		topPoint        = yHalfSize;
-		bottomPoint     = -yHalfSize;
-	}
-	else
-	{
-		leftPoint   = 0;
-		rightPoint  = width;
-		topPoint    = height;
-		bottomPoint = 0;
-	}
-
-	// Creates 4 vertices that create the square
-	TextVertex v0(
-		rotationMatrix * glm::vec2(leftPoint, topPoint) + glm::vec2(x, y),
-		{0.0f, 0.0f},
-		colour,
-		texID);
-	TextVertex v1(
-		rotationMatrix * glm::vec2(rightPoint, topPoint) + glm::vec2(x, y),
-		{1.0f, 0.0f},
-		colour,
-		texID);
-	TextVertex v2(
-		rotationMatrix * glm::vec2(rightPoint, bottomPoint) + glm::vec2(x, y),
-		{1.0f, 1.0f},
-		colour,
-		texID);
-	TextVertex v3(
-		rotationMatrix * glm::vec2(leftPoint, bottomPoint) + glm::vec2(x, y),
-		{0.0f, 1.0f},
-		colour,
-		texID);
-
-	return {v0, v1, v2, v3};
-}
-
 void Render::draw(VertexArray &vao) const   // Assumes VAO and shader have already been bound
 {
 	// Binds what this renderer is using for vertices
@@ -607,4 +478,12 @@ void Render::draw(VertexArray &vao) const   // Assumes VAO and shader have alrea
 	m_IndexBuffer->bind();
 	GLCall(glDrawElements(GL_TRIANGLES, m_IndexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
 	vao.unbind();
+}
+
+
+void Render::orderBuffersByYAxisImpl()
+{
+	if(m_SpriteBuffer.size() != 0 || m_TextObjBuffer.size() != 0 || m_ObjectBuffer.size() != 0)
+		Log::warning("Turning on setting 'orderBuffersByYAxis' after buffers have started to be filled!");
+	orderBuffersByYAxisSetting = true;
 }

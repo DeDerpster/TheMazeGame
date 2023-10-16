@@ -2,8 +2,8 @@
 #version 330 core
 layout (location = 0) in vec4 position; // <vec2 pos, vec2 tex>
 layout (location = 1) in vec2 texCoord; //
-layout (location = 2) in vec4 textColour; //
-layout (location = 3) in float texIndex; //
+layout (location = 2) in float texIndex; //
+layout (location = 3) in vec4 textColour; //
 
 out vec2 v_TexCoords;
 out vec4 v_TextColour;

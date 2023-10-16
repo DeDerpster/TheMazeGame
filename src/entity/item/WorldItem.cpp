@@ -29,7 +29,7 @@ void WorldItem::render()
 			Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
 			CollisionBox box      = Render::getTextCollisionBox(*m_Item->getName(), scale);
 			Render::rectangle(mousePos.x, mousePos.y + 4.0f + box.upperBound.y / 2, 0.0f, box.upperBound.x + 2.0f, box.upperBound.y + 4.0f, {0.3f, 0.3f, 0.3f, 0.7f});
-			Render::text(*m_Item->getName(), mousePos.x, mousePos.y + 5.0f, scale, {1.0f, 1.0f, 1.0f, 1.0f}, true);
+			Render::text(*m_Item->getName(), mousePos.x, mousePos.y + 5.0f + box.upperBound.y / 2, scale, {1.0f, 1.0f, 1.0f, 1.0f}, true);
 		}
 	}
 }

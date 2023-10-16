@@ -130,20 +130,22 @@ void Maze::render()
 
 #endif
 	Render::render(m_ShaderEffectsIDs);
+
+	Render::orderBuffersByYAxis();
+
 	for(Entity *entity : m_Entities)
 	{
 		if(Application::isInFrame(entity->getX(), entity->getY(), entity->getCollisionBox()))
 			entity->render();
 	}
 
-	Render::render(m_ShaderEffectsIDs);
-	m_Player.render();
-
 	for(Projectile *projectile : m_Projectiles)
 	{
 		if(Application::isInFrame(projectile->getX(), projectile->getY(), projectile->getCollisionBox()))
 			projectile->render();
 	}
+
+	m_Player.render();
 }
 
 void Maze::update()

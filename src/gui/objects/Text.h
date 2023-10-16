@@ -11,10 +11,10 @@ struct Text
 	float       m_Scale;
 	glm::vec4   m_Colour;
 
-	bool centerX, centerY, isOverlay;
+	bool isCentered, isOverlay;
 
 	Text(std::string text);
-	Text(std::string text, float x, float y, float scale, glm::vec4 colour, bool centerX, bool centerY, bool isOverlay);
+	Text(std::string text, float x, float y, float scale, glm::vec4 colour, bool isCentered, bool isOverlay);
 	~Text();
 
 	void render(float xOffset, float yOffset);

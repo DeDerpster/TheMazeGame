@@ -17,31 +17,31 @@
 	}
 
 Mob::Mob()
-	: MovableEntity(0.0f, 0.0f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(0.0f, 0.0f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1), m_Size(Tile::TILE_SIZE * 1.25f)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y)
-	: MovableEntity(x, y, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1), m_Size(Tile::TILE_SIZE * 1.25f)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level)
-	: MovableEntity(x, y, defaultBox, level, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, defaultBox, level, SPRITE_PLAYER), StatsMob(), m_CurrentWeapon(-1), m_Size(Tile::TILE_SIZE * 1.25f)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level, uint16_t spriteID)
-	: MovableEntity(x, y, defaultBox, level, spriteID), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, defaultBox, level, spriteID), StatsMob(), m_CurrentWeapon(-1), m_Size(Tile::TILE_SIZE * 1.25f)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, float speed, Level *level, uint16_t spriteID)
-	: MovableEntity(x, y, speed, Direction::south, defaultBox, level, spriteID), StatsMob(), m_CurrentWeapon(-1)
+	: MovableEntity(x, y, speed, Direction::south, defaultBox, level, spriteID), StatsMob(), m_CurrentWeapon(-1), m_Size(Tile::TILE_SIZE * 1.25f)
 {
 	setupAnimations();
 }
@@ -54,22 +54,21 @@ Mob::~Mob()
 
 void Mob::render()
 {
-#define RENDER_ARGUMENTS x, y, 0.0f, Tile::TILE_SIZE * 1.25f, Tile::TILE_SIZE * 1.25f
 	if(isMoving)
 	{
 		switch(m_Dir)
 		{
 		case Direction::north:
-			m_NorthAnimation->render(RENDER_ARGUMENTS);
+			m_NorthAnimation->render(x, y, 0.0f, m_Size);
 			break;
 		case Direction::south:
-			m_SouthAnimation->render(RENDER_ARGUMENTS);
+			m_SouthAnimation->render(x, y, 0.0f, m_Size);
 			break;
 		case Direction::east:
-			m_EastAnimation->render(RENDER_ARGUMENTS);
+			m_EastAnimation->render(x, y, 0.0f, m_Size);
 			break;
 		default:
-			m_WestAnimation->render(RENDER_ARGUMENTS);
+			m_WestAnimation->render(x, y, 0.0f, m_Size);
 			break;
 		}
 	}
@@ -78,16 +77,19 @@ void Mob::render()
 		switch(m_Dir)
 		{
 		case Direction::north:
-			Sprite::getSprite(m_SpriteID + SPRITE_NORTH)->render(RENDER_ARGUMENTS);
+			Render::sprite(x, y, 0.0f, m_Size, m_SpriteID + SPRITE_NORTH);
 			break;
 		case Direction::south:
-			Sprite::getSprite(m_SpriteID + SPRITE_SOUTH)->render(RENDER_ARGUMENTS);
+			Render::sprite(x, y, 0.0f, m_Size, m_SpriteID + SPRITE_SOUTH);
+			// Sprite::getSprite(m_SpriteID + SPRITE_SOUTH)->render(RENDER_ARGUMENTS);
 			break;
 		case Direction::east:
-			Sprite::getSprite(m_SpriteID + SPRITE_EAST)->render(RENDER_ARGUMENTS);
+			Render::sprite(x, y, 0.0f, m_Size, m_SpriteID + SPRITE_EAST);
+			// Sprite::getSprite(m_SpriteID + SPRITE_EAST)->render(RENDER_ARGUMENTS);
 			break;
 		default:
-			Sprite::getSprite(m_SpriteID + SPRITE_WEST)->render(RENDER_ARGUMENTS);
+			Render::sprite(x, y, 0.0f, m_Size, m_SpriteID + SPRITE_WEST);
+			// Sprite::getSprite(m_SpriteID + SPRITE_WEST)->render(RENDER_ARGUMENTS);
 			break;
 		}
 	}

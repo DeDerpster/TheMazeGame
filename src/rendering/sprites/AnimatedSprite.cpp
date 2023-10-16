@@ -1,5 +1,7 @@
 #include "AnimatedSprite.h"
 
+#include "Renderer.h"
+
 AnimatedSprite::AnimatedSprite()
 	: sprites(), index(-1), textureSwapDelay(20), textureSwapCount(0)
 {
@@ -52,9 +54,12 @@ void AnimatedSprite::setFrame(int i)
 
 void AnimatedSprite::render(float x, float y, double rotation, float size)
 {
-	Sprite::getSprite(sprites[index])->render(x, y, rotation, size, size);
+	// Sprite::getSprite(sprites[index])->render(x, y, rotation, size, size);
+	Render::sprite(x, y, rotation, size, sprites[index]);
 }
+
 void AnimatedSprite::render(float x, float y, double rotation, float width, float height)
 {
-	Sprite::getSprite(sprites[index])->render(x, y, rotation, width, height);
+	// Sprite::getSprite(sprites[index])->render(x, y, rotation, width, height);
+	Render::sprite(x, y, rotation, width, height, sprites[index]);
 }

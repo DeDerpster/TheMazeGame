@@ -5,7 +5,7 @@
 #include <string>
 
 #include "Log.h"
-#include "Renderer.h"
+#include "RenderObject.h"
 #include "Texture.h"
 #include "Utils.h"
 
@@ -53,59 +53,57 @@
 class Sprite
 {
 	private:
-	std::shared_ptr<Texture> m_Texture;
-	std::vector<RenderObject>                                  m_Buffer;
-	static std::array<std::unique_ptr<Sprite>, NUM_OF_SPRITES> sprites;
+	  std::shared_ptr<Texture>                                   m_Texture;
+	  static std::array<std::unique_ptr<Sprite>, NUM_OF_SPRITES> sprites;
 
 	public:
-	Sprite(const char *texturePath);
-	Sprite(const Sprite &sprite);
-	~Sprite();
+	  Sprite(const char *texturePath);
+	  ~Sprite();
 
-	void render(float x, float y, double rotation, float width, float height);
+	  void render(float x, float y, double rotation, float width, float height);
 
-	unsigned int         getSizeOfBuffer() { return m_Buffer.size(); }
-	std::vector<RenderObject> *getBuffer() { return &m_Buffer; }
-	void                 clearBuffer() { m_Buffer.clear(); }
+	  Texture *getTexture() { return m_Texture.get(); }
 
-	void bind(unsigned int slot = 0);
-	void unbind();
+	  void bind(unsigned int slot = 0);
+	  void unbind();
 
-	static Sprite *getSprite(int i) { return &*sprites[i]; };
-	static void    init()
-	{
-		// Tiles
-		sprites[BASIC_WALL]            = std::make_unique<Sprite>("res/textures/tiles/BasicWall.png");
-		sprites[BASIC_FLOOR]           = std::make_unique<Sprite>("res/textures/tiles/BasicFloor.png");
-		sprites[BASIC_OUTWARDS_CORNER] = std::make_unique<Sprite>("res/textures/tiles/BasicCorner.png");
-		sprites[BASIC_INWARDS_CORNER]  = std::make_unique<Sprite>("res/textures/tiles/BasicCorner2.png");
+	  static Sprite *getSprite(int i) { return &*sprites[i]; };
+	  static void    init()
+	  {
+		  // Tiles
+		  sprites[BASIC_WALL]            = std::make_unique<Sprite>("res/textures/tiles/BasicWall.png");
+		  sprites[BASIC_FLOOR]           = std::make_unique<Sprite>("res/textures/tiles/BasicFloor.png");
+		  sprites[BASIC_OUTWARDS_CORNER] = std::make_unique<Sprite>("res/textures/tiles/BasicCorner.png");
+		  sprites[BASIC_INWARDS_CORNER]  = std::make_unique<Sprite>("res/textures/tiles/BasicCorner2.png");
 
-		// Mobs
-		sprites[PLAYER_NORTH]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-north.png");
-		sprites[PLAYER_NORTH_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-north-1.png");
-		sprites[PLAYER_NORTH_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-north-2.png");
+		  // Mobs
+		  sprites[PLAYER_NORTH]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-north.png");
+		  sprites[PLAYER_NORTH_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-north-1.png");
+		  sprites[PLAYER_NORTH_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-north-2.png");
 
-		sprites[PLAYER_SOUTH]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-south.png");
-		sprites[PLAYER_SOUTH_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-south-1.png");
-		sprites[PLAYER_SOUTH_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-south-2.png");
+		  sprites[PLAYER_SOUTH]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-south.png");
+		  sprites[PLAYER_SOUTH_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-south-1.png");
+		  sprites[PLAYER_SOUTH_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-south-2.png");
 
-		sprites[PLAYER_EAST]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-east.png");
-		sprites[PLAYER_EAST_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-east-1.png");
-		sprites[PLAYER_EAST_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-east-2.png");
+		  sprites[PLAYER_EAST]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-east.png");
+		  sprites[PLAYER_EAST_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-east-1.png");
+		  sprites[PLAYER_EAST_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-east-2.png");
 
-		sprites[PLAYER_WEST]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-west.png");
-		sprites[PLAYER_WEST_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-west-1.png");
-		sprites[PLAYER_WEST_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-west-2.png");
+		  sprites[PLAYER_WEST]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-west.png");
+		  sprites[PLAYER_WEST_1] = std::make_unique<Sprite>("res/textures/entities/Player-heir-west-1.png");
+		  ;
+		  sprites[PLAYER_WEST_2] = std::make_unique<Sprite>("res/textures/entities/Player-heir-west-2.png");
+		  ;
 
-		// Stick
-		sprites[ITEM_STICK] = std::make_unique<Sprite>("res/textures/items/Stick.png");
+		  // Stick
+		  sprites[ITEM_STICK] = std::make_unique<Sprite>("res/textures/items/Stick.png");
 
-		// Projectiles
-		sprites[PROJECTILE_FIRE] = std::make_unique<Sprite>("res/textures/projectiles/FireProjectile.png");
+		  // Projectiles
+		  sprites[PROJECTILE_FIRE] = std::make_unique<Sprite>("res/textures/projectiles/FireProjectile.png");
 
-		// DEBUG STUFF
-		sprites[DEBUG_CIRCLE] = std::make_unique<Sprite>("res/textures/DebugCircle.png");
+		  // DEBUG STUFF
+		  sprites[DEBUG_CIRCLE] = std::make_unique<Sprite>("res/textures/DebugCircle.png");
 
-		Log::info("Sprites have been loaded");
+		  Log::info("Sprites have been loaded");
 	}
 };

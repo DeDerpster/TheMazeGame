@@ -17,6 +17,7 @@ class Mob : public MovableEntity, public StatsMob
 	std::vector<Item *>   inventory;
 	std::vector<Weapon *> m_Weapons;
 	int                   m_CurrentWeapon;
+	float                 m_Size;   // TODO: This should probably go further up in the chain
 
 	std::unique_ptr<AnimatedSprite> m_NorthAnimation;
 	std::unique_ptr<AnimatedSprite> m_SouthAnimation;
