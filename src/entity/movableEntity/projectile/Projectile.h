@@ -8,11 +8,13 @@ class Projectile : public MovableEntity
 	Vec2f   m_StartPos;
 	float   m_MaxDistance;
 	float   m_Damage;
+	float   m_Size;
 	Entity *spawner;
 	bool    hasCollided;
 
   public:
-	Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Entity *spawner, Level *level);
+	Projectile(float startX, float startY, float damage, Direction dir, Entity *spawner, Level *level);
+	Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Entity *spawner, Level *level, CollisionBox box);
 	virtual ~Projectile() {}
 
 	virtual void update() override;

@@ -1,14 +1,20 @@
 #include "Projectile.h"
 
 #include "Sprite.h"
+#include "Tile.h"
 
 #define defaultBox           \
 	{                        \
 		{25, 20}, { 60, 20 } \
 	}
 
-Projectile::Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Entity *spawner, Level *level)
-	: MovableEntity(startX, startY, speed, dir, defaultBox, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(maxDistance), m_Damage(damage), spawner(spawner), hasCollided(false)
+Projectile::Projectile(float startX, float startY, float damage, Direction dir, Entity *spawner, Level *level)
+	: MovableEntity(startX, startY, 7.0f, dir, defaultBox, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false)
+{
+}
+
+Projectile::Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Entity *spawner, Level *level, CollisionBox box)
+	: MovableEntity(startX, startY, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(maxDistance), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false)
 {
 }
 
@@ -41,5 +47,5 @@ void Projectile::update()
 
 void Projectile::render()
 {
-	Render::Sprite::getSprite(m_SpriteID)->render(x, y, directionToRotation(m_Dir), 50);
+	Render::Sprite::getSprite(m_SpriteID)->render(x, y, directionToRotation(m_Dir), m_Size);
 }

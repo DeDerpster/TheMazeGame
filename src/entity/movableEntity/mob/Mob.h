@@ -7,11 +7,14 @@
 #include "AnimatedSprite.h"
 #include "Item.h"
 #include "Utils.h"
+#include "Weapon.h"
 
 class Mob : public MovableEntity
 {
   protected:
 	std::vector<Item *> inventory;
+	std::vector<Weapon *> m_Weapons;
+	int                   m_CurrentWeapon;
 
 	std::unique_ptr<Render::AnimatedSprite> m_NorthAnimation;
 	std::unique_ptr<Render::AnimatedSprite> m_SouthAnimation;

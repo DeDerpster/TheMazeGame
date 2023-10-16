@@ -2,6 +2,7 @@
 
 #include "ImGui.h"
 #include <algorithm>
+#include <string>
 
 #include "Application.h"
 #include "Log.h"
@@ -13,6 +14,8 @@
 #include "Tile.h"
 
 #include "WorldItem.h"
+
+#include "FireStaff.h"
 
 #define LAYER_MAX_FOR_DIRECTIONS 4
 
@@ -50,7 +53,7 @@ Maze::Maze()
 	follower->setFollower(&m_Player);
 	m_Entities.push_back(follower);
 
-	Item *     item      = new Item(ITEM_STICK, "Debug Stick");
+	Item *     item      = new FireStaff();
 	WorldItem *worldItem = new WorldItem(4000.0f, 4000.0f, this, item);
 	m_Entities.push_back(worldItem);
 

@@ -15,25 +15,25 @@
 	}
 
 Mob::Mob()
-	: MovableEntity(0.0f, 0.0f, defaultBox, nullptr, SPRITE_PLAYER)
+	: MovableEntity(0.0f, 0.0f, defaultBox, nullptr, SPRITE_PLAYER), m_CurrentWeapon(-1)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y)
-	: MovableEntity(x, y, defaultBox, nullptr, SPRITE_PLAYER)
+	: MovableEntity(x, y, defaultBox, nullptr, SPRITE_PLAYER), m_CurrentWeapon(-1)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level)
-	: MovableEntity(x, y, defaultBox, level, SPRITE_PLAYER)
+	: MovableEntity(x, y, defaultBox, level, SPRITE_PLAYER), m_CurrentWeapon(-1)
 {
 	setupAnimations();
 }
 
 Mob::Mob(float x, float y, Level *level, uint16_t spriteID)
-	: MovableEntity(x, y, defaultBox, level, spriteID)
+	: MovableEntity(x, y, defaultBox, level, spriteID), m_CurrentWeapon(-1)
 {
 	setupAnimations();
 }
@@ -120,5 +120,13 @@ void Mob::setupAnimations()
 
 void Mob::pickUp(Item *item)
 {
-	inventory.push_back(item);
+	Weapon *weapon = dynamic_cast<Weapon *>(item);
+	if(weapon)
+	{
+		m_Weapons.push_back(weapon);
+		if(m_CurrentWeapon == -1)
+			m_CurrentWeapon = 0;
+	}
+	else
+		inventory.push_back(item);
 }

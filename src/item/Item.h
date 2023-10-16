@@ -6,13 +6,13 @@
 class Item
 {
   protected:
-	int         m_SpriteID;
+	uint16_t    m_SpriteID;
 	std::string m_Name;
 
   public:
 	Item()
 		: m_SpriteID(0), m_Name("I am an item") {}
-	Item(int spriteID, std::string name)
+	Item(const char *name, uint32_t spriteID)
 		: m_SpriteID(spriteID), m_Name(name) {}
 	virtual ~Item() {}
 
