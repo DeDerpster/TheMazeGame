@@ -8,6 +8,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
+const Texture *Texture::bufferStorage[32];
+
 Texture::Texture(const std::string &path)
 	: m_RendererID(0), m_FilePath(path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_BPP(0)
 {
@@ -61,8 +63,13 @@ Texture::~Texture()
 	GLCall(glDeleteTextures(1, &m_RendererID));
 }
 
-void Texture::bind(unsigned int slot) const
+void Texture::bind(uint8_t slot) const
 {
+	if(slot > 31)
+	{
+		Log::critical("Trying to bind more than 32 textures!", LOGINFO);
+	}
+	bufferStorage[slot] = this;
 	GLCall(glActiveTexture(GL_TEXTURE0 + slot));
 	GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 }
@@ -70,4 +77,28 @@ void Texture::bind(unsigned int slot) const
 void Texture::unbind() const
 {
 	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+	for(uint8_t i = 0; i < 32; i++)
+	{
+		if(bufferStorage[i] == this)
+		{
+			bufferStorage[i] = nullptr;
+			break;
+		}
+	}
+}
+
+uint8_t Texture::getBoundSlot(Texture *tex)
+{
+	for(uint8_t i = 0; i < 32; i++)
+	{
+		if(bufferStorage[i] == tex)
+			return i;
+	}
+	return 32;
+}
+
+void Texture::clearBufferSlots()
+{
+	for(uint8_t i = 0; i < 32; i++)
+		bufferStorage[i] = nullptr;
 }

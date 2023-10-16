@@ -13,7 +13,7 @@
 Shader::Shader(const std::string &filepath)
 	: m_FilePath(filepath), m_RendererID(0)
 {
-	Log::debug("Loading shader...");
+	Log::variable("Loading shader", filepath);
 	auto [vertexShader, fragmentShader] = parseShader(filepath);
 	m_RendererID                        = createShader(vertexShader, fragmentShader);
 }
@@ -64,7 +64,6 @@ int Shader::createShader(const std::string &vertexShader, const std::string &fra
 
 unsigned int Shader::compileShader(unsigned int type, const std::string &source)
 {
-	// TODO: Add check to see if file exists
 	unsigned int id  = glCreateShader(type);
 	const char * src = source.c_str();
 	glShaderSource(id, 1, &src, nullptr);
@@ -94,6 +93,12 @@ unsigned int Shader::compileShader(unsigned int type, const std::string &source)
 std::tuple<std::string, std::string> Shader::parseShader(const std::string &filepath)
 {
 	std::ifstream stream(filepath);
+	if(!stream.good())
+	{
+		Log::error("Shader file not found!", LOGINFO);
+		Log::variable("Shader filename", filepath);
+		return {"", ""};
+	}
 
 	enum class ShaderType
 	{

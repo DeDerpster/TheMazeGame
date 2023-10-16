@@ -35,6 +35,7 @@ class Entity
 	virtual void changeX(float changeBy);
 	virtual void changeY(float changeBy);
 	void         setLevel(Level *level);
+	CollisionBox &getCollisionBox() { return m_CollisionBox; }
 
 	bool hasCollidedWith(float xs, float ys, CollisionBox box);
 

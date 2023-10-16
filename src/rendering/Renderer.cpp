@@ -37,7 +37,7 @@ Render::Render()
 			nullptr,
 			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			(uint16_t) face->glyph->advance.x   //
+			(uint16_t) face->glyph->advance.x,
 		};
 		characters.insert(std::pair<char, Character>(c, character));
 		characters[c].texture = new Texture(face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap.buffer);
@@ -50,23 +50,22 @@ Render::Render()
 
 	// Shaders setup
 
-	m_SpriteShader = std::make_unique<Shader>("res/shaders/SpriteShader.glsl");
-	m_SpriteShader->setUniform4f("u_Zoom", 1.0f, 1.0f, 1.0f, 1.0f);
 	int samplers[32];
 	for(int i = 0; i < 32; i++)
 		samplers[i] = i;
+
+	m_SpriteShader = std::make_unique<Shader>("res/shaders/SpriteShader.glsl");
 	m_SpriteShader->setUniform1iv("u_Textures", 32, samplers);
 
 	m_TextShader = std::make_unique<Shader>("res/shaders/TextShader.glsl");
-	m_TextShader->setUniformMat4f("u_MVP", Application::getProj());
+	m_TextShader->setUniform1iv("u_Textures", 32, samplers);
 
 	m_SimpleShader = std::make_unique<Shader>("res/shaders/SimpleShader.glsl");
-	m_SimpleShader->setUniform4f("u_Zoom", 1.0f, 1.0f, 1.0f, 1.0f);
 
 	// Buffers setup
 	uint32_t maxVertices = 3528;
 
-	m_VertexBuffer       = std::make_unique<VertexBuffer>(nullptr, sizeof(float) * 5 * maxVertices);
+	m_VertexBuffer = std::make_unique<VertexBuffer>(nullptr, (uint16_t) sizeof(float) * 5 * maxVertices);
 	m_IndexBuffer = std::make_unique<IndexBuffer>((maxVertices / 4) * 6);
 
 
@@ -136,8 +135,21 @@ Render::~Render()
 
 void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 {
+	// resets the default effects
+	m_SpriteShader->setUniform4f("u_Zoom", 1.0f, 1.0f, 1.0f, 1.0f);
+	m_TextShader->setUniform4f("u_Zoom", 1.0f, 1.0f, 1.0f, 1.0f);
+	m_SimpleShader->setUniform4f("u_Zoom", 1.0f, 1.0f, 1.0f, 1.0f);
+	m_SpriteShader->setUniformMat4f("u_MVP", Application::getProj());
+	m_TextShader->setUniformMat4f("u_MVP", Application::getProj());
+	m_SimpleShader->setUniformMat4f("u_MVP", Application::getProj());
+
 	for(uint16_t id : shaderEffects)
 	{
+		if(id == 0)
+		{
+			Log::warning("Trying to use effect that doesn't exist!");
+			continue;
+		}
 		Effect::RenderShaderEffect *e = Effect::ShaderEffects::getShaderEffect(id);
 		e->setEffect(*m_SpriteShader);
 		e->setEffect(*m_TextShader);
@@ -184,8 +196,6 @@ void Render::simpleRender()
 		draw(*m_SimpleVAO);
 		m_VertexBuffer->clearBufferData();
 	}
-
-	// m_SimpleVAO->unbind();
 }
 
 void Render::spriteRender()
@@ -198,8 +208,7 @@ void Render::spriteRender()
 	}
 
 	m_SpriteShader->bind();
-	// m_SpriteVAO->bind();
-	uint16_t currentTexID = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
+	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
 	for(int i = 0; i < NUM_OF_SPRITES; i++)
 	{
 		// Gets the buffer from the sprite
@@ -207,30 +216,36 @@ void Render::spriteRender()
 		if(buffer->size() == 0)   // Checks the buffer is not empty
 			continue;
 
-		// Binds the sprite texture to then currentTexID
-		Sprite::getSprite(i)->bind(currentTexID);
+		// Binds the sprite texture to then currentTexSlot
+		Sprite::getSprite(i)->bind(currentTexSlot);
 
 		// Goes through all the objects in the buffer and renders them
 		for(RenderObject obj : *buffer)
 		{
 			// Checks if the buffer is full or the buffer is too big and draws what there is
-			if(!m_VertexBuffer->canStore(4 * sizeof(Vertex)) || currentTexID == 32)
+			if(!m_VertexBuffer->canStore(4 * sizeof(Vertex)))
 			{
 				draw(*m_SpriteVAO);
 				m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
-				currentTexID = 0;                    // resets this as all the textures have been rendered
+				currentTexSlot = 0;                  // resets this as all the textures have been rendered
 
 				// Rebinds the texture so it is in the correct slot
 				Sprite::getSprite(i)->unbind();
 				Sprite::getSprite(i)->bind(0);
 			}
 			// Adds the current object to the buffer by creating its quad (this is for memory efficiency)
-			auto vertices = createQuad(obj.position.x, obj.position.y, obj.rotation, obj.width, obj.height, currentTexID);
+			auto vertices = createQuad(obj.position.x, obj.position.y, obj.rotation, obj.width, obj.height, currentTexSlot);
 			m_VertexBuffer->addToBuffer((void *) &vertices, 4 * sizeof(Vertex));
 		}
 		// Clears the buffer of the sprite as it will all be rendered*/
 		Sprite::getSprite(i)->clearBuffer();
-		currentTexID++;
+		currentTexSlot++;
+		if(currentTexSlot == 32)
+		{
+			draw(*m_SpriteVAO);
+			m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
+			currentTexSlot = 0;                  // resets this as all the textures have been rendered
+		}
 	}
 
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
@@ -238,8 +253,6 @@ void Render::spriteRender()
 		draw(*m_SpriteVAO);
 		m_VertexBuffer->clearBufferData();
 	}
-
-	// m_SpriteVAO->unbind();
 }
 
 void Render::textRender()
@@ -255,7 +268,7 @@ void Render::textRender()
 	}
 
 	m_TextShader->bind();
-	// m_TextVAO->bind();
+	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to
 	for(TextObj *text : m_TextObjBuffer)
 	{
 		if(text->text.empty())
@@ -263,45 +276,121 @@ void Render::textRender()
 		for(std::string::const_iterator c = text->text.begin(); c != text->text.end(); c++)
 		{
 			Character *ch = &characters[*c];
+			float      newScale = text->scale / 100;
 
-			float xPos = text->position.x + ch->bearing.x * text->scale;
-			float yPos = text->position.y - (ch->size.y - ch->bearing.y) * text->scale;
+			float xPos = text->position.x + ch->bearing.x * newScale;
+			float yPos = text->position.y - (ch->size.y - ch->bearing.y) * newScale;
 
-			float w = ch->size.x * text->scale;
-			float h = ch->size.y * text->scale;
-			// update VBO for each character
-			std::array<TextVertex, 4> vertices = createTextQuad(xPos, yPos, 0.0f, w, h, text->colour, 0, false);
-			ch->texture->bind(0);
+			float w = ch->size.x * newScale;
+			float h = ch->size.y * newScale;
 
+			uint8_t texSlot = Texture::getBoundSlot(ch->texture);
+			if(texSlot == 32)
+			{
+				texSlot = currentTexSlot;
+				currentTexSlot++;
+				if(currentTexSlot == 32)
+				{
+					draw(*m_TextVAO);
+					m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
+					currentTexSlot = 0;                  // resets this as all the textures have been rendered
+					Texture::clearBufferSlots();
+				}
+			}
+
+			ch->texture->bind(texSlot);
+
+			if(!m_VertexBuffer->canStore(4 * sizeof(TextVertex)))
+			{
+				draw(*m_SpriteVAO);
+				m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
+				currentTexSlot = 0;                  // resets this as all the textures have been rendered
+				Texture::clearBufferSlots();
+			}
+
+			std::array<TextVertex, 4> vertices = createTextQuad(xPos, yPos, 0.0f, w, h, text->colour, texSlot, false);
 			m_VertexBuffer->addToBuffer((const void *) &vertices, 4 * sizeof(TextVertex));
-			draw(*m_TextVAO);
-			m_VertexBuffer->clearBufferData();   // TODO: Make this actually efficient please
 
 			// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-			text->position.x += (ch->advance >> 6) * text->scale;   // bitshift by 6 to get value in pixels (2^6 = 64)
+			text->position.x += (ch->advance >> 6) * newScale;   // bitshift by 6 to get value in pixels (2^6 = 64)
 		}
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
+	{
+		draw(*m_TextVAO);
+		m_VertexBuffer->clearBufferData();
+	}
+	for(TextObj *obj : m_TextObjBuffer)
+		delete obj;
 	m_TextObjBuffer.clear();
-	// m_TextVAO->unbind();
 }
 
 void Render::spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID)
 {
-	if(Application::isInFrame(x, y, width, height))
+	CollisionBox box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
+	if(Application::isInFrame(x, y, box))
 		Sprite::getSprite(spriteID)->render(x, y, rotation, width, height);
 }
 
-void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour)
-{     // TODO: Make a check to see if it is in frame!
-	m_TextObjBuffer.push_back(new TextObj(text, {x, y}, scale, colour));
+void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool centerX)   // NOTE: Scale is a percentage
+{
+	CollisionBox box = getTextCollisionBox(text, scale);
+	if(centerX)
+		x -= box.upperBound.x / 2;
+
+	if(Application::isInFrame(x, y, box))
+		m_TextObjBuffer.push_back(new TextObj(text, {x, y}, scale, colour));
 }
 
 void Render::rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour)
 {
-	if(Application::isInFrame(x, y, width, height))
+	CollisionBox box = {{-width / 2, -height / 2}, {width / 2, height / 2}};
+	if(Application::isInFrame(x, y, box))
 		m_ObjectBuffer.push_back(new RenderColouredObject({x, y}, rotation, width, height, colour));
+}
+
+float Render::getTextWidthImpl(std::string &text, float scale)
+{
+	float textWidth = 0;
+	float newScale  = scale / 100;
+	for(std::string::const_iterator c = text.begin(); c != text.end(); c++)
+	{
+		Character *ch = &characters[*c];
+		textWidth += (ch->advance >> 6) * newScale;
+	}
+	return textWidth;
+}
+
+float Render::getTextHeightImpl(std::string &text, float scale)
+{
+	float textHeight = 0;
+	float newScale   = scale / 100;
+	for(std::string::const_iterator c = text.begin(); c != text.end(); c++)
+	{
+		Character *ch = &characters[*c];
+		float      h  = ch->size.y * newScale;
+		if(h > textHeight)
+			textHeight = h;
+	}
+	return textHeight;
+}
+
+CollisionBox Render::getTextCollisionBoxImpl(std::string &text, float scale)
+{
+	float textWidth  = 0;
+	float textHeight = 0;
+	float newScale   = scale / 100;
+
+	for(std::string::const_iterator c = text.begin(); c != text.end(); c++)
+	{
+		Character *ch = &characters[*c];
+		textWidth += (ch->advance >> 6) * newScale;
+		float h = ch->size.y * newScale;
+		if(h > textHeight)
+			textHeight = h;
+	}
+
+	return {{0.0f, 0.0f}, {textWidth, textHeight}};
 }
 
 std::array<Vertex, 4> Render::createQuadImpl(float x, float y, double rotation, float width, float height, uint32_t texID, bool centering)
@@ -453,23 +542,23 @@ std::array<TextVertex, 4> Render::createTextQuadImpl(float x, float y, double ro
 
 	// Creates 4 vertices that create the square
 	TextVertex v0(
-		rotationMatrix * glm::vec2(leftPoint, bottomPoint) + glm::vec2(x, y),
+		rotationMatrix * glm::vec2(leftPoint, topPoint) + glm::vec2(x, y),
 		{0.0f, 0.0f},
 		colour,
 		texID);
 	TextVertex v1(
-		rotationMatrix * glm::vec2(rightPoint, bottomPoint) + glm::vec2(x, y),
+		rotationMatrix * glm::vec2(rightPoint, topPoint) + glm::vec2(x, y),
 		{1.0f, 0.0f},
 		colour,
 		texID);
 	TextVertex v2(
-		rotationMatrix * glm::vec2(rightPoint, topPoint) + glm::vec2(x, y),
-		{0.0f, 1.0f},
+		rotationMatrix * glm::vec2(rightPoint, bottomPoint) + glm::vec2(x, y),
+		{1.0f, 1.0f},
 		colour,
 		texID);
 	TextVertex v3(
-		rotationMatrix * glm::vec2(leftPoint, topPoint) + glm::vec2(x, y),
-		{1.0f, 1.0f},
+		rotationMatrix * glm::vec2(leftPoint, bottomPoint) + glm::vec2(x, y),
+		{0.0f, 1.0f},
 		colour,
 		texID);
 

@@ -49,7 +49,7 @@ class Application
 	static void updateWindowSize(int width, int height) { get().updateWindowSizeImpl(width, height); }
 	static bool isWindowOpen() { return get().isWindowOpenImpl(); }
 	static void swapBuffers() { get().swapBuffersImpl(); }
-	static bool isInFrame(float x, float y, float width, float height) { return get().isInFrameImpl(x, y, width, height); }
+	static bool isInFrame(float x, float y, CollisionBox box) { return get().isInFrameImpl(x, y, box); }
 
 	static Camera *  getCamera() { return get().getCameraImpl(); }
 	static glm::mat4 getProj() { return get().getProjImpl(); }
@@ -95,7 +95,7 @@ class Application
 	void updateWindowSizeImpl(int width, int height);
 	bool isWindowOpenImpl();
 	void swapBuffersImpl();
-	bool isInFrameImpl(float x, float y, float width, float height);
+	bool isInFrameImpl(float x, float y, CollisionBox box);
 
 	Camera *  getCameraImpl();
 	glm::mat4 getProjImpl();

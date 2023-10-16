@@ -15,19 +15,8 @@ IndexBuffer::IndexBuffer(const unsigned int *data, unsigned int count)
 IndexBuffer::IndexBuffer(unsigned int count)
 	: m_Count(count)
 {
-#ifdef IS_ON_WINDOWS
-	if(count > 5292)   // 2646
-	{
-		Log::error("Index buffer: count is larger than expected!", LOGINFO);
-		Log::variable("Size: ", count);
-	}
-	else if(count < 5292)
-		Log::warning("Index buffer: count is smaller than expected");
-	unsigned int data[5292];   // TODO: CHANGE ME! with definition
-	count = 5292;
-#else
-	unsigned int data[count];
-#endif
+	unsigned int *data = new unsigned int[count];
+
 	int squares = count / 6;
 	for(int i = 0; i < squares; i++)
 	{

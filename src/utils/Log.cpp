@@ -1,6 +1,5 @@
 #include "Log.h"
 
-// TODO: Make uniform system for this
 #ifdef IS_ON_WINDOWS
 	#include <windows.h>
 	#include <conio.h>

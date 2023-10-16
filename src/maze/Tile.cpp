@@ -13,15 +13,13 @@ Tile::Tile(int x, int y, double rotation, int texID, bool isSolid)
 
 Tile::~Tile()
 {
-	// TODO: Make this call a function to get rid of the texture if no one is using it
 }
 
 void Tile::render(float secX, float secY)
 {
 	float boardX = secX + ((float) x) * TILE_SIZE;   // These are the coordinates relative to the board, not the screen! - that is calculated in the shader
 	float boardY = secY + ((float) y) * TILE_SIZE;
-	if(Application::isInFrame(boardX, boardY, TILE_SIZE, TILE_SIZE))
-		Render::sprite(boardX, boardY, rotation, TILE_SIZE, m_SpriteID);
+	Render::sprite(boardX, boardY, rotation, TILE_SIZE, m_SpriteID);
 }
 
 void Tile::update()

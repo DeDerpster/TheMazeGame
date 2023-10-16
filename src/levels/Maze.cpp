@@ -103,22 +103,21 @@ void Maze::render()
 		get(midpoint, midpoint - 1)->render((midpoint - 1) * multiple, midpoint * multiple);
 
 #endif
-	// spriteRender(*m_Buffer);
 	Render::render(m_ShaderEffectsIDs);
 	for(Entity *entity : m_Entities)
 	{
-		if(Application::getCamera()->isInFrame(entity->getX(), entity->getY(), Tile::TILE_SIZE, Tile::TILE_SIZE))
+		if(Application::isInFrame(entity->getX(), entity->getY(), entity->getCollisionBox()))
 			entity->render();
 	}
-	// spriteRender(*m_Buffer);
+
 	Render::render(m_ShaderEffectsIDs);
 	m_Player.render();
+
 	for(Projectile *projectile : m_Projectiles)
 	{
-		if(Application::getCamera()->isInFrame(projectile->getX(), projectile->getY(), Tile::TILE_SIZE, Tile::TILE_SIZE))
+		if(Application::isInFrame(projectile->getX(), projectile->getY(), projectile->getCollisionBox()))
 			projectile->render();
 	}
-	// spriteRender(*m_Buffer);
 }
 
 void Maze::update()

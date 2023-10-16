@@ -136,6 +136,8 @@ ImGuiIO *Application::getImGuiContextImpl()
 
 void Application::updateImpl()   // Updates all the layers
 {
+	if(projEffectID == 0)
+		updateWindowSizeImpl(windowWidth, windowHeight);
 	for(int i = layers.size() - 1; i > -1; i--)
 		layers[i]->update();
 	camera.update();
@@ -276,9 +278,9 @@ void Application::swapBuffersImpl()   // Swaps the buffers
 	glfwSwapBuffers(window);
 }
 
-bool Application::isInFrameImpl(float x, float y, float width, float height)
+bool Application::isInFrameImpl(float x, float y, CollisionBox box)
 {
-	return camera.isInFrame(x, y, width, height);
+	return camera.isInFrame(x, y, box);
 }
 // !SECTION
 

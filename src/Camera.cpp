@@ -166,10 +166,12 @@ void Camera::updateZoomEffect()
 	effect->setVec(glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
 }
 
-bool Camera::isInFrame(float objX, float objY, float width, float height)
+bool Camera::isInFrame(float objX, float objY, CollisionBox &box)
 {
-	return objX + width > x - Application::getWidth() / (zoomPercentage * 2) && objX - width <= x + Application::getWidth() / (zoomPercentage * 2) && objY + 100 > y - Application::getHeight() / (zoomPercentage * 2) && objY - 100 <= y + Application::getHeight() / (zoomPercentage * 2);
-	return true;
+	return objX + box.upperBound.x + Tile::TILE_SIZE >  x - Application::getWidth()  / (zoomPercentage * 2)
+		&& objX + box.lowerBound.x - Tile::TILE_SIZE <= x + Application::getWidth()  / (zoomPercentage * 2)
+		&& objY + box.upperBound.y + Tile::TILE_SIZE >  y - Application::getHeight() / (zoomPercentage * 2)
+		&& objY + box.lowerBound.y - Tile::TILE_SIZE <= y + Application::getHeight() / (zoomPercentage * 2);
 }
 
 void Camera::setLock(bool locked)

@@ -4,13 +4,13 @@
 #include "Player.h"
 
 WorldItem::WorldItem(Item *item)
-	: Entity(0.0f, 0.0f, {{-10.0f, -10.0f}, {10.0f, 10.0f}}, nullptr, item->getSpriteID()), m_Item(item) {}
+	: Entity(0.0f, 0.0f, {{-50.0f, -50.0f}, {50.0f, 50.0f}}, nullptr, item->getSpriteID()), m_Item(item) {}
 
 WorldItem::WorldItem(float x, float y, Item *item)
-	: Entity(x, y, {{-10.0f, -10.0f}, {10.0f, 10.0f}}, nullptr, item->getSpriteID()), m_Item(item) {}
+	: Entity(x, y, {{-50.0f, -50.0f}, {50.0f, 50.0f}}, nullptr, item->getSpriteID()), m_Item(item) {}
 
 WorldItem::WorldItem(float x, float y, Level *level, Item *item)
-	: Entity(x, y, {{-10.0f, -10.0f}, {10.0f, 10.0f}}, level, item->getSpriteID()), m_Item(item) {}
+	: Entity(x, y, {{-50.0f, -50.0f}, {50.0f, 50.0f}}, level, item->getSpriteID()), m_Item(item) {}
 
 WorldItem::~WorldItem()
 {
@@ -23,7 +23,9 @@ void WorldItem::render()
 	if(m_Item)
 	{
 		m_Item->render(x, y, 0.0f, 50);
-		// Render::text(*m_Item->getName(), x, y, 0.5f, {0.0f, 0.0f, 0.0f, 1.0f});
+		float scale = 35.0f;
+		// float textWidth = Render::getTextWidth(*m_Item->getName(), scale);
+		Render::text(*m_Item->getName(), x /* - textWidth / 2*/, y + m_CollisionBox.lowerBound.y, scale, {0.0f, 0.0f, 0.0f, 1.0f}, true);
 	}
 }
 void WorldItem::update() {}

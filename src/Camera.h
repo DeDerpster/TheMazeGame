@@ -36,7 +36,7 @@ class Camera
 	void      setShaderEffects();
 	void      updatePositionEffect();
 	void      updateZoomEffect();
-	bool      isInFrame(float x, float y, float width, float height);
+	bool      isInFrame(float x, float y, CollisionBox &box);
 	void      setLock(bool locked);
 	void      setX(float newX);
 	void      setY(float newY);

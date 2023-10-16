@@ -35,6 +35,8 @@ uniform sampler2D u_Textures[32];
 void main()
 {
     int index = int(v_TexIndex);
-    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(u_Textures[index], v_TexCoords).r);
-    colour = v_TextColour * sampled;
+    colour = vec4(v_TextColour.r, v_TextColour.g, v_TextColour.b, v_TextColour.a * texture(u_Textures[index], v_TexCoords).r);
+    // colour = v_TextColour * sampled;
+
+    // colour = texture(u_Textures[index], v_TexCoords);
 }
