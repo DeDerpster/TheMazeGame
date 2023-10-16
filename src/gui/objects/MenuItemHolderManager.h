@@ -10,6 +10,7 @@
 #include "Item.h"
 #include "Level.h"
 #include "TransferObject.h"
+#include "Utils.h"
 
 class MIHManager : public MenuObject
 {
@@ -21,13 +22,13 @@ class MIHManager : public MenuObject
 	glm::vec4                          m_BackgroundColour, m_BorderColour, m_HoverBorderColour, m_ActiveBorderColour;
 	Button::State              m_State;
 
-	bool listenForChestOpening;
+	GUIInventoryIDCode m_ListenID;
 
   public:   // TODO: Make the function be able to handle it without the level input (cos you can just give it a reference straight to the player)
-	MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem = nullptr, bool listenForChestOpening = false);
-	MIHManager(std::function<void(float *, float *, float *, float *)> posFunc, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem = nullptr, bool listenForChestOpening = false);
-	MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, glm::vec4 backgroundColour, glm::vec4 borderColour, glm::vec4 hoverColour, glm::vec4 activeColour, std::function<void(int, Level *)> clickedFunc, int *activeItem = nullptr, bool listenForChestOpening = false);
-	MIHManager(std::function<void(float *, float *, float *, float *)> posFunc, float blockSize, Layer *layer, IContainer *items, glm::vec4 backgroundColour, glm::vec4 borderColour, glm::vec4 hoverColour, glm::vec4 activeColour, std::function<void(int, Level *)> clickedFunc, int *activeItem = nullptr, bool listenForChestOpening = false);
+	MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem = nullptr, GUIInventoryIDCode listenID = GUIInventoryIDCode::none);
+	MIHManager(std::function<void(float *, float *, float *, float *)> posFunc, float blockSize, Layer *layer, IContainer *items, std::function<void(int, Level *)> clickedFunc, int *activeItem = nullptr, GUIInventoryIDCode listenID = GUIInventoryIDCode::none);
+	MIHManager(float x, float y, float width, float height, float blockSize, Layer *layer, IContainer *items, glm::vec4 backgroundColour, glm::vec4 borderColour, glm::vec4 hoverColour, glm::vec4 activeColour, std::function<void(int, Level *)> clickedFunc, int *activeItem = nullptr, GUIInventoryIDCode listenID = GUIInventoryIDCode::none);
+	MIHManager(std::function<void(float *, float *, float *, float *)> posFunc, float blockSize, Layer *layer, IContainer *items, glm::vec4 backgroundColour, glm::vec4 borderColour, glm::vec4 hoverColour, glm::vec4 activeColour, std::function<void(int, Level *)> clickedFunc, int *activeItem = nullptr, GUIInventoryIDCode listenID = GUIInventoryIDCode::none);
 	virtual ~MIHManager() override;
 
 	virtual void render() override;

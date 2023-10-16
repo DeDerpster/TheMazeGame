@@ -54,10 +54,6 @@ Mob::Mob(float x, float y, float speed, Level *level, uint16_t spriteID)
 
 Mob::~Mob()
 {
-	/*for(Weapon *weapon : m_Weapons)
-		delete weapon;
-	for(Item *item : m_Inventory)
-		delete item;*/
 }
 
 void Mob::render()

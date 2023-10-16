@@ -32,13 +32,19 @@ bool MenuBackground::eventCallback(const Event::Event &e)
 	{
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
 		if(ne.key == GLFW_KEY_ESCAPE && ne.action == GLFW_PRESS)
+		{
 			m_ExitFunc();
+			return true;
+		}
 	}
 	else if(e.getType() == Event::EventType::mouseClicked)
 	{
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 		if(ne.button == GLFW_MOUSE_BUTTON_LEFT && (ne.pos.x < x - width / 2 || ne.pos.x > x + width / 2 || ne.pos.y < y - height / 2 || ne.pos.y > y + height / 2))
+		{
 			m_ExitFunc();
+			return true;
+		}
 	}
 	return MenuObject::eventCallback(e);
 }

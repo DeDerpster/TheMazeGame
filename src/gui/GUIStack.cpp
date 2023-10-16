@@ -8,6 +8,11 @@ GUIStack::GUIStack(Level *level)
 	m_Layers.push_back(new GUILayer(GUILayer::Type::GameOverlay, level));
 	m_Layers.push_back(new GUILayer(GUILayer::Type::PlayerInventory, level));
 	m_Layers.push_back(new GUILayer(GUILayer::Type::ChestInventory, level));
+	m_Layers.push_back(new GUILayer(GUILayer::Type::NPCInventory, level));
+	m_Layers.push_back(new GUILayer(GUILayer::Type::NPCInteraction, level));
+	m_Layers.push_back(new GUILayer(GUILayer::Type::ExitMenu, level));
+	m_Layers.push_back(new GUILayer(GUILayer::Type::PlayerDeath, level));
+	m_Layers.push_back(new GUILayer(GUILayer::Type::PlayerWin, level));
 }
 
 GUIStack::~GUIStack()
@@ -48,7 +53,7 @@ bool GUIStack::eventCallback(const Event::Event &e)
 		for(GUILayer *layer : m_Layers)
 			layer->eventCallback(e);
 	}
-	else if(m_ActiveLayer != 0)
+	else
 		return m_Layers[m_ActiveLayer]->eventCallback(e);
 
 	return false;

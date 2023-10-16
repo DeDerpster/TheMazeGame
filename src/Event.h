@@ -34,7 +34,8 @@ namespace Event
 		showAltTileEvent,
 		itemTransfer,
 		changeGUILayer,
-		chestOpened
+		chestOpened,
+		playerResponse
 	};
 
 	struct Event
@@ -131,11 +132,30 @@ namespace Event
 	struct ChestOpenedEvent : Event
 	{
 		IContainer *container;
+		int *              activeItem;
+		GUIInventoryIDCode id;
 
-		ChestOpenedEvent(IContainer *container)
-			: container(container) {}
+		ChestOpenedEvent(IContainer *container, int *activeItem, GUIInventoryIDCode id)
+			: container(container), activeItem(activeItem), id(id) {}
 
 		virtual EventType const getType() const override { return EventType::chestOpened; }
+		virtual bool            ignoreIfPaused() const override { return true; }
+	};
+
+	struct PlayerResponse : Event
+	{
+		enum Response
+		{
+			reject,
+			accept
+		};
+
+		Response response;
+
+		PlayerResponse(Response response)
+			: response(response) {}
+
+		virtual EventType const getType() const override { return EventType::playerResponse; }
 		virtual bool            ignoreIfPaused() const override { return true; }
 	};
 

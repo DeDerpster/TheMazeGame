@@ -232,6 +232,8 @@ void Room::update()
 
 bool Room::eventCallback(const Event::Event &e)
 {
+	bool moveEntity = false;
+
 	// TODO: Make all these case switch statements
 	if(m_Type == RoomType::Enemy && e.getType() == Event::EventType::showAltTileEvent)
 	{
@@ -248,6 +250,13 @@ bool Room::eventCallback(const Event::Event &e)
 		x += ne.changeX;
 		y += ne.changeY;
 	}
+	else if(e.getType() == Event::EventType::playerResponse)
+	{
+		const Event::PlayerResponse &ne = static_cast<const Event::PlayerResponse &>(e);
+
+		if(ne.response == Event::PlayerResponse::accept)
+			moveEntity = true;
+	}
 
 	for(Tile *tile : m_Tiles)
 	{
@@ -255,10 +264,19 @@ bool Room::eventCallback(const Event::Event &e)
 			return true;
 	}
 
-	for(Entity *entity : m_Entities)
+	for(int i = 0; i < m_Entities.size(); i++)
 	{
-		if(entity->eventCallback(e))
+		if(m_Entities[i]->eventCallback(e))
+		{
+			if(moveEntity)
+			{
+				m_Level->addEntity(m_Entities[i]);
+
+				m_Entities.erase(m_Entities.begin() + i);
+			}
+
 			return true;
+		}
 	}
 
 	return false;

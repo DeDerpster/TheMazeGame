@@ -6,6 +6,7 @@
 #include "Application.h"
 #include "FireStaff.h"
 #include "KeyDefinitions.h"
+#include "RandomGen.h"
 #include "Utils.h"
 
 NPC::NPC()
@@ -214,5 +215,65 @@ void NPC::imGuiRender()
 
 bool NPC::eventCallback(const Event::Event &e)
 {
+	if(e.getType() == Event::EventType::mouseClicked)
+	{
+		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
+
+		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
+
+		Player *player = m_Level->getPlayer();
+		if(doesPointIntersectWithBox(convPos, {x, y}, {{-width / 2, -height / 2}, {width / 2, height / 2}}) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 5.0f * TILE_SIZE)
+		{
+			if(!attacking && !following)
+			{
+				Event::ChangeGUIActiveLayer e(InGameGUILayer::npcInteraction);
+				Application::callEvent(e, true);
+
+				return true;
+			}
+			else if(following == m_Level->getPlayer())
+			{
+				Event::ChangeGUIActiveLayer e1(InGameGUILayer::npcInventory);
+				Application::callEvent(e1, true);
+
+				Event::ChestOpenedEvent e2(&m_Inventory, nullptr, GUIInventoryIDCode::inventory);
+				Application::callEvent(e2, true);
+
+				Event::ChestOpenedEvent e3(&m_Weapons, &m_CurrentWeapon, GUIInventoryIDCode::weapons);
+				Application::callEvent(e3, true);
+				return true;
+			}
+
+			return false;
+		}
+	}
+	else if(e.getType() == Event::EventType::playerResponse && !following && !attacking)
+	{
+		const Event::PlayerResponse &ne = static_cast<const Event::PlayerResponse &>(e);
+
+		if(ne.response == Event::PlayerResponse::Response::reject)
+		{
+			// TODO: Have this have a random change to attack the player
+			int r = Random::getNum(0, 4);   // TODO: Base this upon stats?
+
+			if(r == 1)
+			{
+				attacking = m_Level->getPlayer();
+
+				Event::ShowAltTileEvent e(true);
+				Application::callEvent(e);
+			}
+		}
+		else
+		{
+			// TODO: Make this go through the player to see if they can follow
+			following = m_Level->getPlayer();
+		}
+
+		Event::ChangeGUIActiveLayer e(InGameGUILayer::overlay);
+		Application::callEvent(e, true);
+
+		return true;
+	}
 	return Mob::eventCallback(e);
 }

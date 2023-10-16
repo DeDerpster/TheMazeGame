@@ -31,6 +31,7 @@ class Camera
 	bool eventCallback(const Event::Event &e);
 	bool setEffect(const Effect::RenderEffect &e);
 
+	// TODO: Sort this out
 	uint16_t  getPositionEffectID();
 	uint16_t  getZoomEffectID();
 	void      setShaderEffects();
@@ -41,6 +42,7 @@ class Camera
 	void      setX(float newX);
 	void      setY(float newY);
 	void      setAnchor(Mob *e);
+	void      clearAnchor();
 	float     getZoom();
 	void      keyCallback(int key, int scancode, int action, int mods);
 	void      changeUpdateView();

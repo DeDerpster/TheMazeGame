@@ -10,7 +10,7 @@ enum Direction
 
 enum class RoomType
 {
-	Empty = 0,
+	Empty,
 	Chest,
 	Trap,
 	Enemy,
@@ -20,10 +20,21 @@ enum class RoomType
 
 enum InGameGUILayer
 {
-	overlay,
+	overlay = 0,
 	playerInventory,
 	chestInventory,
-	exitMenu
+	npcInventory,
+	npcInteraction,
+	exitMenu,
+	playerDeath,
+	playerWin
+};
+
+enum GUIInventoryIDCode
+{
+	none,
+	inventory,
+	weapons
 };
 
 struct Vec2i

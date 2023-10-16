@@ -193,6 +193,12 @@ void Camera::setAnchor(Mob *e)
 	m_Anchor->setIsInControl(true);
 }
 
+void Camera::clearAnchor()
+{
+	lockOnAnchor = false;
+	m_Anchor     = nullptr;
+}
+
 float Camera::getZoom()
 {
 	return zoomPercentage;

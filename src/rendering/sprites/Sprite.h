@@ -55,7 +55,10 @@
 // Debug stuff
 #define DEBUG_CIRCLE POTION_HEALTH + 1
 
-#define NUM_OF_SPRITES DEBUG_CIRCLE + 1
+// Menus
+#define MAINMENU_TITLE DEBUG_CIRCLE + 1
+
+#define NUM_OF_SPRITES MAINMENU_TITLE + 1
 
 class Sprite
 {
@@ -117,6 +120,9 @@ class Sprite
 
 		  // DEBUG STUFF
 		  sprites[DEBUG_CIRCLE] = std::make_unique<Sprite>("res/textures/DebugCircle.png");
+
+		  // Menu
+		  sprites[MAINMENU_TITLE] = std::make_unique<Sprite>("res/menus/Title.png");
 
 		  Log::info("Sprites have been loaded");
 	}

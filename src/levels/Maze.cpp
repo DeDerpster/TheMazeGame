@@ -130,7 +130,7 @@ bool Maze::eventCallback(const Event::Event &e)
 		}
 		else if(ne.key == GLFW_KEY_ESCAPE && ne.action == GLFW_PRESS)
 		{
-			Event::ChangeGUIActiveLayer e(InGameGUILayer::overlay);
+			Event::ChangeGUIActiveLayer e(InGameGUILayer::exitMenu);
 			Application::callEvent(e, true);
 
 			return true;
@@ -182,6 +182,7 @@ bool Maze::eventCallback(const Event::Event &e)
 				Vec2f pos = dirToVec(shortestDir);
 				return pos - relPos;
 			};
+
 			// TODO: Put this in level?
 			Vec2f changeBy = getChangeBy({m_Player.getX(), m_Player.getY()});
 			m_Player.changeX(changeBy.x);
@@ -201,7 +202,8 @@ bool Maze::eventCallback(const Event::Event &e)
 
 void Maze::endLevel()
 {
-	playerDeath();
+	Event::ChangeGUIActiveLayer e(InGameGUILayer::playerWin);
+	Application::callEvent(e, true);
 }
 
 void Maze::playerDeath()
@@ -239,7 +241,6 @@ void Maze::resetMaze()
 // SECTION: Rooms
 void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west)
 {
-	// TODO: Add more randomization for the different types of rooms as well as entities and objects
 	bool entrances[4]          = {north, south, east, west};
 	RoomType type                  = RoomType::Empty;
 
@@ -247,7 +248,7 @@ void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west)
 	if(num == 0)
 		type = RoomType::Exit;
 	else if(num < 6)
-		type = RoomType::Enemy;
+		type = RoomType::NPC;   // NOTE: This was enemy
 	else if(num < 11)
 		type = RoomType::NPC;
 	else if(num < 21)

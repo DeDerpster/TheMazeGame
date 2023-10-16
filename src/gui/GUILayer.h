@@ -13,9 +13,15 @@ class GUILayer : public Layer
   public:
 	enum class Type
 	{
+		MainMenu,
 		GameOverlay,
 		PlayerInventory,
-		ChestInventory
+		ChestInventory,
+		NPCInventory,
+		NPCInteraction,
+		ExitMenu,
+		PlayerDeath,
+		PlayerWin,
 	};
 
   private:

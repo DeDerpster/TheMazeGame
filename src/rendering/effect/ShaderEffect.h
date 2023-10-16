@@ -40,17 +40,28 @@ namespace Effect
 
 	class RenderShaderEffect
 	{
+	  public:
+		enum class Type
+		{
+			normal,
+			includeOverlay,
+			onlyOverlay
+		};
+
 	  protected:
 		const std::string m_Name;
 
+		Type m_Type;
+
 	  public:
-		RenderShaderEffect(const std::string &name)
-			: m_Name(name)
+		RenderShaderEffect(const std::string &name, Type type)
+			: m_Name(name), m_Type(type)
 		{
 		}
 		virtual ~RenderShaderEffect() {}
 
 		std::string        getName() { return m_Name; }
+		Type               getType() { return m_Type; }
 		virtual void       setEffect(Shader &s) const = 0;
 	};
 
@@ -60,8 +71,8 @@ namespace Effect
 		glm::vec4 vec;
 
 	  public:
-		UniformVec4(const std::string &name, glm::vec4 vec)
-			: RenderShaderEffect(name), vec(vec)
+		UniformVec4(const std::string &name, glm::vec4 vec, Type type)
+			: RenderShaderEffect(name, type), vec(vec)
 		{
 		}
 		virtual ~UniformVec4() override {}
@@ -80,8 +91,8 @@ namespace Effect
 		glm::mat4 mat;
 
 	  public:
-		UniformMat4(const std::string &name, glm::mat4 mat)
-			: RenderShaderEffect(name), mat(mat)
+		UniformMat4(const std::string &name, glm::mat4 mat, Type type)
+			: RenderShaderEffect(name, type), mat(mat)
 		{
 		}
 		virtual ~UniformMat4() override {}
@@ -109,6 +120,8 @@ namespace Effect
 
 		static uint16_t findShaderEffect(const std::string &s) { return get().findShaderEffectImpl(s); }
 
+		static void updateShaderEffects() { get().updateShaderEffectsImpl(); }
+
 		static ShaderEffects &get()
 		{
 			static ShaderEffects s_Instance;
@@ -128,5 +141,7 @@ namespace Effect
 		void                deleteShaderEffectImpl(uint16_t id);
 		RenderShaderEffect *getShaderEffectImpl(uint16_t id);
 		uint16_t            findShaderEffectImpl(const std::string &s);
+
+		void updateShaderEffectsImpl();
 	};
 }   // namespace Effect

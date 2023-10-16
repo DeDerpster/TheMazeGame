@@ -37,6 +37,10 @@ class Application
 	}
 	static void render() { get().renderImpl(); }
 
+	static void setupLayers() { get().setupLayersImpl(); }
+	static void exitGame() { get().setupLayersImpl(); }
+	static void startGame() { get().startGameImpl(); }
+
 	static void addLayer(Layer *layer) { get().addLayerImpl(layer); }
 	static void addLayer(Layer *layer, int index) { get().addLayerImpl(layer, index); }
 	static void addOverlay(Layer *layer) { get().addOverlayImpl(layer); }
@@ -51,6 +55,7 @@ class Application
 	static bool isWindowOpen() { return get().isWindowOpenImpl(); }
 	static void swapBuffers() { get().swapBuffersImpl(); }
 	static bool isInFrame(float x, float y, CollisionBox box) { return get().isInFrameImpl(x, y, box); }
+	static void closeApplication() { get().closeApplicationImpl(); }
 
 	static Camera *  getCamera() { return get().getCameraImpl(); }
 	static glm::mat4 getProj() { return get().getProjImpl(); }
@@ -88,6 +93,8 @@ class Application
 	void updateImpl();
 	void renderImpl();
 
+	void setupLayersImpl();
+	void startGameImpl();
 	void addLayerImpl(Layer *layer);
 	void addLayerImpl(Layer *layer, int index);
 	void addOverlayImpl(Layer *layer);
@@ -102,6 +109,7 @@ class Application
 	bool isWindowOpenImpl();
 	void swapBuffersImpl();
 	bool isInFrameImpl(float x, float y, CollisionBox box);
+	void closeApplicationImpl();
 
 	Camera *  getCameraImpl();
 	glm::mat4 getProjImpl();

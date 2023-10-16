@@ -25,7 +25,7 @@ void WorldItem::render()
 	if(m_Item)
 	{
 		m_Item->render(x, y, 0.0f, width);
-		if(m_State == Button::State::Hover)
+		if(m_State == Button::State::Hover && !Application::getIsPaused())
 		{
 			float        scale    = 35.0f;
 			Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
@@ -59,7 +59,7 @@ bool WorldItem::eventCallback(const Event::Event &e)
 		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
 
 		Player *player = m_Level->getPlayer();
-		if(doesIntersectWith(Application::getCamera()->convertWindowToLevel(ne.pos)) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
+		if(doesIntersectWith(convPos) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
 		{
 			if(player->pickUp(m_Item))
 			{

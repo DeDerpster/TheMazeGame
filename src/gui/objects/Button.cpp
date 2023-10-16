@@ -91,13 +91,14 @@ bool Button::eventCallback(const Event::Event &e)
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
 		Vec2f mousePos = ne.pos;
-		if(ne.button == Event::leftButton && mousePos.x > x - width / 2 && mousePos.x < x + width / 2 && mousePos.y > y - height / 2 && mousePos.y < y + height / 2)
+		if(m_State == State::Hover)
 		{
 			m_State = State::Press;
 			buttonPressFunc();
 			pressCalldown = 10;
+
+			return true;
 		}
-		return true;
 	}
 
 	return MenuObject::eventCallback(e);

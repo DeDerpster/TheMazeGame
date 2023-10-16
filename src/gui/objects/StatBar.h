@@ -3,7 +3,7 @@
 #include "MenuObject.h"
 
 class StatBar : public MenuObject
-{
+{   // TODO: Add name and will appear when mouse is over it
   private:
 	const float *m_Stat, *m_StatMax;
 	glm::vec4    m_BackgroundColour;

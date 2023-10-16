@@ -12,7 +12,6 @@
 #include "Log.h"
 #include "RandomGen.h"
 
-#include "GUILayer.h"
 #include "Layer.h"
 #include "Maze.h"
 #include "ParticleLayer.h"
@@ -27,16 +26,6 @@ void gameLoop()
 #ifdef DEBUG
 	ImGuiIO &io = *Application::getImGuiContext();   // Creates an ImGui Interface, if I am debugging
 #endif
-
-	{
-
-		Maze *maze = new Maze();
-		maze->generate();              // Generates the maze
-		Application::addLayer(maze);   // Adds it to the layers
-
-		ParticleLayer *particleLayer = new ParticleLayer();
-		Application::addLayer(particleLayer);
-	}
 
 	int          fps = 0;
 	int          ups = 0;
@@ -102,6 +91,8 @@ int main(void)
 	Event::init();   // Initialises the events (in Event.h)
 
 	Log::info("Initialised program");
+
+	Application::setupLayers();
 
 	gameLoop();   // Starts the game loop
 

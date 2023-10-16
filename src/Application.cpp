@@ -10,7 +10,12 @@
 #include "Tile.h"
 #include "glDebug.h"
 
+#include "Maze.h"
+#include "ParticleLayer.h"
+
 #include "VertexBufferLayout.h"
+
+#include "GUILayer.h"
 
 #include "Event.h"
 #include "Log.h"
@@ -171,6 +176,39 @@ void Application::imGuiRenderImpl()   // Renders ImGui in all the layers
 // !SECTION
 
 // SECTION: Layers
+
+void Application::setupLayersImpl()
+{
+	gameIsPaused = true;
+	// TODO: Put this in a separate function
+	for(Layer *layer : layers)
+		delete layer;
+	layers.clear();
+	overlayStart = 0;
+	camera.clearAnchor();
+
+	addOverlayImpl(new GUILayer(GUILayer::Type::MainMenu, nullptr));
+	Effect::ShaderEffects::updateShaderEffects();
+}
+
+void Application::startGameImpl()
+{
+	gameIsPaused = false;
+	for(Layer *layer : layers)
+		delete layer;
+	layers.clear();
+	overlayStart = 0;
+
+	Maze *maze = new Maze();
+	maze->generate();   // Generates the maze
+	addLayer(maze);     // Adds it to the layers
+
+	ParticleLayer *particleLayer = new ParticleLayer();   // TODO: get rid of this
+	addLayer(particleLayer);
+
+	Effect::ShaderEffects::updateShaderEffects();
+}
+
 void Application::addLayerImpl(Layer *layer)   // Inserts a layer before the background
 {
 	layers.insert(layers.begin() + overlayStart, layer);
@@ -204,22 +242,13 @@ void Application::removeLayerImpl(Layer *layer, bool deleteLayer)
 	}
 	else
 		Log::warning("Cannot find layer to remove!");
-	// for(int i = 0; i < layers.size(); i++)
-	// {
-	// 	if(layer == layers[i])
-	// 	{
-	// 		delete layers[i];
-	// 		layers.erase(layers.begin() + i);
-	// 		if(i < overlayStart)
-	// 			overlayStart--;
-	// 	}
-	// }
 }
 // !SECTION
 
 // SECTION: Events & Effects
 void Application::callEventImpl(const Event::Event &e, bool includeOverlay)   // Sends event through the layers
 {
+	// TODO: Make this multithreading
 	if(camera.eventCallback(e))
 		return;
 
@@ -236,7 +265,11 @@ void Application::callEventImpl(const Event::Event &e, bool includeOverlay)   //
 	for(int i = startVal - 1; i > -1; i--)
 	{
 		if(layers[i])
-			layers[i]->eventCallback(e);
+		{
+			if(layers[i]->eventCallback(e))
+				break;
+		}
+
 		if(gameIsPaused && i == overlayStart && !e.ignoreIfPaused())
 			break;
 	}
@@ -305,6 +338,12 @@ bool Application::isInFrameImpl(float x, float y, CollisionBox box)
 {
 	return camera.isInFrame(x, y, box);
 }
+
+void Application::closeApplicationImpl()
+{
+	glfwDestroyWindow(window);
+}
+
 // !SECTION
 
 // SECTION: Getters

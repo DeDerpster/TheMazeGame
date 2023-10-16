@@ -19,7 +19,13 @@ namespace Effect
 	// These functions handle the sending of an effect, by creating them, adding them to the cache and sending them through the layers
 	uint16_t ShaderEffects::sendShaderEffectImpl(const std::string &s, glm::vec4 vec, bool includeOverlay)
 	{
-		UniformVec4 *e = new UniformVec4(s, vec);
+		RenderShaderEffect::Type type;
+		if(includeOverlay)
+			type = RenderShaderEffect::Type::includeOverlay;
+		else
+			type = RenderShaderEffect::Type::normal;
+
+		UniformVec4 *e = new UniformVec4(s, vec, type);
 		m_Effects.push_back(e);
 
 		ShaderEffectCarrier messenger((uint16_t) m_Effects.size());
@@ -30,7 +36,13 @@ namespace Effect
 
 	uint16_t ShaderEffects::sendShaderEffectImpl(const std::string &s, glm::mat4 mat, bool includeOverlay)
 	{
-		UniformMat4 *e = new UniformMat4(s, mat);
+		RenderShaderEffect::Type type;
+		if(includeOverlay)
+			type = RenderShaderEffect::Type::includeOverlay;
+		else
+			type = RenderShaderEffect::Type::normal;
+
+		UniformMat4 *e = new UniformMat4(s, mat, type);
 		m_Effects.push_back(e);
 
 		ShaderEffectCarrier messenger((uint16_t) m_Effects.size());
@@ -42,7 +54,9 @@ namespace Effect
 	// These send the effects through the overlays only and not all the layers
 	uint16_t ShaderEffects::sendOverlayEffectImpl(const std::string &s, glm::vec4 vec)
 	{
-		UniformVec4 *e = new UniformVec4(s, vec);
+		RenderShaderEffect::Type type = RenderShaderEffect::Type::onlyOverlay;
+
+		UniformVec4 *e = new UniformVec4(s, vec, type);
 		m_Effects.push_back(e);
 
 		ShaderEffectCarrier messenger((uint16_t) m_Effects.size());
@@ -53,7 +67,9 @@ namespace Effect
 
 	uint16_t ShaderEffects::sendOverlayEffectImpl(const std::string &s, glm::mat4 mat)
 	{
-		UniformMat4 *e = new UniformMat4(s, mat);
+		RenderShaderEffect::Type type = RenderShaderEffect::Type::onlyOverlay;
+
+		UniformMat4 *e = new UniformMat4(s, mat, type);
 		m_Effects.push_back(e);
 
 		ShaderEffectCarrier messenger((uint16_t) m_Effects.size());
@@ -98,5 +114,27 @@ namespace Effect
 		}
 		Log::warning("Did not find shader Effect!");
 		return 0;
+	}
+
+	void ShaderEffects::updateShaderEffectsImpl()
+	{
+		for(uint16_t i = 0; i < m_Effects.size(); i++)
+		{
+			ShaderEffectCarrier messenger(i + 1);
+			switch(m_Effects[i]->getType())
+			{
+			case RenderShaderEffect::Type::normal:
+				Application::setEffect(&messenger, false);
+				break;
+			case RenderShaderEffect::Type::includeOverlay:
+				Application::setEffect(&messenger, true);
+				break;
+			case RenderShaderEffect::Type::onlyOverlay:
+				Application::setOverlayEffect(&messenger);
+				break;
+			default:
+				Log::warning("Unknown effect type");
+			}
+		}
 	}
 }   // namespace Effect

@@ -74,7 +74,7 @@ bool Chest::eventCallback(const Event::Event &e)
 			Event::ChangeGUIActiveLayer e1(InGameGUILayer::chestInventory);
 			Application::callEvent(e1, true);
 
-			Event::ChestOpenedEvent e2(&m_Inventory);
+			Event::ChestOpenedEvent e2(&m_Inventory, nullptr, GUIInventoryIDCode::inventory);
 			Application::callEvent(e2, true);
 			return true;
 		}
