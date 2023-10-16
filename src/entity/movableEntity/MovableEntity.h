@@ -23,6 +23,9 @@ class MovableEntity : public Entity
 	virtual void move(float xa, float ya);
 	virtual void move(Vec2f ratio);
 
+	bool canMove(float xa, float ya);
+	bool canMove(Vec2f ratio);
+
 	virtual bool      getIsMoving() override { return isMoving; }
 	virtual Direction getDirection() { return m_Dir; }
 	CollisionBox      getMovingCollisionBox();

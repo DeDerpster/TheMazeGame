@@ -2,8 +2,9 @@
 
 #include "Layer.h"
 
-#include <vector>
 #include <functional>
+#include <tuple>
+#include <vector>
 
 #include "KeyDefinitions.h"
 #include "Utils.h"
@@ -36,6 +37,7 @@ class Level : public Layer
 	bool collisionPointDetection(float nextX, float nextY);
 	bool collisionTileDetection(int x, int y);
 	bool lineCollisionDetection(float x, float y, float xs, float ys);
+	std::tuple<bool, bool> lineCollisionCheck(float x, float y, float xs, float ys, bool returnFirst = false);
 
 	int coordsToIndex(int x, int y);
 
@@ -68,6 +70,8 @@ class Level : public Layer
 	virtual Player *            getPlayer();
 	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox box);
 
+	std::tuple<Direction, Projectile *> getDirOfProjInRange(float x, float y, float range);
+
 	float convertToRelativeX(float x);
 	float convertToRelativeY(float y);
 	Vec2f convertToRelativePos(Vec2f pos);
@@ -79,6 +83,7 @@ class Level : public Layer
 
 	bool            collisionDetection(float nextX, float nextY, CollisionBox box);
 	bool            directionalCollision(float x, float y, float xs, float ys, CollisionBox box);
+	std::tuple<bool, bool> directionalCollisionCheck(float x, float y, float xs, float ys, CollisionBox box);
 	virtual Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox box);
 
 	virtual void endLevel() = 0;

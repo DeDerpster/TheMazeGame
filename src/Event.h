@@ -4,6 +4,8 @@
 
 #include "Container.h"
 
+class Mob;
+
 namespace Event
 {
 	void  init();
@@ -35,7 +37,8 @@ namespace Event
 		itemTransfer,
 		changeGUILayer,
 		chestOpened,
-		playerResponse
+		playerResponse,
+		mobDied
 	};
 
 	struct Event
@@ -156,6 +159,18 @@ namespace Event
 			: response(response) {}
 
 		virtual EventType const getType() const override { return EventType::playerResponse; }
+		virtual bool            ignoreIfPaused() const override { return true; }
+	};
+
+	// TODO: Put this in a seperate file?
+	struct MobDied : Event
+	{
+		const Mob *mob;
+
+		MobDied(const Mob *mob)
+			: mob(mob) {}
+
+		virtual EventType const getType() const override { return EventType::mobDied; }
 		virtual bool            ignoreIfPaused() const override { return true; }
 	};
 

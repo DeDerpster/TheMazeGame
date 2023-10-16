@@ -38,8 +38,8 @@ class StatsMob
 	int getWeaponDelay(int delay);
 
 	bool     isDead();
-	float    getHeath();
-	float    getMaxHeath();
+	float    getHealth();
+	float    getMaxHealth();
 	float    getStamina();
 	float    getMaxStamina();
 	float    getMaxActiveWeapons();

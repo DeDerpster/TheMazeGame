@@ -20,12 +20,12 @@ void MovableEntity::move(float xa, float ya)
 {
 	if(!isGhost)
 	{
-		// TODO: Update this
-		if(m_Level->directionalCollision(x, y, xa, 0.0f, getMovingCollisionBox()))
+		auto [colX, colY] = m_Level->directionalCollisionCheck(x, y, xa, ya, getMovingCollisionBox());
+		if(colX)
 			xa = 0;
-		if(m_Level->directionalCollision(x, y, 0.0f, ya, getMovingCollisionBox()))
+		if(colY)
 			ya = 0;
-		if((xa == 0 && ya == 0) || m_Level->directionalCollision(x, y, xa, ya, getMovingCollisionBox()))
+		if(xa == 0 && ya == 0)
 		{
 			isMoving = false;
 			return;
@@ -61,9 +61,9 @@ void MovableEntity::move(float xa, float ya)
 void MovableEntity::move(Vec2f ratio)
 {
 	if(ratio.y == 0)
-		move(ratio.x * m_Speed, 0.0f);
+		move(ratio.x > 0 ? m_Speed : -m_Speed, 0.0f);
 	else if(ratio.x == 0)
-		move(0.0f, ratio.y * m_Speed);
+		move(0.0f, ratio.y > 0 ? m_Speed : -m_Speed);
 	else
 	{
 		float speedSquared = m_Speed * m_Speed;
@@ -71,6 +71,33 @@ void MovableEntity::move(Vec2f ratio)
 		float sumSquared   = sum * sum;
 		float timesBy      = std::sqrt((sumSquared * speedSquared) / (ratio.x * ratio.x + ratio.y * ratio.y));
 		move((ratio.x * timesBy) / sum, (ratio.y * timesBy) / sum);
+	}
+}
+
+bool MovableEntity::canMove(float xa, float ya)
+{
+
+	auto [colX, colY] = m_Level->directionalCollisionCheck(x, y, xa, ya, getMovingCollisionBox());
+	if(colX)
+		xa = 0;
+	if(colY)
+		ya = 0;
+	return !(xa == 0 && ya == 0);
+}
+
+bool MovableEntity::canMove(Vec2f ratio)
+{
+	if(ratio.y == 0)
+		return canMove(m_Speed, 0.0f);
+	else if(ratio.x == 0)
+		return canMove(0.0f, m_Speed);
+	else
+	{
+		float speedSquared = m_Speed * m_Speed;
+		float sum          = std::fabs(ratio.x) + std::fabs(ratio.y);
+		float sumSquared   = sum * sum;
+		float timesBy      = std::sqrt((sumSquared * speedSquared) / (ratio.x * ratio.x + ratio.y * ratio.y));
+		return canMove((ratio.x * timesBy) / sum, (ratio.y * timesBy) / sum);
 	}
 }
 

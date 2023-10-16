@@ -141,8 +141,8 @@ int StatsMob::getWeaponDelay(int delay)
 }
 
 bool     StatsMob::isDead() { return m_Stat_Health == 0; }
-float    StatsMob::getHeath() { return m_Stat_Health; }
-float    StatsMob::getMaxHeath() { return m_Stat_MaxHealth; }
+float    StatsMob::getHealth() { return m_Stat_Health; }
+float    StatsMob::getMaxHealth() { return m_Stat_MaxHealth; }
 float    StatsMob::getStamina() { return m_Stat_Stamina; }
 float    StatsMob::getMaxStamina() { return m_Stat_MaxStamina; }
 float    StatsMob::getMaxActiveWeapons() { return m_Stat_MaxActiveWeapons; }

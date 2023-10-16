@@ -5,6 +5,7 @@
 
 #include "Application.h"
 #include "KeyDefinitions.h"
+#include "Level.h"
 #include "Renderer.h"
 
 #include <math.h>
@@ -20,7 +21,7 @@
 		}                                      \
 	}
 
-#define DEFINE_MY_VARS m_Inventory(DEFAULT_INVENTORY_SIZE), m_Weapons(3), m_CurrentWeapon(-1)
+#define DEFINE_MY_VARS m_Inventory(DEFAULT_INVENTORY_SIZE), m_Weapons(3), m_CurrentWeapon(-1), m_Followers(1), m_Following(nullptr), m_Enemy(nullptr)
 
 Mob::Mob()
 	: MovableEntity(0.0f, 0.0f, TILE_SIZE * 1.25f, defaultBox, nullptr, SPRITE_PLAYER), StatsMob(), DEFINE_MY_VARS
@@ -99,33 +100,68 @@ void Mob::render()
 
 void Mob::update()
 {
-	if(isMoving)
+	if(!isDead())
 	{
-		switch(m_Dir)
+		if(isMoving)
 		{
-		case Direction::north:
-			m_NorthAnimation->update();
-			break;
-		case Direction::south:
-			m_SouthAnimation->update();
-			break;
-		case Direction::east:
-			m_EastAnimation->update();
-			break;
-		default:
-			m_WestAnimation->update();
-			break;
+			switch(m_Dir)
+			{
+			case Direction::north:
+				m_NorthAnimation->update();
+				break;
+			case Direction::south:
+				m_SouthAnimation->update();
+				break;
+			case Direction::east:
+				m_EastAnimation->update();
+				break;
+			default:
+				m_WestAnimation->update();
+				break;
+			}
 		}
+
+		for(Weapon *w : m_Weapons)
+			static_cast<Weapon *>(w)->update();
+
+		StatsMob::update();
 	}
-
-	for(Weapon *w : m_Weapons)
-		static_cast<Weapon *>(w)->update();
-
-	StatsMob::update();
+	else
+	{
+		Event::MobDied *e = new Event::MobDied(this);
+		Application::callEventLater(e);
+	}
 }
 
 bool Mob::eventCallback(const Event::Event &e)
 {
+	if(e.getType() == Event::EventType::mobDied)
+	{
+		const Event::MobDied &ne = static_cast<const Event::MobDied &>(e);
+
+		if(ne.mob == m_Following)
+			m_Following = nullptr;
+		else if(ne.mob == m_Enemy)
+			m_Enemy = nullptr;
+		else
+		{
+			auto index = std::find(m_Followers.begin(), m_Followers.end(), ne.mob);
+			if(index != m_Followers.end())
+				m_Followers.erase(index);
+		}
+	}
+	else if(!m_Following && e.getType() == Event::EventType::showAltTileEvent)
+	{
+		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
+		if(ne.showAlt)
+		{
+			if(m_Enemy)
+			{
+				setFollowersEnemy(m_Enemy);
+				m_Level->getPlayer()->setFollowersEnemy(this);
+			}
+		}
+	}
 	return MovableEntity::eventCallback(e);
 }
 
@@ -155,6 +191,60 @@ void Mob::useItemInInventory(uint16_t index)
 	}
 
 	// NOTE: This is where other stuff will go :D
+}
+
+bool Mob::addFollower(Mob *follower)
+{
+	if(m_Followers.isFull())
+		return false;
+
+	follower->setFollowing(this);
+	m_Followers.push_back(follower);
+	return true;
+}
+
+void Mob::removeFollower(Mob *follower)
+{
+	auto index = std::find(m_Followers.begin(), m_Followers.end(), follower);
+	if(index != m_Followers.end())
+	{
+		m_Followers.erase(index);
+		follower->setFollowing(nullptr);
+	}
+	else
+		Log::warning("Cannot find follower to remove!");
+}
+
+void Mob::setFollowing(Mob *following)
+{
+	m_Following = following;
+}
+
+void Mob::setEnemy(Mob *enemy)
+{
+	m_Enemy = enemy;
+}
+
+void Mob::setFollowersEnemy(Mob *enemy)
+{
+	if(m_Followers.size() > 0)
+	{
+		const Container<Mob *> &eFollowers = enemy->getFollowers();
+
+		int i = 0;
+		for(Mob *follower : m_Followers)
+		{
+			if(i == eFollowers.size())
+			{
+				follower->setEnemy(enemy);
+				i = -1;
+			}
+			else
+				follower->setEnemy(eFollowers[i]);
+
+			i++;
+		}
+	}
 }
 
 void Mob::useCurrentWeapon(bool hold)

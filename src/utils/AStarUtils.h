@@ -10,8 +10,8 @@
 
 #include "Utils.h"
 
-#define X_MAX 2100
-#define Y_MAX 2100   // This is from the edge of the maze to the middle
+#define X_MAX 1400
+#define Y_MAX 1400
 
 #define X_STEP 50
 #define Y_STEP 50

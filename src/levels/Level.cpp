@@ -142,10 +142,17 @@ void Level::update()
 			++it;
 	}
 
-	getMidRoom()->update();
-
-	if(m_Player.deleteMe())
-		playerDeath();
+	int   midpoint = getMidPoint();
+	Room *mid      = getMidRoom();
+	mid->update();
+	if(mid->isOpen(Direction::north))
+		get(midpoint + 1, midpoint)->update();
+	if(mid->isOpen(Direction::south))
+		get(midpoint - 1, midpoint)->update();
+	if(mid->isOpen(Direction::east))
+		get(midpoint, midpoint + 1)->update();
+	if(mid->isOpen(Direction::west))
+		get(midpoint, midpoint - 1)->update();
 }
 
 bool Level::eventCallback(const Event::Event &e)
@@ -181,6 +188,82 @@ bool Level::eventCallback(const Event::Event &e)
 		if(s->eventCallback(e))
 			return true;
 	}
+
+	if(e.getType() == Event::EventType::mobDied)
+	{
+		const Event::MobDied &ne = static_cast<const Event::MobDied &>(e);
+
+		if(ne.mob == &m_Player)
+			playerDeath();
+		else
+		{
+			auto index = std::find(m_Entities.begin(), m_Entities.end(), ne.mob);
+			if(index != m_Entities.end())
+			{
+				delete ne.mob;
+				m_Entities.erase(index);
+			}
+		}
+	}
+	else if(e.getType() == Event::EventType::showAltTileEvent)
+	{
+		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
+		if(ne.showAlt)
+		{
+			auto dirToVec = [](Direction dir) -> Vec2f {
+				Vec2f vec;
+				switch(dir)
+				{
+				case Direction::north:
+					vec = {(ROOM_SIZE / 2) * TILE_SIZE, (ROOM_SIZE - 2.5f) * TILE_SIZE};
+					break;
+				case Direction::south:
+					vec = {(ROOM_SIZE / 2) * TILE_SIZE, 1.5f * TILE_SIZE};
+					break;
+				case Direction::east:
+					vec = {(ROOM_SIZE - 2.5f) * TILE_SIZE, (ROOM_SIZE / 2) * TILE_SIZE};
+					break;
+				case Direction::west:
+					vec = {1.5f * TILE_SIZE, (ROOM_SIZE / 2) * TILE_SIZE};
+					break;
+				default:
+					vec = {0.0f, 0.0f};
+					break;
+				}
+				return vec;
+			};
+
+			auto getChangeBy = [this, dirToVec](Vec2f startPos) -> Vec2f {
+				Vec2f relPos = convertToRelativePos(startPos) - getMidPoint() * ROOM_PIXEL_SIZE;
+
+				Direction shortestDir  = Direction::north;
+				float     shortestDist = distBetweenVec2f(relPos, dirToVec(shortestDir));
+				for(int dir = Direction::south; dir <= Direction::west; dir++)
+				{
+					float dist = distBetweenVec2f(relPos, dirToVec(static_cast<Direction>(dir)));
+					if(dist < shortestDist)
+					{
+						shortestDir  = static_cast<Direction>(dir);
+						shortestDist = dist;
+					}
+				}
+				Vec2f pos = dirToVec(shortestDir);
+				return pos - relPos;
+			};
+
+			Vec2f changeBy = getChangeBy({m_Player.getX(), m_Player.getY()});
+			m_Player.changeX(changeBy.x);
+			m_Player.changeY(changeBy.y);
+
+			for(Entity *e : m_Entities)
+			{
+				Vec2f changeBy = getChangeBy({e->getX(), e->getY()});
+				e->changeX(changeBy.x);
+				e->changeY(changeBy.y);
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -245,8 +328,6 @@ Player *Level::getPlayer()
 {
 	return &m_Player;
 }
-
-
 
 int Level::coordsToIndex(int x, int y)
 {
@@ -438,6 +519,47 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f destPos, CollisionBox b
 	return aStarAlgorithm<2 * X_MAX / X_STEP, 2 * Y_MAX / Y_STEP, 8>(gridStartPos, gridDestPos, box, offsets, collisionDetection, convert, X_MAX / X_STEP);
 }
 
+std::tuple<Direction, Projectile *> Level::getDirOfProjInRange(float x, float y, float range)
+{
+	Direction   closestDir  = Direction::north;
+	Projectile *closestProj = false;
+	float       closestDist = range;
+	for(Projectile *proj : m_Projectiles)
+	{
+		float dist = distBetweenVec2f({x, y}, {proj->getX(), proj->getY()});
+		if(dist < closestDist)
+		{
+			Direction dir   = proj->getDirection();
+			float     distX = proj->getX() - x;
+			float     distY = proj->getY() - y;
+
+			// This checks if the projectile is going towards the center (ignoring collisions)
+			if(std::fabs(distX) > std::fabs(distY))
+			{
+				if((distX < 0 && dir == Direction::east) || (distX > 0 && dir == Direction::west))
+				{
+					closestDir  = dir;
+					closestProj = proj;
+				}
+			}
+			else if(std::fabs(distX) > std::fabs(distY))
+			{
+				if((distY < 0 && dir == Direction::north) || (distY > 0 && dir == Direction::south))
+				{
+					closestDir  = dir;
+					closestProj = proj;
+				}
+			}
+			else   // TODO: Check if this is going the right way
+			{
+				closestDir  = dir;
+				closestProj = proj;
+			}
+		}
+	}
+	return {closestDir, closestProj};
+}
+
 float Level::convertToRelativeX(float x)
 {
 	return x - getX();
@@ -495,73 +617,90 @@ bool Level::collisionDetection(float nextX, float nextY, CollisionBox box)
 
 bool Level::directionalCollision(float x, float y, float xs, float ys, CollisionBox box)
 {
+	auto [colX, colY] = directionalCollisionCheck(x, y, xs, ys, box);
+	return colX || colY;
+}
+
+std::tuple<bool, bool> Level::directionalCollisionCheck(float x, float y, float xs, float ys, CollisionBox box)
+{
 	if(xs == 0 && ys == 0)
-		return collisionDetection(x, y, box);
+		return {true, true};
 	else
 	{
 		if(isOutOfBound(x + box.lowerBound.x, y + box.lowerBound.y) || isOutOfBound(x + box.upperBound.x, y + box.upperBound.y))
-			return true;
+			return {true, true};
 
-		// TODO: Make this look nicer
+		auto checks = [this](float x, float y, float xs, float ys, Vec2f(&posOffsets)[3]) -> std::tuple<bool, bool> {
+			bool colX = false;
+			bool colY = false;
+			for(int i = 0; i < 3; i++)
+			{
+				if(posOffsets[i].x == 0.0f && posOffsets[i].y == 0.0f)
+					continue;
+
+				auto [tempX, tempY] = lineCollisionCheck(x + posOffsets[i].x, y + posOffsets[i].y, xs, ys, true);
+
+				if(tempX)
+					colX = true;
+				if(tempY)
+					colY = true;
+				if(colX && colY)
+					break;
+			}
+			return {colX, colY};
+		};
+
 		if((xs > 0 && ys > 0) || (xs < 0 && ys < 0))   // Travelling along a line close to this: / path
 		{
-			bool lowerRight = lineCollisionDetection(x + box.upperBound.x, y + box.lowerBound.y, xs, ys);
-			bool upperLeft  = lineCollisionDetection(x + box.lowerBound.x, y + box.upperBound.y, xs, ys);
+			Vec2f offsets[3] = {
+				{box.upperBound.x, box.lowerBound.y},   // Lower Right
+				{box.lowerBound.x, box.upperBound.y},   // Upper Left
+				{0.0f, 0.0f}                            // Middle
+			};
 
-			bool middle;
+			// Defining the middle
 			if(xs > 0)   // Upper right corner
-				middle = lineCollisionDetection(x + box.upperBound.x, y + box.upperBound.y, xs, ys);
+				offsets[2] = {box.upperBound.x, box.upperBound.y};
 			else   // Lower left corner
-				middle = lineCollisionDetection(x + box.lowerBound.x, y + box.lowerBound.y, xs, ys);
+				offsets[2] = {box.lowerBound.x, box.lowerBound.y};
 
-			// bool middle     = lineCollisionDetection(x + box.lowerBound.x, y + box.lowerBound.y, xs + box.upperBound.x - box.lowerBound.x, ys + box.upperBound.y - box.lowerBound.y);
-			return lowerRight || upperLeft || middle;
+			return checks(x, y, xs, ys, offsets);
 		}
 		else if((xs > 0 && ys < 0) || (xs < 0 && ys > 0))   // Travelling along a line close to this: \ path
 		{
-			bool lowerLeft  = lineCollisionDetection(x + box.lowerBound.x, y + box.lowerBound.y, xs, ys);
-			bool upperRight = lineCollisionDetection(x + box.upperBound.x, y + box.upperBound.y, xs, ys);
+			Vec2f offsets[3] = {
+				{box.lowerBound.x, box.lowerBound.y},   // Lower Left
+				{box.upperBound.x, box.upperBound.y},   // Upper Right
+				{0.0f, 0.0f}                            // Middle
+			};
 
-			bool middle;
+			// Defining the middle
 			if(xs > 0)   // Lower right corner
-				middle = lineCollisionDetection(x + box.upperBound.x, y + box.lowerBound.y, xs, ys);
+				offsets[2] = {box.upperBound.x, box.lowerBound.y};
 			else   // Upper left corner
-				middle = lineCollisionDetection(x + box.lowerBound.x, y + box.upperBound.y, xs, ys);
+				offsets[2] = {box.lowerBound.x, box.upperBound.y};
 
-			// bool middle     = lineCollisionDetection(x + box.upperBound.x, y + box.lowerBound.y, xs + box.lowerBound.x - box.upperBound.x, ys + box.upperBound.y - box.lowerBound.y);
-			return lowerLeft || upperRight || middle;
+			return checks(x, y, xs, ys, offsets);
 		}
-		else if(xs != 0)   // Travelling along a line perpendicular to ---
+		else if(xs != 0)   // Travelling along a line parallel to ---
 		{
-			bool upper, lower;
-			if(xs > 0)   // Check right side
-			{
-				upper = lineCollisionDetection(x + box.upperBound.x, y + box.upperBound.y, xs, ys);
-				lower = lineCollisionDetection(x + box.upperBound.x, y + box.lowerBound.y, xs, ys);
-			}
-			else   // Check left side
-			{
-				upper = lineCollisionDetection(x + box.lowerBound.x, y + box.upperBound.y, xs, ys);
-				lower = lineCollisionDetection(x + box.lowerBound.x, y + box.lowerBound.y, xs, ys);
-			}
-			return upper || lower;
+			Vec2f offsets[3] = {
+				{xs > 0 ? box.upperBound.x : box.lowerBound.x, box.upperBound.y},   // Upper
+				{xs > 0 ? box.upperBound.x : box.lowerBound.x, box.lowerBound.y},   // Lower
+				{0.0f, 0.0f}                                                        // No checks for middle
+			};
+			return checks(x, y, xs, ys, offsets);
 		}
-		else   // Travelling along a line perpendicular to |
+		else   // Travelling along a line parallel to |
 		{
-			bool left, right;
-			if(ys > 0)   // Check upper side
-			{
-				right = lineCollisionDetection(x + box.upperBound.x, y + box.upperBound.y, xs, ys);
-				left  = lineCollisionDetection(x + box.lowerBound.x, y + box.upperBound.y, xs, ys);
-			}
-			else   // Check lower side
-			{
-				right = lineCollisionDetection(x + box.upperBound.x, y + box.lowerBound.y, xs, ys);
-				left  = lineCollisionDetection(x + box.lowerBound.x, y + box.lowerBound.y, xs, ys);
-			}
-			return left || right;
+			Vec2f offsets[3] = {
+				{box.upperBound.x, ys > 0 ? box.upperBound.y : box.lowerBound.y},   // Upper
+				{box.lowerBound.x, ys > 0 ? box.upperBound.y : box.lowerBound.y},   // Lower
+				{0.0f, 0.0f}                                                        // No checks for middle
+			};
+			return checks(x, y, xs, ys, offsets);
 		}
-	}
+}
 }
 
 Entity *Level::entityCollisionDetection(float nextX, float nextY, CollisionBox box)
@@ -580,17 +719,21 @@ Entity *Level::entityCollisionDetection(float nextX, float nextY, CollisionBox b
 
 bool Level::lineCollisionDetection(float x, float y, float xs, float ys)
 {
+	auto [colX, colY] = lineCollisionCheck(x, y, xs, ys);
+
+	return colX || colY;
+}
+
+std::tuple<bool, bool> Level::lineCollisionCheck(float x, float y, float xs, float ys, bool returnFirst)
+{
 	bool noStep = collisionPointDetection(x, y);
-	if(noStep)
-		return true;
+	if(noStep || (xs == 0 && ys == 0))
+		return {noStep, noStep};
 
 	// this is a simple function to return what sign a given float has
 	// This is used so as a simple way to determine the direction of travel
 	auto getSign = [](float check) -> int {
-		if(check > 0)
-			return 1;
-		else
-			return -1;
+		return check > 0 ? 1 : -1;
 	};
 
 	auto getPer = [](float relPos, float change) {
@@ -609,6 +752,9 @@ bool Level::lineCollisionDetection(float x, float y, float xs, float ys)
 		return 1.1f;
 	};
 
+	bool crossedX = false;
+	bool crossedY = false;
+
 	// This makes the coordinates relative to the current the start of the line is on, making it easier for calculations later
 	int   tileX     = (int) x / TILE_SIZE;
 	int   tileY     = (int) y / TILE_SIZE;
@@ -616,7 +762,7 @@ bool Level::lineCollisionDetection(float x, float y, float xs, float ys)
 	float relativeY = y - tileY * TILE_SIZE;
 
 	if(relativeX + xs < TILE_SIZE && relativeX + xs > 0 && relativeY + ys < TILE_SIZE && relativeY + ys > 0)
-		return noStep;
+		return {false, false};
 
 	int xOffset = 0;
 	int yOffset = 0;
@@ -630,20 +776,41 @@ bool Level::lineCollisionDetection(float x, float y, float xs, float ys)
 		{
 			xOffset += getSign(xs);
 			if(collisionTileDetection(tileX + xOffset, tileY + yOffset))
-				return true;
+			{
+				if(returnFirst)
+					return {true, false};
+				crossedX = true;
+			}
 			relativeX -= getSign(xs) * TILE_SIZE;
 		}
 		else if(yPer < xPer)
 		{
 			yOffset += getSign(ys);
 			if(collisionTileDetection(tileX + xOffset, tileY + yOffset))
-				return true;
+			{
+				if(returnFirst)
+					return {false, true};
+				crossedY = true;
+			}
 			relativeY -= getSign(ys) * TILE_SIZE;
 		}
 		else   // This means that it passes through the corner
 		{
-			if(collisionTileDetection(tileX + xOffset + getSign(xs), tileY + yOffset) || collisionTileDetection(tileX + xOffset, tileY + yOffset + getSign(ys)) || collisionTileDetection(tileX + xOffset + getSign(xs), tileY + xOffset + getSign(ys)))
-				return true;
+			if(collisionTileDetection(tileX + xOffset + getSign(xs), tileY + xOffset + getSign(ys)))
+				return {true, true};
+
+			if(collisionTileDetection(tileX + xOffset + getSign(xs), tileY + yOffset))
+			{
+				if(returnFirst)
+					return {true, false};
+				crossedX = true;
+			}
+			if(collisionTileDetection(tileX + xOffset, tileY + yOffset + getSign(ys)))
+			{
+				if(returnFirst)
+					return {false, true};
+				crossedY = true;
+			}
 
 			relativeX -= getSign(xs) * TILE_SIZE;
 			relativeY -= getSign(ys) * TILE_SIZE;
@@ -651,7 +818,9 @@ bool Level::lineCollisionDetection(float x, float y, float xs, float ys)
 			xOffset += getSign(xs);
 			yOffset += getSign(ys);
 		}
+		if(crossedX && crossedY)
+			break;
 	}
 
-	return false;
+	return {crossedX, crossedY};
 }

@@ -44,7 +44,6 @@ void Projectile::update()
 		Entity *colE = m_Level->entityCollisionDetection(x + xs, y + ys, m_CollisionBox);
 		if(!isGhost && (m_Level->collisionDetection(x + xs, y + ys, m_CollisionBox) || (colE != nullptr && colE != spawner)))
 		{
-			// TODO: Check if this is valid (or if the enemy has been killed)
 			Mob *mSpawner = dynamic_cast<Mob *>(spawner);
 			if(colE)
 			{
@@ -70,6 +69,15 @@ void Projectile::update()
 
 bool Projectile::eventCallback(const Event::Event &e)
 {
+	if(e.getType() == Event::EventType::mobDied)
+	{
+		const Event::MobDied &ne = static_cast<const Event::MobDied &>(e);
+		if(ne.mob == spawner)
+		{
+			spawner     = nullptr;
+			hasCollided = true;
+		}
+	}
 	return MovableEntity::eventCallback(e);
 }
 

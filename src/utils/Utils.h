@@ -40,6 +40,7 @@ enum GUIInventoryIDCode
 struct Vec2i
 {
 	int x, y;
+	// Vec2i(): x(0), y(0) {}
 };
 
 inline bool operator!=(const Vec2i &lhs, const Vec2i &rhs)
@@ -61,6 +62,8 @@ inline std::ostream &operator<<(std::ostream &out, const Vec2i &data)
 struct Vec2f
 {
 	float x, y;
+	// Vec2f(): x(0.0f), y(0.0f) {}
+	// Vec2f(float x, float y): x(x), y(y) {}
 };
 
 inline bool operator!=(const Vec2f &lhs, const Vec2f &rhs)

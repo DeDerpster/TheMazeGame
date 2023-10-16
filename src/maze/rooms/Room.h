@@ -46,4 +46,6 @@ class Room
 	virtual void active();
 
 	Tile *getTile(int x, int y);
+
+	void checkForMobs();
 };

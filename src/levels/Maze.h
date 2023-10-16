@@ -35,6 +35,11 @@ class Maze : public Level
 	bool pathsEast[MAZE_SIZE];
 	bool pathsWest[MAZE_SIZE];
 
+	uint64_t moves;
+	bool     isMoving[4];
+
+	void playerMoved(Direction dir);
+
 	void addRoom(int x, int y, bool north, bool south, bool east, bool west);
 	void updatePaths();
 

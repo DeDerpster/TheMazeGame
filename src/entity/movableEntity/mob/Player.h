@@ -18,4 +18,7 @@ class Player : public Mob
 #endif
 
 	virtual bool eventCallback(const Event::Event &e) override;
+
+	virtual void setFollowing(Mob *following) override;
+	virtual void setEnemy(Mob *enemy) override;
 };

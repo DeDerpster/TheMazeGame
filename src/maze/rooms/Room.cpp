@@ -45,7 +45,7 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 	{
 		// TODO: Generate enemy
 		NPC *enemy = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level);
-		enemy->setAttacking(m_Level->getPlayer());
+		enemy->setEnemy(m_Level->getPlayer());
 		m_Entities.push_back(enemy);
 	}
 	else if(type == RoomType::NPC)
@@ -209,23 +209,11 @@ void Room::update()
 		{
 			delete *it;
 			it = m_Entities.erase(it);
+
+			checkForMobs();
 		}
 		else
 			++it;
-	}
-
-	if(m_Type == RoomType::Enemy)
-	{
-		auto searchFunc = [this](const Entity *o) -> bool {
-			const NPC *npc = dynamic_cast<const NPC *>(o);
-			return npc && npc->getAttacking() == m_Level->getPlayer();
-		};
-		std::vector<Entity *>::iterator it = std::find_if(m_Entities.begin(), m_Entities.end(), searchFunc);
-		if(it == m_Entities.end())
-		{
-			Event::ShowAltTileEvent e(false);
-			Application::callEvent(e);
-		}
 	}
 }
 
@@ -234,10 +222,15 @@ bool Room::eventCallback(const Event::Event &e)
 	bool moveEntity = false;
 
 	// TODO: Make all these case switch statements
-	if(m_Type == RoomType::Enemy && e.getType() == Event::EventType::showAltTileEvent)
+	if(e.getType() == Event::EventType::showAltTileEvent)
 	{
 		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
-		if(!ne.showAlt)
+		if(ne.showAlt)
+		{
+			m_Type   = RoomType::Enemy;
+			isLocked = true;
+		}
+		else
 		{
 			m_Type   = RoomType::Empty;
 			isLocked = false;
@@ -255,6 +248,18 @@ bool Room::eventCallback(const Event::Event &e)
 
 		if(ne.response == Event::PlayerResponse::accept)
 			moveEntity = true;
+	}
+	else if(e.getType() == Event::EventType::mobDied)
+	{
+		const Event::MobDied &ne = static_cast<const Event::MobDied &>(e);
+
+		auto index = std::find(m_Entities.begin(), m_Entities.end(), ne.mob);
+		if(index != m_Entities.end())
+		{
+			delete ne.mob;
+			m_Entities.erase(index);
+			checkForMobs();
+		}
 	}
 
 	for(Tile *tile : m_Tiles)
@@ -292,7 +297,6 @@ void Room::active()
 	{
 		Event::ShowAltTileEvent e(true);
 		Application::callEvent(e);
-		isLocked = true;
 	}
 }
 
@@ -309,7 +313,25 @@ Entity *Room::entityCollisionDetection(float nextX, float nextY, CollisionBox bo
 
 Tile *Room::getTile(int x, int y) { return m_Tiles[y * ROOM_SIZE + x]; }
 
+void Room::checkForMobs()
+{
+	if(m_Type == RoomType::Enemy)
+	{
+		auto searchFunc = [this](const Entity *o) -> bool {
+			const Mob *mob = dynamic_cast<const Mob *>(o);
+			return mob && mob->getEnemy() == m_Level->getPlayer();
+		};
+		std::vector<Entity *>::iterator it = std::find_if(m_Entities.begin(), m_Entities.end(), searchFunc);
+		if(it == m_Entities.end())
+		{
+			Event::ShowAltTileEvent e(false);
+			Application::callEvent(e);
+		}
+	}
+}
+
 #ifdef DEBUG
+
 void Room::imGuiRender()
 {
 }

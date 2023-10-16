@@ -48,6 +48,7 @@ class Application
 	static void removeLayer(Layer *layer, bool deleteLayer = false) { get().removeLayerImpl(layer, deleteLayer); }
 
 	static void callEvent(const Event::Event &e, bool includeOverlay = false) { get().callEventImpl(e, includeOverlay); }
+	static void callEventLater(const Event::Event *e) { get().eventBuffer.push_back(e); }
 	static void setEffect(Effect::Effect *e, bool includeOverlay = false) { get().setEffectImpl(e, includeOverlay); }
 	static void setOverlayEffect(Effect::Effect *e) { get().setOverlayEffectImpl(e); }
 
@@ -77,6 +78,9 @@ class Application
 
 	int                  overlayStart;
 	std::vector<Layer *> layers;   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time
+
+	// Used for storing Events until they can be run without causing errors
+	std::vector<const Event::Event *> eventBuffer;
 
 	uint16_t projEffectID;
 

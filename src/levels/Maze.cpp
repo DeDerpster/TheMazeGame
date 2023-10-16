@@ -2,6 +2,8 @@
 
 #include <ImGui.h>
 #include <algorithm>
+#include <limits>
+#include <math.h>
 #include <string>
 
 #include "AStarUtils.h"
@@ -29,15 +31,19 @@
 
 Maze::Maze()
 	: Level(MAZE_MIDPOINT, MAZE_MIDPOINT, MAZE_SIZE, MAZE_SIZE, {0, 0}),
-	  finishedGenerating(true)
+	  finishedGenerating(true),
+	  moves(0)
 {
+	for(int i = 0; i < 4; i++)
+		isMoving[i] = false;
+
 	// NOTE: Because of how it is rendering the coords (0,0) on the m_Board is the bottom left, not the top left!!
 
 	currentPaths.reserve(2 * MAZE_SIZE);   // The data is reserved here because not all the data is needed, but it could be used and so for efficiency, it is reserved on init
 
-	NPC *enemy = new NPC(3100.0f, 3800.0f, this);
-	enemy->setFollower(&m_Player);
-	m_Entities.push_back(enemy);
+	NPC *follower = new NPC(3100.0f, 3800.0f, this);
+	m_Player.addFollower(follower);
+	m_Entities.push_back(follower);
 
 	Application::addOverlay(new GUIStack(this));
 
@@ -73,33 +79,15 @@ void Maze::update()
 
 	Vec2f playerPos = convertToRelativePos({m_Player.getX(), m_Player.getY()});
 	if(playerPos.y > (getMidPoint() + 1) * TILE_SIZE * ROOM_SIZE)
-	{
-		Log::info("Player moved North");
-
-		moveNorth();
-		getMidRoom()->active();
-	}
+		playerMoved(Direction::north);
 	else if(playerPos.y < getMidPoint() * TILE_SIZE * ROOM_SIZE)
-	{
-		Log::info("Player moved South");
+		playerMoved(Direction::south);
 
-		moveSouth();
-		getMidRoom()->active();
-	}
 	if(playerPos.x > (getMidPoint() + 1) * TILE_SIZE * ROOM_SIZE)
-	{
-		Log::info("Player moved East");
-
-		moveEast();
-		getMidRoom()->active();
-	}
+		playerMoved(Direction::east);
 	else if(playerPos.x < getMidPoint() * TILE_SIZE * ROOM_SIZE)
-	{
-		Log::info("Player moved West");
+		playerMoved(Direction::west);
 
-		moveWest();
-		getMidRoom()->active();
-	}
 	Level::update();
 }
 
@@ -108,6 +96,7 @@ void Maze::imGuiRender()
 {
 	if(ImGui::Button("Reload Maze"))
 	{
+		// TODO: Change player coords
 		generate();
 	}
 	ImGui::Checkbox("Render all", &renderAll);
@@ -135,66 +124,7 @@ bool Maze::eventCallback(const Event::Event &e)
 			return true;
 		}
 	}
-	else if(e.getType() == Event::EventType::showAltTileEvent)
-	{
-		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
-		if(ne.showAlt)
-		{
-			auto dirToVec = [](Direction dir) -> Vec2f {
-				Vec2f vec;
-				switch(dir)
-				{
-				case Direction::north:
-					vec = {ROOM_SIZE / 2 * TILE_SIZE, (ROOM_SIZE - 2) * TILE_SIZE};
-					break;
-				case Direction::south:
-					vec = {ROOM_SIZE / 2 * TILE_SIZE, TILE_SIZE};
-					break;
-				case Direction::east:
-					vec = {(ROOM_SIZE - 2) * TILE_SIZE, ROOM_SIZE / 2 * TILE_SIZE};
-					break;
-				case Direction::west:
-					vec = {TILE_SIZE, ROOM_SIZE / 2 * TILE_SIZE};
-					break;
-				default:
-					vec = {0.0f, 0.0f};
-					break;
-				}
-				return vec;
-			};
-			auto getChangeBy = [this, dirToVec](Vec2f startPos) -> Vec2f {
-				// float relX   = convertToRelativeX(startPos.x) - getMidPoint() * ROOM_PIXEL_SIZE;
-				// float relY   = convertToRelativeX(startPos.y) - getMidPoint() * ROOM_PIXEL_SIZE;
-				Vec2f relPos = convertToRelativePos(startPos) - getMidPoint() * ROOM_PIXEL_SIZE;
 
-				Direction shortestDir  = Direction::north;
-				float     shortestDist = distBetweenVec2f(relPos, dirToVec(shortestDir));
-				for(int dir = Direction::south; dir <= Direction::west; dir++)
-				{
-					float dist = distBetweenVec2f(relPos, dirToVec(static_cast<Direction>(dir)));
-					if(dist < shortestDist)
-					{
-						shortestDir  = static_cast<Direction>(dir);
-						shortestDist = dist;
-					}
-				}
-				Vec2f pos = dirToVec(shortestDir);
-				return pos - relPos;
-			};
-
-			// TODO: Put this in level?
-			Vec2f changeBy = getChangeBy({m_Player.getX(), m_Player.getY()});
-			m_Player.changeX(changeBy.x);
-			m_Player.changeY(changeBy.y);
-
-			for(Entity *e : m_Entities)
-			{
-				Vec2f changeBy = getChangeBy({e->getX(), e->getY()});
-				e->changeX(changeBy.x);
-				e->changeY(changeBy.y);
-			}
-		}
-	}
 
 	return Level::eventCallback(e);
 }
@@ -243,20 +173,71 @@ void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west)
 	bool entrances[4]          = {north, south, east, west};
 	RoomType type                  = RoomType::Empty;
 
+	float graphX  = std::abs(x - MAZE_SIZE / 2) + std::abs(y - MAZE_SIZE / 2) + moves;
+	auto  sigmoid = [graphX](float lim, float decay) -> int {
+        return round((2 * lim) / (1 + exp(-decay * graphX / 5.0f)) - lim);
+	};
+
 	// TODO: Make this based on the distance moved
-	int num = Random::getNum(0, 100);
-	if(num == 0)
+	int num = Random::getNum(1, 100);
+	if(num == sigmoid(1, 0.5f))
 		type = RoomType::Exit;
-	else if(num < 6)
+	else if(num < sigmoid(7, 1))
 		type = RoomType::Enemy;   // NOTE: This was enemy
-	else if(num < 11)
+	else if(num < sigmoid(12, 1))
 		type = RoomType::NPC;
-	else if(num < 21)
-		type = RoomType::Chest;
-	else if(num < 31)
+	else if(num < sigmoid(22, 1))
 		type = RoomType::Trap;
+	else if(num < sigmoid(32, 2))
+		type = RoomType::Chest;
+
 	Level::addRoom(x, y, entrances, type);
 }
+
+void Maze::playerMoved(Direction dir)
+{
+	if(isMoving[dir])
+	{
+		isMoving[dir] = false;
+
+		if(moves >= std::numeric_limits<uint64_t>::max() - 2)
+			moves = 0;
+		else
+			moves += 2;
+	}
+	else
+		isMoving[dir] = true;
+
+	switch(dir)
+	{
+	case Direction::north:
+		Log::info("Player moved north");
+		isMoving[Direction::south] = false;
+		moveNorth();
+		break;
+	case Direction::south:
+		Log::info("Player moved south");
+		isMoving[Direction::north] = false;
+		moveSouth();
+		break;
+	case Direction::east:
+		Log::info("Player moved east");
+		isMoving[Direction::west] = false;
+		moveEast();
+		break;
+	case Direction::west:
+		Log::info("Player moved west");
+		isMoving[Direction::east] = false;
+		moveWest();
+		break;
+	default:
+		Log::warning("Unknown direction! When generating");
+		break;
+	}
+
+	getMidRoom()->active();
+}
+
 // !SECTION
 
 // SECTION: Generation

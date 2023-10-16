@@ -3,12 +3,13 @@
 #include "MovableEntity.h"
 
 #include "AnimatedSprite.h"
-#include "ItemContainer.h"
-#include "WeaponContainer.h"
+#include "Container.h"
 #include "Item.h"
+#include "ItemContainer.h"
 #include "StatsMob.h"
 #include "Utils.h"
 #include "Weapon.h"
+#include "WeaponContainer.h"
 
 class Mob : public MovableEntity, public StatsMob
 {
@@ -16,6 +17,10 @@ class Mob : public MovableEntity, public StatsMob
 	ItemContainer         m_Inventory;
 	WeaponContainer       m_Weapons;
 	int                   m_CurrentWeapon;
+
+	Container<Mob *> m_Followers;
+	Mob *            m_Following;
+	Mob *            m_Enemy;
 
 	std::unique_ptr<AnimatedSprite> m_NorthAnimation;
 	std::unique_ptr<AnimatedSprite> m_SouthAnimation;
@@ -42,11 +47,23 @@ class Mob : public MovableEntity, public StatsMob
 
 	virtual bool deleteMe() { return isDead(); }
 
-	ItemContainer *                  getInventory() { return &m_Inventory; }
-	WeaponContainer *                getWeapons() { return &m_Weapons; }
-	int *                        getCurrentWeaponPointer() { return &m_CurrentWeapon; }
-	void                         setCurrentWeapon(int currentWeapon) { m_CurrentWeapon = currentWeapon; }
-	void                                     useItemInInventory(uint16_t index);
+	ItemContainer *  getInventory() { return &m_Inventory; }
+	WeaponContainer *getWeapons() { return &m_Weapons; }
+	int *            getCurrentWeaponPointer() { return &m_CurrentWeapon; }
+	void             setCurrentWeapon(int currentWeapon) { m_CurrentWeapon = currentWeapon; }
+	void             useItemInInventory(uint16_t index);
+
+	bool addFollower(Mob *follower);
+	void removeFollower(Mob *follower);
+
+	virtual void setFollowing(Mob *following);
+	virtual void setEnemy(Mob *enemy);
+
+	void setFollowersEnemy(Mob *enemy);
+
+	const Container<Mob *> &getFollowers() const { return m_Followers; }
+	const Mob *             getFollowing() const { return m_Following; }
+	const Mob *             getEnemy() const { return m_Enemy; }
 
 	void useCurrentWeapon(bool hold);
 

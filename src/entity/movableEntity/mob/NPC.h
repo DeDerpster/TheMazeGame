@@ -8,17 +8,36 @@ class NPC : public Mob
 {
   private:
 	std::string m_Name;
-	Entity *    following;
-	Entity *    attacking;
+
+	enum class AttackMove
+	{
+		None,
+		Dodge,
+		RunAway,
+		RunAwayAlongX,
+		RunAwayAlongY,
+		GoToPoint,
+		Attack
+	};
+	AttackMove m_Attack;
+
+	Vec2f    m_Center;
+	Vec2f    m_NextPos;
+	bool     m_NextPosActive;
+	uint32_t m_TimeSinceMoved;
+	uint32_t m_WaitFor;
 
 	bool findingPath;
 	bool isRunningAway;
 
 	void generateInventory();
-	void findPath();
 
+	void findPath(Vec2f dest, float speed);
 	void attack();
 	void follow();
+	void roam();
+
+	void generateNextPos();
 
   public:
 	NPC();
@@ -33,24 +52,9 @@ class NPC : public Mob
 	virtual void imGuiRender() override;
 #endif
 
-	const Entity *getFollowing() const
-	{
-		return following;
-	}
+	void goToPointInRoom();
 
-	const Entity *getAttacking() const
-	{
-		return attacking;
-	}
-
-	void setFollower(Entity *e)
-	{
-		following = e;
-	}
-	void setAttacking(Entity *e)
-	{
-		attacking = e;
-	}
+	virtual void setFollowing(Mob *following) override;
 
 	virtual bool eventCallback(const Event::Event &e) override;
 };

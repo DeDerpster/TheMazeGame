@@ -155,6 +155,13 @@ void Application::updateImpl()   // Updates all the layers
 	camera.update();
 
 	MessageManager::update();
+
+	for(const Event::Event *e : eventBuffer)
+	{
+		callEvent(*e, true);
+		delete e;
+	}
+	eventBuffer.clear();
 }
 
 void Application::renderImpl()   // Renders all the layers

@@ -23,4 +23,6 @@ class Weapon : public Item
 	virtual void update();
 
 	virtual void attack(Level *level, Entity &e, Direction dir, bool hold) = 0;
+
+	bool canUse() { return m_Cooldown == 0; }
 };
