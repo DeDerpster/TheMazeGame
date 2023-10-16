@@ -16,15 +16,13 @@ MovableEntity::~MovableEntity() {}
 
 void MovableEntity::move(float xa, float ya)
 {
-	CollisionBox newBox = {m_CollisionBox.lowerBound,
-						   {m_CollisionBox.upperBound.x, m_CollisionBox.upperBound.y / 4.0f}};
 	if(!isGhost)
 	{
-		if(m_Level->collisionDetection(x + xa, y, newBox))
+		if(m_Level->directionalCollision(x, y, xa, 0.0f, getMovingCollisionBox()))
 			xa = 0;
-		if(m_Level->collisionDetection(x, y + ya, newBox))
+		if(m_Level->directionalCollision(x, y, 0.0f, ya, getMovingCollisionBox()))
 			ya = 0;
-		if((xa == 0 && ya == 0) || m_Level->collisionDetection(x + xa, y + ya, newBox))
+		if((xa == 0 && ya == 0) || m_Level->directionalCollision(x, y, xa, ya, getMovingCollisionBox()))
 		{
 			isMoving = false;
 			return;
@@ -76,4 +74,10 @@ void MovableEntity::move(Vec2f ratio)
 bool MovableEntity::eventCallback(const Event::Event &e)
 {
 	return Entity::eventCallback(e);
+}
+
+CollisionBox MovableEntity::getMovingCollisionBox()
+{
+	return {m_CollisionBox.lowerBound,
+			{m_CollisionBox.upperBound.x, m_CollisionBox.upperBound.y / 4.0f}};
 }

@@ -21,9 +21,16 @@ inline bool operator!=(const Vec2i &lhs, const Vec2i &rhs)
 {
 	return lhs.x != rhs.x || lhs.y != rhs.y;
 }
+
 inline bool operator==(const Vec2i &lhs, const Vec2i &rhs)
 {
 	return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+inline std::ostream &operator<<(std::ostream &out, const Vec2i &data)
+{
+	out << "(" << data.x << ", " << data.y << ")";
+	return out;
 }
 
 struct Vec2f
@@ -35,9 +42,16 @@ inline bool operator!=(const Vec2f &lhs, const Vec2f &rhs)
 {
 	return lhs.x != rhs.x || lhs.y != rhs.y;
 }
+
 inline bool operator==(const Vec2f &lhs, const Vec2f &rhs)
 {
 	return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+inline std::ostream &operator<<(std::ostream &out, const Vec2f &data)
+{
+	out << "(" << data.x << ", " << data.y << ")";
+	return out;
 }
 
 struct CollisionBox

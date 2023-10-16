@@ -1,5 +1,6 @@
 #include "Log.h"
 
+
 #ifdef IS_ON_WINDOWS
 	#include <windows.h>
 	#include <conio.h>
@@ -41,6 +42,8 @@
 
 #include "LogHeaders.h"
 
+bool Log::outputting = false;
+
 Log::Log()
 {
 	time_t     rawtime;
@@ -68,7 +71,6 @@ Log::Log()
 #ifdef IS_ON_WINDOWS
 void Log::setConsoleColour(LogColour c)
 {
-	#ifdef DEBUG
 	WORD colour = 7;
 	switch(c) {
 		case LogColour::critical:
@@ -91,12 +93,10 @@ void Log::setConsoleColour(LogColour c)
 			break;
 	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colour);
-	#endif
 }
 #else
 void Log::setConsoleColour(LogColour c)
 {
-	#ifdef DEBUG
 	switch(c) {
 		case LogColour::critical:
 			std::cout << BOLDRED;
@@ -119,14 +119,17 @@ void Log::setConsoleColour(LogColour c)
 		default:
 			std::cout << RESET;
 			break;
-	}
-	#endif
+		}
 }
 #endif
 
-void Log::output(std::string &type, const char *message, const char *filepath, int line)
+void Log::output(const std::string &type, const char *message, const char *filepath, int line, LogColour colour)
 {
+	// This is to stop conflicts of two threads trying to access the logging system at the same time
+	while(outputting) { std::this_thread::sleep_for(std::chrono::milliseconds(100)); };
+	outputting = true;
 #ifdef DEBUG
+	setConsoleColour(colour);
 	std::cout << "[" << type << "] " << message;
 	if(line != -1)
 		std::cout << " " << filepath << ":" << line;
@@ -139,12 +142,12 @@ void Log::output(std::string &type, const char *message, const char *filepath, i
 		file << " " << filepath << ":" << line;
 	file << std::endl;
 	file.close();
+	outputting = false;
 }
 
 void Log::criticalImpl(const char *message, const char *file, int line)
 {
-	setConsoleColour(LogColour::critical);
-	output(criticalMessage, message, file, line);
+	output(criticalMessage, message, file, line, LogColour::critical);
 #ifdef DEBUG
 	#ifdef IS_ON_WINDOWS
 	__debugbreak();
@@ -156,23 +159,20 @@ void Log::criticalImpl(const char *message, const char *file, int line)
 
 void Log::errorImpl(const char *message, const char *file, int line)
 {
-	setConsoleColour(LogColour::error);
-	output(errorMessage, message, file, line);
+	output(errorMessage, message, file, line, LogColour::error);
 }
 
 void Log::warningImpl(const char *message)
 {
-	setConsoleColour(LogColour::warning);
-	output(warningMessage, message, "", -1);
+	output(warningMessage, message, "", -1, LogColour::warning);
 }
 
 void Log::infoImpl(const char *message)
 {
-	output(defaultMessage, message, "", -1);
+	output(defaultMessage, message, "", -1, LogColour::info);
 }
 
 void Log::debugImpl(const char *message)
 {
-	setConsoleColour(LogColour::debug);
-	output(debugMessage, message, "", -1);
+	output(debugMessage, message, "", -1, LogColour::debug);
 }

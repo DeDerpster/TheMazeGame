@@ -5,9 +5,6 @@
 #include "Layer.h"
 #include "Utils.h"
 
-#define X_STEP 50
-#define Y_STEP 50
-
 class Tile;   // FIXME
 // These are here so I don't have to import the files and cause a infinite loop
 class Player;
@@ -22,7 +19,8 @@ class Level : public Layer
 	std::vector<Projectile *> m_Projectiles;
 
 	bool collisionPointDetection(float nextX, float nextY);
-	bool directionalCollision(float x, float y, float xs, float ys, CollisionBox collisionBox);
+	bool collisionTileDetection(int x, int y);
+	bool lineCollisionDetection(float x, float y, float xs, float ys);
 
   public:
 	Level();
@@ -39,11 +37,12 @@ class Level : public Layer
 
 	virtual Tile *              getTile(int x, int y) = 0;
 	virtual Player *            getPlayer() { return nullptr; }
-	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox);
+	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox box);
 
 	virtual void addEntity(Entity *e) { m_Entities.push_back(e); }
 	virtual void addProjectile(Projectile *e) { m_Projectiles.push_back(e); }
 
-	bool collisionDetection(float nextX, float nextY, CollisionBox collisionBox);
-	virtual Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox collisionBox);
+	bool            collisionDetection(float nextX, float nextY, CollisionBox box);
+	bool            directionalCollision(float x, float y, float xs, float ys, CollisionBox box);
+	virtual Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox box);
 };

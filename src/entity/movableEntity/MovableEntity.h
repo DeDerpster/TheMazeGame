@@ -25,4 +25,5 @@ class MovableEntity : public Entity
 
 	virtual bool      getIsMoving() override { return isMoving; }
 	virtual Direction getDirection() { return m_Dir; }
+	CollisionBox      getMovingCollisionBox();
 };

@@ -21,15 +21,16 @@ class Log
   private:
 	Log();
 
-	std::string logFile         = "Logs/Default.log";
-	std::string criticalMessage = "CRITICAL";
-	std::string errorMessage    = "ERROR";
-	std::string warningMessage  = "WARNING";
-	std::string debugMessage    = "DEBUG";
-	std::string variableMessage = "INFO";
-	std::string defaultMessage  = "INFO";
+	static bool       outputting;
+	std::string       logFile         = "Logs/Default.log";
+	const std::string criticalMessage = "CRITICAL";
+	const std::string errorMessage    = "ERROR";
+	const std::string warningMessage  = "WARNING";
+	const std::string debugMessage    = "DEBUG";
+	const std::string variableMessage = "VAR";
+	const std::string defaultMessage  = "INFO";
 
-	void output(std::string &type, const char *message, const char *filepath, int line);
+	void output(const std::string &type, const char *message, const char *filepath, int line, LogColour colour);
 	void setConsoleColour(LogColour c);
 
 	void criticalImpl(const char *message, const char *file, int line);
@@ -43,8 +44,7 @@ class Log
 	{
 		std::stringstream ss;
 		ss << name << ": " << var;
-		setConsoleColour(LogColour::variable);
-		output(variableMessage, ss.str().c_str(), "", -1);
+		output(variableMessage, ss.str().c_str(), "", -1, LogColour::variable);
 	}
 
   public:

@@ -47,7 +47,7 @@ void NPC::findPath()
 	Vec2f start = {x, y};
 	if(!m_Level)
 		Log::critical("Level is null", LOGINFO);
-	std::vector<Vec2f> *path = m_Level->getPath(start, dest, m_CollisionBox);
+	std::vector<Vec2f> *path = m_Level->getPath(start, dest, getMovingCollisionBox());
 
 	if(path->size() == 0)
 	{
@@ -88,9 +88,11 @@ void NPC::follow()
 	float xDif        = following->getX() - x;
 	float yDif        = following->getY() - y;
 	float minDistAway = (Tile::TILE_SIZE / 3) * 2;
-	if(xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway)
+	if(!findingPath && (xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway))
 	{
 		findingPath = true;
+		// std::thread t1(&NPC::findPath, this);
+		// t1.detach();
 		findPath();
 	}
 	else

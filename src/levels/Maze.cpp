@@ -32,7 +32,7 @@ Maze::Maze()
 	  xoffset(0),
 	  yoffset(0),
 	  finishedGenerating(true),
-	  m_Player(4500.0f, 4500.0f, this),
+	  m_Player(((float) BOARD_SIZE / 2.0f) * ROOM_SIZE * Tile::TILE_SIZE - Tile::TILE_SIZE / 2, ((float) BOARD_SIZE / 2.0f) * ROOM_SIZE * Tile::TILE_SIZE - Tile::TILE_SIZE / 2, this),
 	  m_OverlayGUI(new GUILayer(this)),
 	  m_InventoryGUI(new GUILayer(this))
 {
@@ -43,8 +43,8 @@ Maze::Maze()
 
 	Application::getCamera()->setAnchor(&m_Player);
 
-	NPC *enemy = new NPC(3800.0f, 4500.0f, this);
-	enemy->setAttacking(&m_Player);
+	NPC *enemy = new NPC(3100.0f, 3800.0f, this);
+	enemy->setFollower(&m_Player);
 	// follower->setFollower(&m_Player);
 	m_Entities.push_back(enemy);
 
@@ -62,13 +62,6 @@ Maze::Maze()
 	Item *     potion     = new Potion("Large Health Potion", POTION_HEALTH, healthPotionFunc);
 	WorldItem *worldItem3 = new WorldItem(3800.0f, 3900.0f, Tile::TILE_SIZE / 2, this, potion);
 	m_Entities.push_back(worldItem3);
-
-	// Setting up overlay
-	// GUILayer *guiLayer = new GUILayer(this);
-	// auto      func     = []() {
-	//     Application::setIsPaused(!Application::getIsPaused());
-	// };
-	// guiLayer->addMenuObject(new Button({"Hello"}, 50, 25, 100, 50, func));
 
 	// Overlay GUI set up
 	{
@@ -153,19 +146,19 @@ void Maze::render()
 {
 	// m_Shader->bind();
 	float multiple = ROOM_SIZE * Tile::TILE_SIZE;
-	int   midpoint = BOARD_SIZE / 2 + 1;
+	int   midpoint = BOARD_SIZE / 2;
 #ifdef DEBUG
 	if(renderAll)
 	{   // This is to allow the option to render all - however only when debugging - because of the limit with vertices, they must be rendered in blocks
 		int c = 0;
-		for(int i = 0; i < BOARD_SIZE; i++)
+		for(int y = 0; y < BOARD_SIZE; y++)
 		{
-			for(int j = 0; j < BOARD_SIZE; j++)
+			for(int x = 0; x < BOARD_SIZE; x++)
 			{
-				Room *room = get(i, j);
+				Room *room = get(y, x);
 				if(room)
 				{
-					room->render(j * multiple, i * multiple);
+					room->render(x * multiple, y * multiple);
 					c++;
 				}
 			}
@@ -218,7 +211,9 @@ void Maze::render()
 
 void Maze::update()
 {
-	if(m_Player.getY() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
+	if(!finishedGenerating)
+		return;
+	if(m_Player.getY() > ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved North");
 
@@ -226,7 +221,7 @@ void Maze::update()
 		Event::MazeMovedEvent e(0.0f, (float) -Tile::TILE_SIZE * ROOM_SIZE);
 		Application::callEvent(e, true);
 	}
-	else if(m_Player.getY() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
+	else if(m_Player.getY() < ((BOARD_SIZE / 2)) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved South");
 
@@ -234,7 +229,7 @@ void Maze::update()
 		Event::MazeMovedEvent e(0.0f, (float) Tile::TILE_SIZE * ROOM_SIZE);
 		Application::callEvent(e, true);
 	}
-	if(m_Player.getX() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
+	if(m_Player.getX() > ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved East");
 
@@ -242,7 +237,7 @@ void Maze::update()
 		Event::MazeMovedEvent e((float) -Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
 		Application::callEvent(e, true);
 	}
-	else if(m_Player.getX() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
+	else if(m_Player.getX() < (BOARD_SIZE / 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved West");
 
@@ -338,7 +333,11 @@ bool Maze::eventCallback(const Event::Event &e)
 	if(e.getType() == Event::EventType::mazeMovedEvent)
 	{
 		int midpoint = BOARD_SIZE / 2 + 1;
-		get(midpoint, midpoint)->activeRoom();
+		Room *activeRoom = get(midpoint, midpoint);
+		if(!activeRoom)
+			Log::error("The active room does not exist", LOGINFO);
+		else
+			activeRoom->activeRoom();
 	}
 	else if(e.getType() == Event::EventType::keyInput)
 	{
@@ -435,113 +434,54 @@ void Maze::removeRoom(int y, int x)
 	delete board[coordsToIndex(x, y)];
 	board[coordsToIndex(x, y)] = nullptr;
 }
-std::vector<Vec2f> *Maze::getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox)
+std::vector<Vec2f> *Maze::getPath(Vec2f startPos, Vec2f dest, CollisionBox box)
 {
-	if(collisionDetection(dest.x, dest.y, collisionBox))
+
+	Vec2i relativeStart = {(int) startPos.x / (ROOM_SIZE * Tile::TILE_SIZE), (int) startPos.y / (ROOM_SIZE * Tile::TILE_SIZE)};
+	Vec2i relativeDest  = {(int) dest.x / (ROOM_SIZE * Tile::TILE_SIZE), (int) dest.y / (ROOM_SIZE * Tile::TILE_SIZE)};
+
+	if(relativeStart != relativeDest)
 	{
-		std::vector<Vec2f> *path = new std::vector<Vec2f>();
-		path->push_back(dest);
-		return path;
+		if(!get(relativeStart.y, relativeStart.x) || !get(relativeDest.y, relativeDest.x))
+		{
+			Log::warning("Entity or destination in a room that does not exist!");
+			std::vector<Vec2f> *path = new std::vector<Vec2f>();
+			path->push_back(dest);
+			return path;
+		}
+
+		std::array<Vec2i, 4> offsets;
+		offsets[0] = {0, 1};
+		offsets[1] = {0, -1};
+		offsets[2] = {1, 0};
+		offsets[3] = {-1, 0};
+
+		std::function<bool(int, int, int, int, CollisionBox)> collisionDetection = [this](int x, int y, int xs, int ys, CollisionBox box) -> bool {
+			if(!get(y + ys, x + xs) /* || !get(y, x)*/)
+				return true;
+			else if(ys == 1)
+				return !get(y, x)->isOpen(Direction::north);
+			else if(ys == -1)
+				return !get(y, x)->isOpen(Direction::south);
+			else if(xs == 1)
+				return !get(y, x)->isOpen(Direction::east);
+			else if(xs == -1)
+				return !get(y, x)->isOpen(Direction::west);
+			else
+				return false;
+		};
+		std::function<Vec2f(Vec2i)> convert = [](Vec2i vec) -> Vec2f {
+			return {(float) vec.x * ROOM_SIZE * Tile::TILE_SIZE, (float) vec.y * ROOM_SIZE * Tile::TILE_SIZE};
+		};
+		std::vector<Vec2f> *myPath = aStarAlgorithm<BOARD_SIZE, BOARD_SIZE, 4>(relativeStart, relativeDest, box, offsets, collisionDetection, convert, BOARD_SIZE * BOARD_SIZE);
+
+		float mid = ((float) Tile::TILE_SIZE * ROOM_SIZE) / 2;
+		dest      = {(float) (*myPath)[myPath->size() - 1].x + mid, (float) (*myPath)[myPath->size() - 1].y + mid};
+
+		delete myPath;
 	}
 
-	if(startPos.x / ROOM_SIZE != dest.x / ROOM_SIZE || startPos.y / ROOM_SIZE != dest.y / ROOM_SIZE)
-	{   // TODO: Make this check if rooms are used in the level
-		std::vector<Vec2i> openList;
-
-		// NOTE: This is hard coded, might need to change this
-		bool closedList[BOARD_SIZE][BOARD_SIZE];
-		memset(closedList, false, sizeof(closedList));
-
-		std::array<std::array<Node, BOARD_SIZE>, BOARD_SIZE> nodeMap;
-
-		Vec2i startVec = {(int) startPos.x / (ROOM_SIZE * Tile::TILE_SIZE), (int) startPos.y / (ROOM_SIZE * Tile::TILE_SIZE)};
-		Vec2i destVec  = {(int) dest.x / (ROOM_SIZE * Tile::TILE_SIZE), (int) dest.y / (ROOM_SIZE * Tile::TILE_SIZE)};
-
-		{
-			float hCost                            = distBetweenVec2i(startVec, destVec);
-			nodeMap[startVec.x][startVec.y].vec    = startVec;
-			nodeMap[startVec.x][startVec.y].parent = {-1, -1};
-			nodeMap[startVec.x][startVec.y].fCost  = hCost;
-			nodeMap[startVec.x][startVec.y].gCost  = 0.0f;
-			nodeMap[startVec.x][startVec.y].hCost  = hCost;
-
-			openList.push_back(startVec);
-		}
-
-		while(openList.back() != destVec)
-		{
-			Vec2i currentPos  = openList.back();
-			Node *currentNode = &nodeMap[currentPos.x][currentPos.y];
-			openList.pop_back();
-			closedList[currentPos.x][currentPos.y] = true;
-			for(int i = 0; i < 4; i++)
-			{
-				if(!get(currentPos.y, currentPos.x) || !get(currentPos.y, currentPos.x)->isOpen(i))
-					continue;
-
-				Vec2i dirVec = {0, 0};
-				if(i == Direction::north)
-					dirVec.y = 1;
-				else if(i == Direction::south)
-					dirVec.y = -1;
-				else if(i == Direction::east)
-					dirVec.x = 1;
-				else if(i == Direction::west)
-					dirVec.x = -1;
-				Vec2i nextPos {currentPos.x + dirVec.x, currentPos.y + dirVec.y};
-
-				if(closedList[nextPos.x][nextPos.y])
-					continue;
-
-				float gCost = currentNode->gCost + distBetweenVec2i(currentPos, nextPos);
-				float hCost = distBetweenVec2i(nextPos, destVec);
-				float fCost = gCost + hCost;
-				if(nodeMap[nextPos.x][nextPos.y].vec.x != -1)
-				{
-					if(fCost >= nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].fCost)
-						continue;
-					nodeMap[nextPos.x][nextPos.y].parent = currentPos;
-					nodeMap[nextPos.x][nextPos.y].fCost  = fCost;
-					nodeMap[nextPos.x][nextPos.y].gCost  = gCost;
-					nodeMap[nextPos.x][nextPos.y].hCost  = hCost;
-					openList.erase(std::remove(openList.begin(), openList.end(), nextPos), openList.end());
-				}
-				else
-				{
-					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].vec    = nextPos;
-					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].parent = currentPos;
-					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].fCost  = fCost;
-					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].gCost  = gCost;
-					nodeMap[currentPos.x + dirVec.x][currentPos.y + dirVec.y].hCost  = hCost;
-				}
-
-				int insertIndex = getIndexOfInsertion(openList, nodeMap, nextPos);
-
-				openList.insert(openList.begin() + insertIndex, nextPos);
-			}
-			if(openList.size() == 0 /*|| openList.size() > BOARD_SIZE * BOARD_SIZE / 4*/)
-			{
-				Log::warning("Cannot find route to destination");
-				std::vector<Vec2f> *path = new std::vector<Vec2f>();
-				path->push_back(dest);
-				return path;
-			}
-		}
-		std::vector<Vec2i> path;
-		Vec2i              currentPos = openList.back();
-		while(currentPos != startVec)
-		{
-			Node *currentNode = &nodeMap[currentPos.x][currentPos.y];
-			path.push_back({currentNode->vec.x, currentNode->vec.y});
-			currentPos = currentNode->parent;
-		}
-		if(path.size() > 2)
-		{
-			float mid = ((float) Tile::TILE_SIZE * ROOM_SIZE) / 2;
-			dest      = {(float) path[path.size() - 2].x * Tile::TILE_SIZE * ROOM_SIZE + mid, (float) path[path.size() - 2].y * Tile::TILE_SIZE * ROOM_SIZE + mid};
-		}
-	}
-	std::vector<Vec2f> *path = Level::getPath(startPos, dest, collisionBox);
+	std::vector<Vec2f> *path = Level::getPath(startPos, dest, box);
 	return path;
 }
 // !SECTION
@@ -675,7 +615,7 @@ void Maze::generate()
 	}
 	yoffset      = 0;
 	xoffset      = 0;
-	int midpoint = BOARD_SIZE / 2 + 1;
+	int midpoint = BOARD_SIZE / 2;
 	// NOTE: MUST DELETE ALL ROOMS!
 
 	addRoom(midpoint, midpoint, true, true, true, true);
