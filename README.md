@@ -1,5 +1,7 @@
 # TheMazeGame
 
+This is a Randomised Maze Game made for my NEA project. For more information, please read the [report](./docs/Main.pdf).
+
 ## Dependencies
 
 * [GLFW](https://github.com/glfw/glfw) - inside dependencies/glfw
