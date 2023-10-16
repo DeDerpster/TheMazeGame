@@ -192,8 +192,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 	void addLayer(Layer *layer, int index)   // Adds layer at a given index
 	{
 		layers.insert(layers.begin() + index, layer);
-		if(index < overlayStart)
-			overlayStart++;
+		overlayStart++;
 	}
 
 	void addOverlay(Layer *layer)   // Adds an overlay to the layer stack, meaning it is appended to the end of the vector
@@ -239,7 +238,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 		}
 	}
 
-	void setEffect(const Effect::RenderEffect &e, bool includeOverlay)   // Sends an effect through the layers
+	void setEffect(Effect::RenderEffect *e, bool includeOverlay)   // Sends an effect through the layers
 	{
 		int endVal;
 		if(includeOverlay)
@@ -251,7 +250,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 			layers[i]->setEffect(e);
 	}
 
-	void setOverlayEffect(const Effect::RenderEffect &e)
+	void setOverlayEffect(Effect::RenderEffect *e)
 	{
 		for(int i = overlayStart; i < layers.size(); i++)
 			layers[i]->setEffect(e);

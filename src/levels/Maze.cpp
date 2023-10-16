@@ -45,8 +45,7 @@ Maze::Maze()
 		samplers[i] = i;
 	m_Shader->setUniform1iv("u_Textures", 32, samplers);
 
-	float zoomLevel = 1.0f;
-	m_Shader->setUniform4f("u_Zoom", zoomLevel, zoomLevel, 1.0f, 1.0f);
+	m_Shader->setUniform4f("u_Zoom", 1.0f, 1.0f, 1.0f, 1.0f);
 
 	Application::getCamera()->setAnchor(&m_Player);
 
@@ -147,50 +146,56 @@ void Maze::update()
 	if(m_Player.getY() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved North");
-		changeYBy = -Tile::TILE_SIZE * ROOM_SIZE;
-		m_Player.changeY(changeYBy);
+		// changeYBy = -Tile::TILE_SIZE * ROOM_SIZE;
+		Application::MazeMovedEvent e(0.0f, (float) -Tile::TILE_SIZE * ROOM_SIZE);
+		Application::callEvent(e, true);
+		// m_Player.changeY(changeYBy);
 		moveNorth();
-		movedPlayer = true;
+		// movedPlayer = true;
 	}
 	else if(m_Player.getY() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved South");
-		changeYBy = Tile::TILE_SIZE * ROOM_SIZE;
-		m_Player.changeY(changeYBy);
+
+		Application::MazeMovedEvent e(0.0f, (float) Tile::TILE_SIZE * ROOM_SIZE);
+		Application::callEvent(e, true);
+		// changeYBy = Tile::TILE_SIZE * ROOM_SIZE;
+		// m_Player.changeY(changeYBy);
 		moveSouth();
-		movedPlayer = true;
+		// movedPlayer = true;
 	}
 	if(m_Player.getX() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved East");
-		changeXBy = -Tile::TILE_SIZE * ROOM_SIZE;
-		m_Player.changeX(changeXBy);
+
+		Application::MazeMovedEvent e((float) -Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
+		Application::callEvent(e, true);
+		// changeXBy = -Tile::TILE_SIZE * ROOM_SIZE;
+		// m_Player.changeX(changeXBy);
 		moveEast();
-		movedPlayer = true;
+		// movedPlayer = true;
 	}
 	else if(m_Player.getX() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved West");
-		changeXBy = Tile::TILE_SIZE * ROOM_SIZE;
-		m_Player.changeX(changeXBy);
+		Application::MazeMovedEvent e((float) Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
+		Application::callEvent(e, true);
+		// changeXBy = Tile::TILE_SIZE * ROOM_SIZE;
+		// m_Player.changeX(changeXBy);
 		moveWest();
-		movedPlayer = true;
+		// movedPlayer = true;
 	}
 
 	m_Player.update();
 
-	if(movedPlayer)
-	{
-		Application::getCamera()->changeUpdateView();
-	}
+	// if(movedPlayer)
+	// {
+	// 	Application::getCamera()->changeUpdateView();
+	// }
 
 	for(auto it = m_Entities.begin(); it != m_Entities.end();)
 	{
 		(*it)->update();
-		if(changeXBy != 0)
-			(*it)->changeX(changeXBy);
-		if(changeYBy != 0)
-			(*it)->changeY(changeYBy);
 		if((*it)->deleteMe() || (*it)->getX() < 0 || (*it)->getX() > width * Tile::TILE_SIZE || (*it)->getY() < 0 || (*it)->getY() > height * Tile::TILE_SIZE)
 		{
 			delete *it;
@@ -203,10 +208,6 @@ void Maze::update()
 	for(auto it = m_Projectiles.begin(); it != m_Projectiles.end();)
 	{
 		(*it)->update();
-		if(changeXBy != 0)
-			(*it)->changeX(changeXBy);
-		if(changeYBy != 0)
-			(*it)->changeY(changeYBy);
 		if((*it)->deleteMe() || (*it)->getX() < 0 || (*it)->getX() > width * Tile::TILE_SIZE || (*it)->getY() < 0 || (*it)->getY() > height * Tile::TILE_SIZE)
 		{
 			delete *it;
@@ -260,13 +261,19 @@ void Maze::imGuiRender()
 
 bool Maze::eventCallback(const Application::Event &e)
 {
+	if(m_Player.eventCallback(e))
+		return true;
+
+	for(Projectile *p : m_Projectiles)
+	{
+		if(p->eventCallback(e))
+			return true;
+	}
 	for(Entity *entity : m_Entities)
 	{
 		if(entity->eventCallback(e))
 			return true;
 	}
-	if(m_Player.eventCallback(e))
-		return true;
 	return false;
 }
 

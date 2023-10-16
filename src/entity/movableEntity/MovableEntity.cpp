@@ -72,3 +72,8 @@ void MovableEntity::move(Vec2f ratio)
 		move((ratio.x * timesBy) / sum, (ratio.y * timesBy) / sum);
 	}
 }
+
+bool MovableEntity::eventCallback(const Application::Event &e)
+{
+	return Entity::eventCallback(e);
+}

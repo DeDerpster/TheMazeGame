@@ -65,10 +65,12 @@ bool Player::eventCallback(const Application::Event &e)
 	{
 		const Application::KeyboardEvent &ne = static_cast<const Application::KeyboardEvent &>(e);
 		if(ne.key == GLFW_KEY_SPACE && (ne.action == GLFW_PRESS || ne.action == GLFW_REPEAT) && m_CurrentWeapon != -1)
+		{
 			m_Weapons[m_CurrentWeapon]->attack(m_Level, *this, m_Dir, ne.action == GLFW_REPEAT);
-		// m_Level->addEntity(new Projectile(x, y, 1000.0f, 10.0f, 10.0f, m_Dir, this, m_Level));
+			return true;
+		}
 	}
-	return false;
+	return Mob::eventCallback(e);
 }
 
 #ifdef DEBUG

@@ -9,9 +9,9 @@
 #include "RandomGen.h"
 
 #include "Layer.h"
-
 #include "Maze.h"
 #include "TextLayer.h"
+#include "ParticleLayer.h"
 
 #include "Tile.h"
 
@@ -19,6 +19,9 @@
 
 #include <chrono>
 #include <thread>
+
+#include "ObjectEffect.h"
+#include "ParticleSpawner.h"
 
 // This is the game loop that keeps the game running
 void gameLoop()
@@ -32,6 +35,9 @@ void gameLoop()
 		Maze *maze = new Maze();
 		maze->generate();              // Generates the maze
 		Application::addLayer(maze);   // Adds it to the layers
+
+		ParticleLayer *particleLayer = new ParticleLayer();
+		Application::addLayer(particleLayer);
 
 		TextLayer *textLayer = new TextLayer();
 		Application::addOverlay(textLayer);

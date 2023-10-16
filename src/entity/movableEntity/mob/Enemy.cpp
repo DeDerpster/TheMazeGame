@@ -132,7 +132,7 @@ void Enemy::render()
 
 bool Enemy::eventCallback(const Application::Event &e)
 {
-	return false;
+	return Mob::eventCallback(e);
 }
 
 #ifdef DEBUG

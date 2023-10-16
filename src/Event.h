@@ -27,11 +27,12 @@ namespace Application
 		mouseMove,
 		mouseClicked,
 		windowResize,
+		mazeMovedEvent
 	};
 
 	struct Event
 	{
-		virtual const EventType getType() const = 0;
+		virtual EventType const getType() const = 0;
 	};
 
 	struct KeyboardEvent : Event
@@ -70,6 +71,15 @@ namespace Application
 		MouseClickedEvent(MouseButton button, Vec2f pos)
 			: button(button), pos(pos) {}
 		virtual EventType const getType() const override { return EventType::mouseClicked; }
+	};
+
+	struct MazeMovedEvent : Event
+	{
+		float changeX, changeY;
+
+		MazeMovedEvent(float changeX, float changeY)
+			: changeX(changeX), changeY(changeY) {}
+		virtual EventType const getType() const override { return EventType::mazeMovedEvent; }
 	};
 }   // namespace Application
 

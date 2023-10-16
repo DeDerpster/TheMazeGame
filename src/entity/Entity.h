@@ -14,47 +14,31 @@ class Entity
 	CollisionBox m_CollisionBox;
 
   public:
-	Entity(): x(0.0f), y(0.0f), m_Level(nullptr), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
-	Entity(float x, float y): x(x), y(y), m_Level(nullptr), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
-	Entity(float x, float y, Level *level): x(x), y(y), m_Level(level), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
-	Entity(float x, float y, CollisionBox box, Level *level, uint16_t spriteID): x(x), y(y), m_Level(level), m_CollisionBox(box), m_SpriteID(spriteID) {}
-	virtual ~Entity() {}
+	Entity();
+	Entity(float x, float y);
+	Entity(float x, float y, Level *level);
+	Entity(float x, float y, CollisionBox box, Level *level, uint16_t spriteID);
+	virtual ~Entity();
 
 	virtual void update()                             = 0;
 	virtual void render()                             = 0;
-	virtual bool eventCallback(const Application::Event &e) = 0;
+	virtual bool eventCallback(const Application::Event &e);
 
-	float getX() const { return x; }
-	float getY() const { return y; }
-	virtual bool getIsMoving() { return false; }
+	float        getX() const;
+	float        getY() const;
+	virtual bool getIsMoving();
 
-	bool doesIntersectWith(Vec2f pos)
-	{
-		float lowerX = x + m_CollisionBox.lowerBound.x;
-		float lowerY = y + m_CollisionBox.lowerBound.y;
-		float upperX = x + m_CollisionBox.upperBound.x;
-		float upperY = y + m_CollisionBox.upperBound.y;
+	bool doesIntersectWith(Vec2f pos);
 
-		return pos.x > lowerX && pos.y > lowerY && pos.x < upperX && pos.y < upperY;
-	}
-	virtual bool deleteMe() { return false; }
+	virtual bool deleteMe();
 
-	virtual void changeX(float changeBy) { x += changeBy; }
-	virtual void changeY(float changeBy) { y += changeBy; }
-	void  setLevel(Level *level) { m_Level = level; }
+	virtual void changeX(float changeBy);
+	virtual void changeY(float changeBy);
+	void         setLevel(Level *level);
 
-	bool hasCollidedWith(float xs, float ys, CollisionBox box)
-	{
-		if(xs + box.lowerBound.x >= x + m_CollisionBox.upperBound.x || x + m_CollisionBox.lowerBound.x >= xs + box.upperBound.x)
-			return false;
-		if(ys + box.upperBound.y <= y + m_CollisionBox.lowerBound.y || y + m_CollisionBox.upperBound.y <= ys + box.lowerBound.y)
-			return false;
-		return true;
-	}
+	bool hasCollidedWith(float xs, float ys, CollisionBox box);
 
 #ifdef DEBUG
-	virtual void imGuiRender()
-	{
-	}
+	virtual void imGuiRender();
 #endif
 };

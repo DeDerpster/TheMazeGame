@@ -4,6 +4,7 @@
 
 #include "Core.h"
 #include "Log.h"
+#include "ShaderEffect.h"
 
 namespace Application
 {
@@ -22,7 +23,7 @@ namespace Application
 		glViewport(0, 0, width, height);
 		std::string         name = "u_MVP";
 		Effect::UniformMat4 effect(name, Application::getProj());
-		Application::setOverlayEffect(effect);
+		Application::setOverlayEffect(&effect);
 	}
 
 	static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)

@@ -1,14 +1,12 @@
 #include "Camera.h"
 
 #include <GLFW/glfw3.h>
+#include "ImGui.h"
 
 #include "Log.h"
-
 #include "Tile.h"
-
 #include "Application.h"
-
-#include "ImGui.h"
+#include "ShaderEffect.h"
 
 Camera::Camera()
 	: x(0.0f), y(0.0f), zoomPercentage(1.0f), moveSpeed(10.0f), moveLock(false), updateView(true), lockOnAnchor(false), m_Anchor(nullptr)
@@ -63,7 +61,7 @@ void Camera::render()
 	{
 		std::string         name = "u_MVP";
 		Effect::UniformMat4 effect(name, Application::getProj() * getView());
-		Application::setEffect(effect, false);
+		Application::setEffect(&effect, false);
 		updateView = false;
 	}
 }
@@ -81,7 +79,7 @@ void Camera::imGuiRender()
 		std::string         name = "u_Zoom";
 		float               zoom = zoomPercentage;
 		Effect::UniformVec4 zoomEffect(name, glm::vec4(zoom, zoom, 1.0f, 1.0f));
-		Application::setEffect(zoomEffect);
+		Application::setEffect(&zoomEffect);
 	}
 	if(ImGui::Checkbox("Camera Lock", &lockOnAnchor))
 	{
@@ -108,7 +106,7 @@ bool Camera::eventCallback(const Application::Event &e)
 
 		std::string         name = "u_Zoom";
 		Effect::UniformVec4 zoomEffect(name, glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
-		Application::setEffect(zoomEffect);
+		Application::setEffect(&zoomEffect);
 
 		updateView = true;
 
@@ -124,6 +122,10 @@ bool Camera::eventCallback(const Application::Event &e)
 		//y += ((float) heightChange) / 2;
 		updateView = true;
 		return true;
+	}
+	else if(e.getType() == Application::EventType::mazeMovedEvent)
+	{
+		changeUpdateView();
 	}
 	return false;
 }

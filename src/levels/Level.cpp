@@ -4,10 +4,33 @@
 #include <array>
 #include <memory>
 
+#include "Entity.h"
+#include "Projectile.h"
+#include "Tile.h"
+#include "Player.h"
 #include "Tile.h"
 
 #define X_MAX 4500
 #define Y_MAX 4500   // This is from the edge of the maze to the middle
+
+Level::Level()
+	: Layer(), width(0), height(0)
+{
+}
+
+Level::Level(int width, int height)
+	: Layer(), width(width), height(height)
+{
+}
+
+Level::~Level()
+{
+	for(Entity *entity : m_Entities)
+		delete entity;
+
+	for(Projectile *projectile : m_Projectiles)
+		delete projectile;
+}
 
 bool Level::collisionPointDetection(float nextX, float nextY)
 {

@@ -120,6 +120,11 @@ void Mob::update()
 	StatsMob::update();
 }
 
+bool Mob::eventCallback(const Application::Event &e)
+{
+	return MovableEntity::eventCallback(e);
+}
+
 void Mob::setupAnimations()
 {
 	m_NorthAnimation = std::make_unique<Render::AnimatedSprite>(2, m_SpriteID + SPRITE_NORTH);

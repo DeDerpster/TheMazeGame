@@ -3,6 +3,7 @@
 #include "Event.h"
 #include "RenderEffect.h"
 #include "Renderer.h"
+#include "Shader.h"
 
 #include <memory>
 
@@ -13,20 +14,16 @@ class Layer
 	std::unique_ptr<Render::SmartBuffer> m_Buffer;
 
   public:
-	Layer() {}
-	virtual ~Layer() {}
+	Layer();
+	virtual ~Layer();
 
 	virtual void render()                                   = 0;
 	virtual void update()                                   = 0;
 	virtual bool eventCallback(const Application::Event &e) = 0;
 
-	bool setEffect(const Effect::RenderEffect &e)
-	{
-		e.setEffect(*m_Shader);
-		return false;
-	}
+	virtual bool setEffect(Effect::RenderEffect *e);
 
 #ifdef DEBUG
-	virtual void imGuiRender() = 0;
+	virtual void imGuiRender();
 #endif
 };

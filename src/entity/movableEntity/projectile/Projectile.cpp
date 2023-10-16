@@ -18,8 +18,8 @@ Projectile::Projectile(float startX, float startY, float damage, float speed, Di
 {
 }
 
-Projectile::Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box)
-	: MovableEntity(startX, startY, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(maxDistance), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false)
+Projectile::Projectile(float startX, float startY, float maxDistance, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box, std::function<void(float, float, Direction, Level *)> collisionFunc)
+	: MovableEntity(startX, startY, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(maxDistance), m_Damage(damage), m_Size(Tile::TILE_SIZE / 2), spawner(spawner), hasCollided(false), m_CollisionFunction(collisionFunc)
 {
 }
 
@@ -51,6 +51,7 @@ void Projectile::update()
 			}
 			else
 				spawner->hasMissedTarget();
+			m_CollisionFunction(x, y, m_Dir, m_Level);
 			hasCollided = true;
 		}
 		else
@@ -60,6 +61,11 @@ void Projectile::update()
 			y += ys;
 		}
 	}
+}
+
+bool Projectile::eventCallback(const Application::Event &e)
+{
+	return MovableEntity::eventCallback(e);
 }
 
 void Projectile::render()

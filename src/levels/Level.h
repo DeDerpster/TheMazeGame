@@ -8,8 +8,8 @@
 #define X_STEP 50
 #define Y_STEP 50
 
+class Tile;   // TODO: PLEASE FIX THIS STUPID ERROR!!
 // These are here so I don't have to import the files and cause a infinite loop
-class Tile;
 class Player;
 class Entity;
 class Projectile;
@@ -25,18 +25,9 @@ class Level : public Layer
 	bool directionalCollision(float x, float y, float xs, float ys, CollisionBox collisionBox);
 
   public:
-	Level(): width(0), height(0)
-	{
-	}
-	Level(int width, int height): width(width), height(height) {}
-	virtual ~Level() override
-	{
-		for(Entity *entity : m_Entities)
-			delete entity;
-
-		for(Projectile *projectile : m_Projectiles)
-			delete projectile;
-	}
+	Level();
+	Level(int width, int height);
+	virtual ~Level();
 
 	virtual void render() = 0;
 	virtual void update() = 0;

@@ -13,7 +13,7 @@
 
 class Maze : public Level
 {
-  private:
+  protected:
 	static const int BOARD_SIZE = 11;
 
 	std::vector<Room *> board;         // This stores Room * so that you can have the different subclasses of rooms also stored
