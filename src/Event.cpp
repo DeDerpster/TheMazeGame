@@ -4,7 +4,7 @@
 
 #include "Core.h"
 #include "Log.h"
-#include "ShaderEffect.h"
+#include "ShaderEffectsManager.h"
 
 namespace Event
 {

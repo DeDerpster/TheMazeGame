@@ -2,7 +2,7 @@
 
 #include "glfwGlew.h"
 
-#include "GLM.h"
+#include <GLM.h>
 
 #include "ImGui.h"
 

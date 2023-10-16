@@ -1,31 +1,32 @@
-#include "ShaderEffect.h"
+#include "ShaderEffectsManager.h"
 
 #include "Application.h"
-#include "GLM.h"
+#include <GLM.h>
+
 #include <vector>
 
 namespace Effect
 {
-	ShaderEffects::ShaderEffects()
+	ShaderEffectsManager::ShaderEffectsManager()
 	{
 	}
 
-	ShaderEffects::~ShaderEffects()
+	ShaderEffectsManager::~ShaderEffectsManager()
 	{
-		for(RenderShaderEffect *s : m_Effects)
+		for(ShaderEffect *s : m_Effects)
 			delete s;
 	}
 
 	// These functions handle the sending of an effect, by creating them, adding them to the cache and sending them through the layers
-	uint16_t ShaderEffects::sendShaderEffectImpl(const std::string &s, glm::vec4 vec, bool includeOverlay)
+	uint16_t ShaderEffectsManager::sendShaderEffectImpl(const std::string &s, glm::vec4 vec, bool simpleShader, bool spriteShader, bool textShader, bool includeOverlay)
 	{
-		RenderShaderEffect::Type type;
+		ShaderEffect::Type type;
 		if(includeOverlay)
-			type = RenderShaderEffect::Type::includeOverlay;
+			type = ShaderEffect::Type::includeOverlay;
 		else
-			type = RenderShaderEffect::Type::normal;
+			type = ShaderEffect::Type::normal;
 
-		UniformVec4 *e = new UniformVec4(s, vec, type);
+		UniformVec4 *e = new UniformVec4(s, vec, type, simpleShader, spriteShader, textShader);
 		m_Effects.push_back(e);
 
 		ShaderEffectCarrier messenger((uint16_t) m_Effects.size());
@@ -34,15 +35,15 @@ namespace Effect
 		return messenger.getID();
 	}
 
-	uint16_t ShaderEffects::sendShaderEffectImpl(const std::string &s, glm::mat4 mat, bool includeOverlay)
+	uint16_t ShaderEffectsManager::sendShaderEffectImpl(const std::string &s, glm::mat4 mat, bool simpleShader, bool spriteShader, bool textShader, bool includeOverlay)
 	{
-		RenderShaderEffect::Type type;
+		ShaderEffect::Type type;
 		if(includeOverlay)
-			type = RenderShaderEffect::Type::includeOverlay;
+			type = ShaderEffect::Type::includeOverlay;
 		else
-			type = RenderShaderEffect::Type::normal;
+			type = ShaderEffect::Type::normal;
 
-		UniformMat4 *e = new UniformMat4(s, mat, type);
+		UniformMat4 *e = new UniformMat4(s, mat, type, simpleShader, spriteShader, textShader);
 		m_Effects.push_back(e);
 
 		ShaderEffectCarrier messenger((uint16_t) m_Effects.size());
@@ -52,11 +53,11 @@ namespace Effect
 	}
 
 	// These send the effects through the overlays only and not all the layers
-	uint16_t ShaderEffects::sendOverlayEffectImpl(const std::string &s, glm::vec4 vec)
+	uint16_t ShaderEffectsManager::sendOverlayEffectImpl(const std::string &s, glm::vec4 vec, bool simpleShader, bool spriteShader, bool textShader)
 	{
-		RenderShaderEffect::Type type = RenderShaderEffect::Type::onlyOverlay;
+		ShaderEffect::Type type = ShaderEffect::Type::onlyOverlay;
 
-		UniformVec4 *e = new UniformVec4(s, vec, type);
+		UniformVec4 *e = new UniformVec4(s, vec, type, simpleShader, spriteShader, textShader);
 		m_Effects.push_back(e);
 
 		ShaderEffectCarrier messenger((uint16_t) m_Effects.size());
@@ -65,11 +66,11 @@ namespace Effect
 		return messenger.getID();
 	}
 
-	uint16_t ShaderEffects::sendOverlayEffectImpl(const std::string &s, glm::mat4 mat)
+	uint16_t ShaderEffectsManager::sendOverlayEffectImpl(const std::string &s, glm::mat4 mat, bool simpleShader, bool spriteShader, bool textShader)
 	{
-		RenderShaderEffect::Type type = RenderShaderEffect::Type::onlyOverlay;
+		ShaderEffect::Type type = ShaderEffect::Type::onlyOverlay;
 
-		UniformMat4 *e = new UniformMat4(s, mat, type);
+		UniformMat4 *e = new UniformMat4(s, mat, type, simpleShader, spriteShader, textShader);
 		m_Effects.push_back(e);
 
 		ShaderEffectCarrier messenger((uint16_t) m_Effects.size());
@@ -79,7 +80,7 @@ namespace Effect
 	}
 
 	// This manages deleting a shader effect from all the layers and its storage
-	void ShaderEffects::deleteShaderEffectImpl(uint16_t id)
+	void ShaderEffectsManager::deleteShaderEffectImpl(uint16_t id)
 	{
 		if(id > m_Effects.size() || id < 1)
 		{
@@ -94,7 +95,7 @@ namespace Effect
 		m_Effects.erase(m_Effects.begin() + id - 1);
 	}
 
-	RenderShaderEffect *ShaderEffects::getShaderEffectImpl(uint16_t id)
+	ShaderEffect *ShaderEffectsManager::getShaderEffectImpl(uint16_t id)
 	{
 		if(id > m_Effects.size() || id < 1)
 		{
@@ -105,7 +106,7 @@ namespace Effect
 	}
 
 	// This finds the id of a shader by use of its name
-	uint16_t ShaderEffects::findShaderEffectImpl(const std::string &s)
+	uint16_t ShaderEffectsManager::findShaderEffectImpl(const std::string &s)
 	{
 		for(uint16_t i = 0; i < m_Effects.size(); i++)
 		{
@@ -116,20 +117,20 @@ namespace Effect
 		return 0;
 	}
 
-	void ShaderEffects::updateShaderEffectsImpl()
+	void ShaderEffectsManager::updateShaderEffectsImpl()
 	{
 		for(uint16_t i = 0; i < m_Effects.size(); i++)
 		{
 			ShaderEffectCarrier messenger(i + 1);
 			switch(m_Effects[i]->getType())
 			{
-			case RenderShaderEffect::Type::normal:
+			case ShaderEffect::Type::normal:
 				Application::setEffect(&messenger, false);
 				break;
-			case RenderShaderEffect::Type::includeOverlay:
+			case ShaderEffect::Type::includeOverlay:
 				Application::setEffect(&messenger, true);
 				break;
-			case RenderShaderEffect::Type::onlyOverlay:
+			case ShaderEffect::Type::onlyOverlay:
 				Application::setOverlayEffect(&messenger);
 				break;
 			default:

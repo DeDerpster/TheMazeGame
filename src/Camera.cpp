@@ -6,7 +6,7 @@
 #include "Application.h"
 #include "KeyDefinitions.h"
 #include "Log.h"
-#include "ShaderEffect.h"
+#include "ShaderEffectsManager.h"
 
 Camera::Camera()
 	: x(0.0f), y(0.0f), zoomPercentage(1.0f), moveSpeed(10.0f), moveLock(false), updateView(true), lockOnAnchor(false), m_Anchor(nullptr), m_ZoomEffectID(0), m_PositionEffectID(0)
@@ -119,7 +119,7 @@ bool Camera::eventCallback(const Event::Event &e)
 	return false;
 }
 
-bool Camera::setEffect(const Effect::RenderEffect &e)
+bool Camera::setEffect(const Effect::Effect &e)
 {
 	return false;
 }
@@ -140,12 +140,12 @@ void Camera::setShaderEffects()
 {
 	{
 		std::string name   = "u_MVP";
-		m_PositionEffectID = Effect::ShaderEffects::sendShaderEffect(name, Application::getProj() * glm::translate(glm::mat4(1.0f), glm::vec3(Application::getWidth() / 2 - x * zoomPercentage, Application::getHeight() / 2 - y * zoomPercentage, 0.0f)));
+		m_PositionEffectID = Effect::ShaderEffectsManager::sendShaderEffect(name, Application::getProj() * glm::translate(glm::mat4(1.0f), glm::vec3(Application::getWidth() / 2 - x * zoomPercentage, Application::getHeight() / 2 - y * zoomPercentage, 0.0f)));
 	}
 
 	{
 		std::string name = "u_Zoom";
-		m_ZoomEffectID   = Effect::ShaderEffects::sendShaderEffect(name, glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
+		m_ZoomEffectID   = Effect::ShaderEffectsManager::sendShaderEffect(name, glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
 	}
 }
 
@@ -154,7 +154,7 @@ void Camera::updatePositionEffect()
 	if(m_PositionEffectID == 0)
 		setShaderEffects();
 
-	Effect::UniformMat4 *effect = static_cast<Effect::UniformMat4 *>(Effect::ShaderEffects::getShaderEffect(m_PositionEffectID));
+	Effect::UniformMat4 *effect = static_cast<Effect::UniformMat4 *>(Effect::ShaderEffectsManager::getShaderEffect(m_PositionEffectID));
 	effect->setMat(Application::getProj() * glm::translate(glm::mat4(1.0f), glm::vec3(Application::getWidth() / 2 - x * zoomPercentage, Application::getHeight() / 2 - y * zoomPercentage, 0.0f)));
 }
 void Camera::updateZoomEffect()
@@ -162,7 +162,7 @@ void Camera::updateZoomEffect()
 	if(m_ZoomEffectID == 0)
 		setShaderEffects();
 
-	Effect::UniformVec4 *effect = dynamic_cast<Effect::UniformVec4 *>(Effect::ShaderEffects::getShaderEffect(m_ZoomEffectID));
+	Effect::UniformVec4 *effect = dynamic_cast<Effect::UniformVec4 *>(Effect::ShaderEffectsManager::getShaderEffect(m_ZoomEffectID));
 	if(effect)
 		effect->setVec(glm::vec4(zoomPercentage, zoomPercentage, 1.0f, 1.0f));
 	else

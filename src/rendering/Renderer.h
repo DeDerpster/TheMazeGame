@@ -11,7 +11,7 @@
 #include "Buffer.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
-#include "ShaderEffect.h"
+#include "ShaderEffectsManager.h"
 #include "Texture.h"
 #include "Utils.h"
 #include "VertexArray.h"

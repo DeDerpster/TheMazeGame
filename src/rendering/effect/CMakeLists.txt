@@ -1,1 +1,1 @@
-target_sources(${PROJECT_NAME} PRIVATE ShaderEffect.cpp)
+target_sources(${PROJECT_NAME} PRIVATE ShaderEffectsManager.cpp)

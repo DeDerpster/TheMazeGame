@@ -1,8 +1,8 @@
 #include "Renderer.h"
 
 #include "Application.h"
+#include "ShaderEffectsManager.h"
 #include "Sprite.h"
-#include "ShaderEffect.h"
 #include "VertexBufferLayout.h"
 
 #include <ft2build.h>
@@ -164,11 +164,13 @@ void Render::renderImpl(std::vector<uint16_t> &shaderEffects)
 			Log::warning("Trying to use effect that doesn't exist!");
 			continue;
 		}
-		Effect::RenderShaderEffect *e = Effect::ShaderEffects::getShaderEffect(id);
-		// TODO: Add effects that only effect certain shaders
-		e->setEffect(*m_SpriteShader);
-		e->setEffect(*m_TextShader);
-		e->setEffect(*m_SimpleShader);
+		Effect::ShaderEffect *e = Effect::ShaderEffectsManager::getShaderEffect(id);
+		if(e->forSimpleShader())
+			e->setEffect(*m_SimpleShader);
+		if(e->forSpriteShader())
+			e->setEffect(*m_SpriteShader);
+		if(e->forTextShader())
+			e->setEffect(*m_TextShader);
 	}
 	// Renders
 	// TODO: Put everything into one buffer?

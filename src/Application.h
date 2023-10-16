@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GLM.h"
+#include <GLM.h>
 
 #include "Camera.h"
+#include "Effect.h"
 #include "Layer.h"
-#include "RenderEffect.h"
 #include "Log.h"
 
 #include "Event.h"
@@ -48,8 +48,8 @@ class Application
 	static void removeLayer(Layer *layer, bool deleteLayer = false) { get().removeLayerImpl(layer, deleteLayer); }
 
 	static void callEvent(const Event::Event &e, bool includeOverlay = false) { get().callEventImpl(e, includeOverlay); }
-	static void setEffect(Effect::RenderEffect *e, bool includeOverlay = false) { get().setEffectImpl(e, includeOverlay); }
-	static void setOverlayEffect(Effect::RenderEffect *e) { get().setOverlayEffectImpl(e); }
+	static void setEffect(Effect::Effect *e, bool includeOverlay = false) { get().setEffectImpl(e, includeOverlay); }
+	static void setOverlayEffect(Effect::Effect *e) { get().setOverlayEffectImpl(e); }
 
 	static void updateWindowSize(int width, int height) { get().updateWindowSizeImpl(width, height); }
 	static bool isWindowOpen() { return get().isWindowOpenImpl(); }
@@ -102,8 +102,8 @@ class Application
 	void removeLayerImpl(Layer *layer, bool deleteLayer);
 
 	void callEventImpl(const Event::Event &e, bool includeOverlay = false);
-	void setEffectImpl(Effect::RenderEffect *e, bool includeOverlay = false);
-	void setOverlayEffectImpl(Effect::RenderEffect *e);
+	void setEffectImpl(Effect::Effect *e, bool includeOverlay = false);
+	void setOverlayEffectImpl(Effect::Effect *e);
 
 	void updateWindowSizeImpl(int width, int height);
 	bool isWindowOpenImpl();

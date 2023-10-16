@@ -319,7 +319,7 @@
                     \item Render - This will control all the rendering
                     \item Random - This will be the random generator for all the numbers, as in C++ you should only generate a generator once.
                     \item Log - This will be for logging everything to a file and outputting it to the terminal in debug mode
-                    \item ShaderEffects - This will control any shader effects that are applied on any layer in the application, storing the effects and handling IDs
+                    \item ShaderEffectsManager - This will control any shader effects that are applied on any layer in the application, storing the effects and handling IDs
                 \end{itemize}
             \subsubsection{Layers}
                 For rendering and updating, I will be using a layering system, where each layer will have its own effects and control different parts of the game, for example the actual level layer and the GUI layer. This will allow more control over what receives events and what order they get them in, as well has the order in which things are rendered.
@@ -544,7 +544,7 @@
                         \hline
                     \end{tabular}
                 \end{center}
-                ShaderEffects
+                ShaderEffectsManager
                 \begin{center}
                     Variables
                     \begin{tabular}{ | m{0.45\textwidth} | m{0.45\textwidth} | }
@@ -559,7 +559,7 @@
                         \hline
                         \textbf{Function Name} & \textbf{Parameters} & \textbf{Description} \\
                         \hline
-                        get & & Returns the only instance of the ShaderEffects class \\
+                        get & & Returns the only instance of the ShaderEffectsManager class \\
                         \hline
                         sendShaderEffect & The name of the effect and the effect (in vector or matrix form) and boolean to say whether it should include the overlays & Creates and sends the effects through the layers \\
                         \hline
@@ -1607,7 +1607,7 @@
                     \end{tabular}
                 \end{center}
                 RemoveShaderEffect - Inherits everything from parent classes and only overrides \\
-                RenderShaderEffect
+                ShaderEffect
                 \begin{center}
                     Variables
                     \begin{tabular}{ | m{0.45\textwidth} | m{0.45\textwidth} | }

@@ -19,7 +19,7 @@
 #include "Event.h"
 #include "Log.h"
 #include "MessageManager.h"
-#include "ShaderEffect.h"
+#include "ShaderEffectsManager.h"
 
 // SECTION: Initialises
 Application::Application()
@@ -195,7 +195,7 @@ void Application::setupLayersImpl()
 	camera.clearAnchor();
 
 	addOverlayImpl(new GUILayer(GUILayer::Type::MainMenu, nullptr));
-	Effect::ShaderEffects::updateShaderEffects();
+	Effect::ShaderEffectsManager::updateShaderEffects();
 }
 
 void Application::startGameImpl()
@@ -210,7 +210,7 @@ void Application::startGameImpl()
 	maze->generate();   // Generates the maze
 	addLayer(maze);     // Adds it to the layers
 
-	Effect::ShaderEffects::updateShaderEffects();
+	Effect::ShaderEffectsManager::updateShaderEffects();
 }
 
 void Application::addLayerImpl(Layer *layer)   // Inserts a layer before the background
@@ -279,9 +279,9 @@ void Application::callEventImpl(const Event::Event &e, bool includeOverlay)   //
 	}
 }
 
-void Application::setEffectImpl(Effect::RenderEffect *e, bool includeOverlay)   // Sends an effect through the layers
+void Application::setEffectImpl(Effect::Effect *e, bool includeOverlay)   // Sends an effect through the layers
 {
-	if(e->getType() == Effect::EffectType::removeShaderEffect)
+	if(e->getType() == Effect::Effect::Type::removeShaderEffect)
 	{
 		Effect::RemoveShaderEffect *ne = static_cast<Effect::RemoveShaderEffect *>(e);
 		if(ne->getID() == projEffectID)
@@ -302,7 +302,7 @@ void Application::setEffectImpl(Effect::RenderEffect *e, bool includeOverlay)   
 		layers[i]->setEffect(e);
 }
 
-void Application::setOverlayEffectImpl(Effect::RenderEffect *e)
+void Application::setOverlayEffectImpl(Effect::Effect *e)
 {
 	for(int i = overlayStart; i < layers.size(); i++)
 		layers[i]->setEffect(e);
@@ -319,11 +319,11 @@ void Application::updateWindowSizeImpl(int width, int height)   // updates the w
 	if(projEffectID == 0)
 	{
 		std::string name = "u_MVP";
-		projEffectID     = Effect::ShaderEffects::sendOverlayEffect(name, proj);
+		projEffectID     = Effect::ShaderEffectsManager::sendOverlayEffect(name, proj);
 	}
 	else
 	{
-		Effect::UniformMat4 *e = static_cast<Effect::UniformMat4 *>(Effect::ShaderEffects::getShaderEffect(projEffectID));   // TODO: Change this to a dynamic cast or make a function for it
+		Effect::UniformMat4 *e = static_cast<Effect::UniformMat4 *>(Effect::ShaderEffectsManager::getShaderEffect(projEffectID));   // TODO: Change this to a dynamic cast or make a function for it
 		e->setMat(proj);
 	}
 }

@@ -5,7 +5,7 @@
 #include "Event.h"
 #include "Renderer.h"
 #include "Shader.h"
-#include "ShaderEffect.h"
+#include "ShaderEffectsManager.h"
 
 #include <memory>
 
@@ -22,7 +22,7 @@ class Layer
 	virtual void update()                                   = 0;
 	virtual bool eventCallback(const Event::Event &e)       = 0;
 
-	virtual bool setEffect(Effect::RenderEffect *e);
+	virtual bool setEffect(Effect::Effect *e);
 
 	std::vector<uint16_t> &getShaderEffects() { return m_ShaderEffectsIDs; }
 

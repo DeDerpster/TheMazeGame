@@ -2,7 +2,7 @@
 
 #include "Spawner.h"
 
-#include "GLM.h"
+#include <GLM.h>
 #include "Particle.h"
 
 class ParticleSpawner : public Spawner

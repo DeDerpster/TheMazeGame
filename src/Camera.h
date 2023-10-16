@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GLM.h"
+#include <GLM.h>
 
 #include "Layer.h"
 #include "Mob.h"
@@ -29,7 +29,7 @@ class Camera
 #endif
 
 	bool eventCallback(const Event::Event &e);
-	bool setEffect(const Effect::RenderEffect &e);
+	bool setEffect(const Effect::Effect &e);
 
 	// TODO: Sort this out
 	uint16_t  getPositionEffectID();

@@ -2,7 +2,6 @@
 
 #include "Weapon.h"
 
-#include "ObjectEffect.h"
 #include "Projectile.h"
 #include "Application.h"
 
