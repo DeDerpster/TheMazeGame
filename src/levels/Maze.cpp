@@ -140,18 +140,13 @@ void Maze::render()
 
 void Maze::update()
 {
-	bool  movedPlayer = false;
-	float changeXBy   = 0;
-	float changeYBy   = 0;
 	if(m_Player.getY() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved North");
-		// changeYBy = -Tile::TILE_SIZE * ROOM_SIZE;
+
 		Application::MazeMovedEvent e(0.0f, (float) -Tile::TILE_SIZE * ROOM_SIZE);
 		Application::callEvent(e, true);
-		// m_Player.changeY(changeYBy);
 		moveNorth();
-		// movedPlayer = true;
 	}
 	else if(m_Player.getY() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
@@ -159,10 +154,7 @@ void Maze::update()
 
 		Application::MazeMovedEvent e(0.0f, (float) Tile::TILE_SIZE * ROOM_SIZE);
 		Application::callEvent(e, true);
-		// changeYBy = Tile::TILE_SIZE * ROOM_SIZE;
-		// m_Player.changeY(changeYBy);
 		moveSouth();
-		// movedPlayer = true;
 	}
 	if(m_Player.getX() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
@@ -170,28 +162,18 @@ void Maze::update()
 
 		Application::MazeMovedEvent e((float) -Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
 		Application::callEvent(e, true);
-		// changeXBy = -Tile::TILE_SIZE * ROOM_SIZE;
-		// m_Player.changeX(changeXBy);
 		moveEast();
-		// movedPlayer = true;
 	}
 	else if(m_Player.getX() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved West");
+
 		Application::MazeMovedEvent e((float) Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
 		Application::callEvent(e, true);
-		// changeXBy = Tile::TILE_SIZE * ROOM_SIZE;
-		// m_Player.changeX(changeXBy);
 		moveWest();
-		// movedPlayer = true;
 	}
 
 	m_Player.update();
-
-	// if(movedPlayer)
-	// {
-	// 	Application::getCamera()->changeUpdateView();
-	// }
 
 	for(auto it = m_Entities.begin(); it != m_Entities.end();)
 	{

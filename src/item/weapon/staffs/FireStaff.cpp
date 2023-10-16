@@ -37,8 +37,8 @@ void FireStaff::attack(Level *level, Mob &e, Direction dir, bool hold)
                 x -= 50;
             }
 
-            uint16_t  spawnerLifetime = 120;
-            uint16_t  spawnRate       = 1;
+			uint16_t  spawnerLifetime = 5;
+			uint16_t  spawnRate       = 1;
             uint16_t  minLife         = 5;
             uint16_t  maxLife         = 15;
             float     minSize         = 7.0f;

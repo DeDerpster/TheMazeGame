@@ -160,7 +160,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 
 	void update()   // Updates all the layers
 	{
-		for(int i = 0; i < layers.size(); i++)
+		for(int i = layers.size() - 1; i > -1; i--)
 			layers[i]->update();
 		camera.update();
 	}
