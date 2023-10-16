@@ -26,8 +26,8 @@ Player::Player(float x, float y)
 Player::Player(float x, float y, Level *level)
 	: Mob(x, y, level)
 {
-	changeMaxHealth(1000);
-	changeHealth(1000);
+	// changeMaxHealth(1000);
+	// changeHealth(1000);
 	m_Weapons.push_back(new FireStaff());
 	m_CurrentWeapon = 0;
 
@@ -48,25 +48,25 @@ Player::~Player()
 
 void Player::update()
 {
-		if(isInControl)
-		{
-			Vec2f ratio = {0, 0};
-			if(Event::isKeyPressed(GLFW_KEY_W) || Event::isKeyPressed(GLFW_KEY_UP))
-				ratio.y += 1.0f;
-			if(Event::isKeyPressed(GLFW_KEY_S) || Event::isKeyPressed(GLFW_KEY_DOWN))
-				ratio.y -= 1.0f;
-			if(Event::isKeyPressed(GLFW_KEY_A) || Event::isKeyPressed(GLFW_KEY_LEFT))
-				ratio.x -= 1.0f;
-			if(Event::isKeyPressed(GLFW_KEY_D) || Event::isKeyPressed(GLFW_KEY_RIGHT))
-				ratio.x += 1.0f;
+	if(isInControl)
+	{
+		Vec2f ratio = {0, 0};
+		if(Event::isKeyPressed(GLFW_KEY_W) || Event::isKeyPressed(GLFW_KEY_UP))
+			ratio.y += 1.0f;
+		if(Event::isKeyPressed(GLFW_KEY_S) || Event::isKeyPressed(GLFW_KEY_DOWN))
+			ratio.y -= 1.0f;
+		if(Event::isKeyPressed(GLFW_KEY_A) || Event::isKeyPressed(GLFW_KEY_LEFT))
+			ratio.x -= 1.0f;
+		if(Event::isKeyPressed(GLFW_KEY_D) || Event::isKeyPressed(GLFW_KEY_RIGHT))
+			ratio.x += 1.0f;
 
-			if(ratio.x != 0 || ratio.y != 0)
-				move(ratio);
-			else
-				isMoving = false;
+		if(ratio.x != 0 || ratio.y != 0)
+			move(ratio);
+		else
+			isMoving = false;
 
-			Mob::update();
-		}
+		Mob::update();
+	}
 }
 
 void Player::render()

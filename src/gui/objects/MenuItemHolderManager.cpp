@@ -287,6 +287,7 @@ void MIHManager::transferItem(TransferObject *o)
 				}
 			};
 
+			o->hasTransferred();
 			Item *oItem = oContainer->getItem(oIndex);
 			Item *mItem = nullptr;
 			if(swap)
@@ -298,6 +299,5 @@ void MIHManager::transferItem(TransferObject *o)
 			if(m_ActiveItem && (*m_ActiveItem) == -1 && m_Items->size() > 0)
 				(*m_ActiveItem) = 0;
 		}
-		o->hasTransferred();
 	}
 }

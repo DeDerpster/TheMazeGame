@@ -11,7 +11,17 @@
 \usepackage{color}
 \usepackage[T1]{fontenc}
 \usepackage{filecontents}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{epigraph}
+\usepackage{lipsum}
+\usepackage{multirow}
 
+\author{Wilf Silver}
+\date{September 2020}
+
+% Lsp
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
@@ -45,25 +55,113 @@
   title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
 
-\title{NEA - The Maze Game}
-\author{Hugo Whittome}
-\date{September 2020}
-\begin{document} % TODO: Add the projects I use
-    \maketitle % TODO: There is a thing to print out code
-    \tableofcontents
-    \clearpage
-    \section{Analysis}
-        \subfile{sections/Analysis.tex}
-    \clearpage
-    \section{Documented Design}
-        \subfile{sections/Design.tex}
-    \clearpage
-    \section{Technical Solution}
-      \subfile{sections/Solution.tex}
-    \clearpage
-    \section{Testing}
-      \subfile{sections/Testing.tex}
-    \clearpage
-    \section{Evaluation}
-      \subfile{sections/Evaluation.tex}
+% Titlepage
+\renewcommand\epigraphflush{flushright}
+\renewcommand\epigraphsize{\normalsize}
+\setlength\epigraphwidth{0.25\textwidth}
+
+\definecolor{titlepagecolor}{cmyk}{1,.60,0,.40}
+
+\DeclareFixedFont{\titlefont}{T1}{ppl}{b}{it}{0.5in}
+
+\makeatletter
+\def\printauthor{%
+    {\large \@author}}
+\makeatother
+
+% The following code is borrowed from: https://tex.stackexchange.com/a/86310/10898
+
+\newcommand\titlepagedecoration{%
+\begin{tikzpicture}[remember picture,overlay,shorten >= -10pt]
+
+  \coordinate (aux1) at ([yshift=-15pt]current page.north east);
+  \coordinate (aux2) at ([yshift=-410pt]current page.north east);
+  \coordinate (aux3) at ([xshift=-4.5cm]current page.north east);
+  \coordinate (aux4) at ([yshift=-150pt]current page.north east);
+
+  \begin{scope}[titlepagecolor!40,line width=12pt,rounded corners=12pt]
+    \draw
+      (aux1) -- coordinate (a)
+      ++(225:5) --
+      ++(-45:5.1) coordinate (b);
+    \draw[shorten <= -10pt]
+      (aux3) --
+      (a) --
+      (aux1);
+    \draw[opacity=0.6,titlepagecolor,shorten <= -10pt]
+      (b) --
+      ++(225:2.2) --
+      ++(-45:2.2);
+    \end{scope}
+    \draw[titlepagecolor,line width=8pt,rounded corners=8pt,shorten <= -10pt]
+      (aux4) --
+      ++(225:0.8) --
+      ++(-45:0.8);
+    \begin{scope}[titlepagecolor!70,line width=6pt,rounded corners=8pt]
+    \draw[shorten <= -10pt]
+      (aux2) --
+      ++(225:3) coordinate[pos=0.45] (c) --
+      ++(-45:3.1);
+    \draw
+      (aux2) --
+      (c) --
+      ++(135:2.5) --
+      ++(45:2.5) --
+      ++(-45:2.5) coordinate[pos=0.3] (d);
+    \draw
+      (d) -- +(45:1);
+    \end{scope}
+  \end{tikzpicture}%
+}
+
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\begin{document}
+  \begin{titlepage}
+    \vspace*{5cm}
+    \begin{center}
+      \titlefont The Maze Game \par
+      \vspace*{0.5cm}
+      \begin{tabular}{m{0.8\textwidth}}
+        \epigraph{Computer Science NEA Project}{September 2020}
+      \end{tabular}
+    \end{center}
+    \null\vfill
+    \vspace*{1cm}
+    \noindent
+    \hfill
+    \begin{minipage}{0.35\linewidth}
+        \begin{flushright}
+            \printauthor
+        \end{flushright}
+    \end{minipage}
+    %
+    \begin{minipage}{0.02\linewidth}
+        \rule{1pt}{125pt}
+    \end{minipage}
+    \titlepagedecoration
+  \end{titlepage}
+  \tableofcontents
+  \clearpage
+  \section{Analysis}
+      \subfile{sections/Analysis.tex}
+  \clearpage
+  \section{Documented Design} % TODO: A* and Renderer and Graphical design
+      \subfile{sections/Design.tex}
+  \clearpage
+  \section{Technical Solution}
+    \subfile{sections/Solution.tex}
+  \clearpage
+  \section{Testing}
+    \subfile{sections/Testing.tex}
+  \clearpage
+  \section{Evaluation}
+    \subfile{sections/Evaluation.tex}
 \end{document}

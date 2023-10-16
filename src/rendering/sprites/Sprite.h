@@ -1,5 +1,4 @@
 #pragma once
-
 #include <array>
 #include <memory>
 #include <string>
@@ -8,31 +7,27 @@
 #include "Texture.h"
 #include "Utils.h"
 
-#define SPRITE_WALK_1 static_cast<Sprite::ID>(1)
-#define SPRITE_WALK_2 static_cast<Sprite::ID>(2)
+#define SPRITE_WALK_1 1
+#define SPRITE_WALK_2 2
 
-#define SPRITE_NORTH static_cast<Sprite::ID>(0)
-#define SPRITE_SOUTH static_cast<Sprite::ID>(3)
-#define SPRITE_EAST  static_cast<Sprite::ID>(6)
-#define SPRITE_WEST  static_cast<Sprite::ID>(9)
-#define SPRITE_END   static_cast<Sprite::ID>(12)
+#define SPRITE_NORTH 0
+#define SPRITE_SOUTH 3
+#define SPRITE_EAST  6
+#define SPRITE_WEST  9
+#define SPRITE_END   12
 
-#define SPRITE_FROST static_cast<Sprite::ID>(0) * SPRITE_END
-#define SPRITE_FIRE  static_cast<Sprite::ID>(1) * SPRITE_END
-#define SPRITE_DARK  static_cast<Sprite::ID>(2) * SPRITE_END
+#define SPRITE_FROST 0 * SPRITE_END
+#define SPRITE_FIRE  1 * SPRITE_END
+#define SPRITE_DARK  2 * SPRITE_END
 
 #define POTION_SPRITES 4
-#define POTION_REGEN   static_cast<Sprite::ID>(1)
-#define POTION_MAGIC   static_cast<Sprite::ID>(2)
-#define POTION_HUGE    static_cast<Sprite::ID>(3)
+#define POTION_REGEN   1
+#define POTION_MAGIC   2
+#define POTION_HUGE    3
 
 #define SPRITE_BOOK_NUM 6
 #define SPRITE_MAGIC_BOOK_NUM 2
 #define SPRITE_FOOD_NUM 15
-
-#define SPRITE_BOOK_START       Sprite::ID::books1
-#define SPRITE_MAGIC_BOOK_START Sprite::ID::magicBooks1
-#define SPRITE_FOOD_START       Sprite::ID::food1
 
 class Sprite
 {
@@ -281,4 +276,6 @@ inline Sprite::ID &operator++(Sprite::ID &m)
 	return m;
 }
 
-
+#define SPRITE_BOOK_START       Sprite::ID::books1
+#define SPRITE_MAGIC_BOOK_START Sprite::ID::magicBooks1
+#define SPRITE_FOOD_START       Sprite::ID::food1

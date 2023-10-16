@@ -194,7 +194,7 @@ void Application::imGuiRenderImpl()   // Renders ImGui in all the layers
 void Application::setupLayersImpl()
 {
 	gameIsPaused = true;
-	// TODO: Put this in a separate function
+	// TODO: Put this in a separate functioan
 	for(Layer *layer : layers)
 		delete layer;
 	layers.clear();

@@ -31,6 +31,8 @@ bool Layer::setEffect(Effect::Effect *e)
 	return false;
 }
 
+#ifdef DEBUG
 void Layer::imGuiRender()
 {
 }
+#endif

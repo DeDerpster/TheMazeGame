@@ -4,10 +4,10 @@ class Sector: # This is a simple sector that represents a room in the game
     #             North  South  East   West
     enterences = [False, False, False, False] # Stores which entrances are open
 
-    def __init__(self, north, south, east, west): # Simple initialiser
+    def __init__(self, north : bool, south : bool, east : bool, west : bool): # Simple initialiser
         self.enterences = [north, south, east, west]
 
-    def __repr__(self): # Returns a string representation of the room, using 'X' to represent walls
+    def __repr__(self) -> str: # Returns a string representation of the room, using 'X' to represent walls
         printStr = ""
         if self.enterences[0]:
             printStr += "X X\n"
@@ -40,22 +40,22 @@ class Sector: # This is a simple sector that represents a room in the game
     def switchWest(self):
         self.enterences[3] = not self.enterences[3]
 
-    def __eq__(self, o):
+    def __eq__(self, o) -> bool:
         if not isinstance(o, Sector):
             return False
         return True
 
-    def __ne__(self, o):
+    def __ne__(self, o) -> bool:
+        if not isinstance(o, Sector):
+            return False
         return not self == o
 
-def printHugeString(theHugeString): #   As the program produces a string that is normally too long to print
+def printHugeString(theHugeString : str): #   As the program produces a string that is normally too long to print
     lines = theHugeString.split("\n") # This print function splits it up into chunks that can be printed
     for i in range(0, len(lines), 10):
         print("\n".join(lines[i: i + 10]))
-    #if len(lines) % 10 != 0:
-    #    print("\n".join(lines[(len(lines) // 10) * 10 :]))
 
-def printBoard(board): # This function prints the board into the console
+def printBoard(board : list): # This function prints the board into the console
     printList = ["-" * (len(board) * 3)]
     printList += ["" for _ in range(len(board) * 3)]
     printList += ["-" * (len(board) * 3)]
@@ -71,7 +71,7 @@ def printBoard(board): # This function prints the board into the console
 
 BOARDSIZE = 11 # Stores what the width and height are for the board
 
-def generatePaths(board, current, layerMax): # This function continually generates paths from a given input of starting positions that could be rooms
+def generatePaths(board : list, current : list, layerMax : int) -> tuple: # This function continually generates paths from a given input of starting positions that could be rooms
     layer = 0                                # This returns all the entrances that are open on each sides
     currentNorth = []
     currentSouth = []
@@ -210,7 +210,7 @@ def generatePaths(board, current, layerMax): # This function continually generat
     return board, currentNorth, currentSouth, currentEast, currentWest
 
 
-def generateBoard(): # This returns a board that has generated a maze, as well as all the entrances on the side
+def generateBoard() -> tuple: # This returns a board that has generated a maze, as well as all the entrances on the side
     board = [[None for _ in range(BOARDSIZE)] for _ in range(BOARDSIZE)]
     midPoint = BOARDSIZE // 2 + 1
     board[midPoint][midPoint] = Sector(True, True, True, True)
@@ -218,19 +218,19 @@ def generateBoard(): # This returns a board that has generated a maze, as well a
     return generatePaths(board, current, int(BOARDSIZE * 2 / 3))
 
 # These next functions are for moving the board, by deleting one row and adding another row and then calling the generation function
-def moveNorth(board, current):
+def moveNorth(board : list, current : list) -> tuple:
     newCurrent = [(0, x) for x in current]
     del board[-1]
     board.insert(0, [None for _ in range(BOARDSIZE)])
     return generatePaths(board, newCurrent, 5)
 
-def moveSouth(board, current):
+def moveSouth(board : list, current : list) -> tuple:
     newCurrent = [(BOARDSIZE - 1, x) for x in current]
     del board[0]
     board.append([None for _ in range(BOARDSIZE)])
     return generatePaths(board, newCurrent, 5)
 
-def moveEast(board, current):
+def moveEast(board : list, current : list) -> tuple:
     newCurrent = [(x, BOARDSIZE - 1) for x in current]
     for i in range(BOARDSIZE):
         del board[i][0]
@@ -238,7 +238,7 @@ def moveEast(board, current):
 
     return generatePaths(board, newCurrent, 2)
 
-def moveWest(board, current):
+def moveWest(board : list, current : list) -> tuple:
     newCurrent = [(x, 0) for x in current]
     for i in range(BOARDSIZE):
         del board[i][-1]

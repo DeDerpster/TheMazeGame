@@ -63,7 +63,27 @@
 
             The final box shows what the Node class needs to store, in order for this to work, with the different colours representing different states a node can be in, labelled on the side.
         \subsubsection{Prototype} % TODO: Write a prototype
+            To test the plan behind the A* algorithm I decided to make a version in Python with a set maze, which I can then input different coordinates to see if it works efficiently. From running the program, this version seemed to be extremely fast, even in Python.
+            \lstinputlisting[language = Python]{prototypes/AStar.py}
+        \begin{multicols*}{3}
+            [
+                \subsubsection{Output}
+                This is the output of the A* algorithm, given 3 different coordinates to work towards. The 'X' represent solid walls and the green 'O' represent the path produced by the algorithm.
+            ]
+            First test: From (1, 1) to (3, 1) \par
+            \centerline{\includegraphics[width=0.8\linewidth]{img/Design/AStarPrototype1.png}}
 
+            \columnbreak
+            Second test: From (1, 1) to (17, 12) \par
+            \centerline{\includegraphics[width=0.75\linewidth]{img/Design/AStarPrototype2.png}}
+
+
+            \columnbreak
+            Third test: From (1, 1) to (12, 10) \par
+            \centerline{\includegraphics[width=0.8\linewidth]{img/Design/AStarPrototype3.png}}
+        \end{multicols*}
+
+    \clearpage
     \subsection{Graphical Design}
         \subsubsection{Overall Design}
             The overall design is (as shown below) to have a simple GUI system where the player can see what current weapons they have available to them as well as their health, then a simple button at the top to pause the game and go back to a menu screen. Furthermore, the camera will be facing downwards and is above the player. This will make it easier to create a rendering system and allows the player to explore in any direction (except up and down). Items will be able to be found on the ground, with rendered with their texture, and not a back or anything to allow anyone to easily discern between the different objects.
@@ -76,12 +96,149 @@
             \end{figure}
 
             Please note that the weapons, potions, and books were gained from Shikashi's Fantasy Icons Pack v2 by Matt Firth. Also the tiles for the rooms were altered slightly to fit the needed tiles however the textures were originally from RPG Nature Tileset - Seasons by Stealthix. However, I will be making the design for each of the npcs as I cannot find any that will fit the design.
-        \subsubsection{NPCs} % TODO: Update this and actually do it
-        \subsubsection{Weapons}
-        \subsubsection{Potions}
-        \subsubsection{Food and Books}
-        \subsubsection{Tiles}
 
+        \clearpage
+        \subsubsection{NPCs}
+            \begin{center}
+                \begin{tabular}{ | m{0.12\textwidth} | m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} | }
+                    \hline
+                    \textbf{Name} & & & & & & \\
+                    \hline
+                    \multirow{2}{*}{\textbf{Player}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/North.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/North-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/North-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/South.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/South-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/South-Walk-2.png}} \\
+                    & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/East.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/East-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/East-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/West.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/West-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/player/heir/West-Walk-2.png}} \\
+                    \hline
+                    \multirow{2}{*}{\textbf{FrostFollower}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/North.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/North-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/North-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/South.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/South-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/South-Walk-2.png}} \\
+                    & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/East.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/East-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/East-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/West.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/West-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/frost/West-Walk-2.png}} \\
+                    \hline
+                    \multirow{2}{*}{\textbf{FireFollower}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/North.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/North-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/North-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/South.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/South-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/South-Walk-2.png}} \\
+                    & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/East.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/East-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/East-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/West.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/West-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/fire/West-Walk-2.png}} \\
+                    \hline
+                    \multirow{2}{*}{\textbf{DarkFollower}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/North.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/North-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/North-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/South.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/South-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/South-Walk-2.png}} \\
+                    & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/East.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/East-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/East-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/West.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/West-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/followers/dark/West-Walk-2.png}} \\
+                    \hline
+                \end{tabular}
+
+                \clearpage
+                \begin{tabular}{ | m{0.12\textwidth} | m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} | }
+                    \hline
+                    \textbf{Name} & & & & & & \\
+                    \hline
+                    \multirow{2}{*}{\textbf{FrostEnemy}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/North.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/North-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/North-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/South.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/South-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/South-Walk-2.png}} \\
+                    & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/East.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/East-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/East-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/West.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/West-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/frost/West-Walk-2.png}} \\
+                    \hline
+                    \multirow{2}{*}{\textbf{FireEnemy}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/North.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/North-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/North-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/South.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/South-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/South-Walk-2.png}} \\
+                    & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/East.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/East-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/East-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/West.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/West-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/fire/West-Walk-2.png}} \\
+                    \hline
+                    \multirow{2}{*}{\textbf{DarkEnemy}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/North.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/North-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/North-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/South.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/South-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/South-Walk-2.png}} \\
+                    & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/East.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/East-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/East-Walk-2.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/West.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/West-Walk-1.png}} & \centerline{\includegraphics[scale=3]{../res/textures/entities/enemies/dark/West-Walk-2.png}} \\
+                    \hline
+                \end{tabular}
+            \end{center}
+        \subsubsection{Weapons}
+            \textbf{General}
+            \begin{center}
+                \begin{tabular}{ | m{0.15\textwidth} | m{0.15\textwidth} | m{0.15\textwidth} | }
+                    \hline
+                    \textbf{Name} & \textbf{Sprite} & \textbf{Projectile} \\
+                    \hline
+                    \textbf{Boomerang} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/Boomerang.png}} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/Boomerang.png}} \\
+                    \hline
+                    \textbf{Bow} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/Bow.png}} & \centerline{\includegraphics[scale=3]{../res/textures/projectiles/Arrow.png}} \\
+                    \hline
+                    \textbf{Crossbow} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/Crossbow.png}} & \centerline{\includegraphics[scale=3]{../res/textures/projectiles/Arrow.png}} \\
+                    \hline
+                    \textbf{Sling} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/Sling.png}} & \centerline{\includegraphics[scale=3]{../res/textures/projectiles/Rock.png}} \\
+                    \hline
+                \end{tabular}
+            \end{center}
+            \clearpage
+            \textbf{Staffs}
+            \begin{center}
+                \begin{tabular}{ | m{0.15\textwidth} | m{0.15\textwidth} | m{0.15\textwidth} | }
+                    \hline
+                    \textbf{Name} & \textbf{Sprite} & \textbf{Projectile} \\
+                    \hline
+                    \textbf{Fire} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/FireStaff.png}} & \centerline{\includegraphics[scale=3]{../res/textures/projectiles/Fire.png}} \\
+                    \hline
+                    \textbf{Frost} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/FrostStaff.png}} & \centerline{\includegraphics[scale=3]{../res/textures/projectiles/Frost.png}} \\
+                    \hline
+                    \textbf{Dark} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/DarkStaff.png}} & \centerline{\includegraphics[scale=3]{../res/textures/projectiles/Dark.png}} \\
+                    \hline
+                    \textbf{Gold} & \centerline{\includegraphics[scale=1]{../res/textures/items/weapons/GoldStaff.png}} & \centerline{\includegraphics[scale=3]{../res/textures/projectiles/Gold.png}} \\
+                    \hline
+                \end{tabular}
+            \end{center}
+        \subsubsection{Potions}
+            \begin{center}
+                \begin{tabular}{ | m{0.15\textwidth} | m{0.15\textwidth} | m{0.15\textwidth} |  m{0.15\textwidth} | m{0.15\textwidth} | }
+                    \hline
+                    \textbf{Name} & \textbf{Normal} & \textbf{Magic} & \textbf{Regen} & \textbf{Huge} \\
+                    \hline
+                    \textbf{Health} & \centerline{\includegraphics{../res/textures/items/potions/bottles/Red.png}} & \centerline{\includegraphics{../res/textures/items/potions/bottles/RedMagic.png}} & \centerline{\includegraphics{../res/textures/items/potions/bottles/RedRegen.png}} & \centerline{\includegraphics{../res/textures/items/potions/bottles/RedHuge.png}} \\
+                    \hline
+                    \textbf{Stamina} & \centerline{\includegraphics{../res/textures/items/potions/bottles/Green.png}} & \centerline{\includegraphics{../res/textures/items/potions/bottles/GreenMagic.png}} & \centerline{\includegraphics{../res/textures/items/potions/bottles/GreenRegen.png}} & \centerline{\includegraphics{../res/textures/items/potions/bottles/GreenHuge.png}} \\
+                    \hline
+                \end{tabular}
+            \end{center}
+        \clearpage
+        \subsubsection{Food}
+            There are 15 different types of food that the player will be able to find throughout the maze, however they will do the same amount of healing to the player's health.
+            \begin{center}
+                \begin{tabular}{ m{0.15\textwidth} m{0.15\textwidth} m{0.15\textwidth} m{0.15\textwidth} m{0.15\textwidth} }
+                    \centerline{\includegraphics{../res/textures/items/potions/food/Apple.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Baguette.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Banana.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Boar.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Bread.png}} \\
+                    \centerline{\includegraphics{../res/textures/items/potions/food/Carrot.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Chicken.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/ChickenLeg.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Fish.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Grapes.png}} \\
+                    \centerline{\includegraphics{../res/textures/items/potions/food/Lemon.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Meat.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Pear.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Strawberry.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Tomato.png}} \\
+                \end{tabular}
+            \end{center}
+        \subsubsection{Book}
+            There will be different books that the player will be able to find throughout the maze, once used will decrease the player's boredom stat.
+
+            \textbf{Regular books}
+            \begin{center}
+                \begin{tabular}{ m{0.14\textwidth} m{0.14\textwidth} m{0.14\textwidth} m{0.14\textwidth} m{0.14\textwidth} m{0.14\textwidth} }
+                    \centerline{\includegraphics{../res/textures/items/potions/books/Blue.png}} & \centerline{\includegraphics{../res/textures/items/potions/books/DarkBrown.png}} & \centerline{\includegraphics{../res/textures/items/potions/books/Green.png}} & \centerline{\includegraphics{../res/textures/items/potions/books/LightBrown.png}} & \centerline{\includegraphics{../res/textures/items/potions/books/Red.png}} & \centerline{\includegraphics{../res/textures/items/potions/books/Yellow.png}}\\
+                \end{tabular}
+            \end{center}
+
+            \textbf{Magic books}
+            \begin{center}
+                \begin{tabular}{ m{0.14\textwidth} m{0.14\textwidth} }
+                    \centerline{\includegraphics{../res/textures/items/potions/books/MagicRed.png}} & \centerline{\includegraphics{../res/textures/items/potions/books/MagicYellow.png}}\\
+                \end{tabular}
+            \end{center}
+
+        \subsubsection{Tiles}
+            \textbf{Base}
+            \begin{center}
+                \begin{tabular}{ m{0.14\textwidth} m{0.14\textwidth} m{0.14\textwidth} m{0.14\textwidth} }
+                    \centerline{\includegraphics[scale=1]{../res/textures/tiles/Floor.png}} & \centerline{\includegraphics[scale=1]{../res/textures/tiles/Wall.png}} & \centerline{\includegraphics[scale=1]{../res/textures/tiles/ExternalCorner.png}} & \centerline{\includegraphics[scale=1]{../res/textures/tiles/InternalCorner.png}}\\
+                \end{tabular}
+            \end{center}
+            \textbf{Trap}
+            \begin{center}
+                \begin{tabular}{ m{0.14\textwidth} m{0.14\textwidth} }
+                    \centerline{\includegraphics[scale=4]{../res/textures/tiles/BasicTrap.png}} & \centerline{\includegraphics[scale=4]{../res/textures/tiles/BasicTrapExposed.png}}\\
+                \end{tabular}
+            \end{center}
+            \textbf{Chest} \newline
+            \centerline{\includegraphics[scale=4]{../res/textures/tiles/Chest.png}}
+            \textbf{Trapdoor} \newline
+            \centerline{\includegraphics[scale=4]{../res/textures/tiles/Trapdoor.png}}
+
+        \subsubsection{Room Layouts}
+            These are pixel images that will determine the tile placements in the room, with the different shades corresponding to different tiles.
+            \begin{center}
+                \begin{tabular}{ | m{0.14\textwidth} | m{0.14\textwidth} | m{0.14\textwidth} | m{0.14\textwidth} | }
+                    \hline
+                    \textbf{Empty} & \textbf{Chest} & \textbf{Trap} & \textbf{Exit} \\
+                    \hline
+                    \centerline{\includegraphics[scale=40]{../res/rooms/Empty.png}} & \centerline{\includegraphics[scale=40]{../res/rooms/Chest.png}} & \centerline{\includegraphics[scale=40]{../res/rooms/Trap.png}} & \centerline{\includegraphics[scale=40]{../res/rooms/Exit.png}}\\
+                    \hline
+                \end{tabular}
+            \end{center}
+
+
+    \clearpage
     \subsection{General Design}
         \subsubsection{Stats}
             Each stat will influence part of how you play the game. % These will be upgraded through finding specific items in chests and experience gained from doing different activities like exploring or attacking.
@@ -129,7 +286,7 @@
     \subsection{Classes}
         \subsubsection{Application}
             \subfile{classes/Application.tex}
-            \clearpage
+        \clearpage
         \subsubsection{Render}
             \subfile{classes/Render.tex}
         \clearpage

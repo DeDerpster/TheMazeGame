@@ -41,9 +41,9 @@ Maze::Maze()
 
 	currentPaths.reserve(2 * MAZE_SIZE);   // The data is reserved here because not all the data is needed, but it could be used and so for efficiency, it is reserved on init
 
-	NPC *follower = new NPC(3100.0f, 3800.0f, this, NPC::Type::Follower, NPC::Race::Fire);
-	m_Player.addFollower(follower);
-	m_Entities.push_back(follower);
+	// NPC *follower = new NPC(3100.0f, 3800.0f, this, NPC::Type::Follower, NPC::Race::Fire);
+	// m_Player.addFollower(follower);
+	// m_Entities.push_back(follower);
 
 	Application::addOverlay(new GUIStack(this));
 
@@ -138,10 +138,8 @@ void Maze::endLevel()
 void Maze::playerDeath()
 {
 	Log::info("Player has died");
-	m_Player.resetStats();
-	m_Player.changeX(3800.0f - m_Player.getX());
-	m_Player.changeY(3800.0f - m_Player.getY());
-	resetMaze();
+	Event::ChangeGUIActiveLayer e(InGameGUILayer::playerDeath);
+	Application::callEvent(e, true);
 }
 
 void Maze::resetMaze()
@@ -178,7 +176,6 @@ void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west)
         return round((2 * lim) / (1 + exp(-decay * graphX / 5.0f)) - lim);
 	};
 
-	// TODO: Make this based on the distance moved
 	int num = Random::getNum(1, 100);
 	if(num == sigmoid(1, 0.5f))
 		type = RoomType::Exit;
@@ -379,19 +376,18 @@ void Maze::generate()
 	currentPaths.push_back({midpoint + 1, midpoint});
 	currentPaths.push_back({midpoint, midpoint + 1});
 
-	Item *     item      = new FireStaff();
-	WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, TILE_SIZE / 2, this, item);
-	getMidRoom()->addEntity(worldItem);
-	Item *     item2      = new FireStaff();
-	WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, TILE_SIZE / 2, this, item2);
-	getMidRoom()->addEntity(worldItem2);
+	// Item *     item      = new FireStaff();
+	// WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, TILE_SIZE / 2, this, item);
+	// getMidRoom()->addEntity(worldItem);
+	// Item *     item2      = new FireStaff();
+	// WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, TILE_SIZE / 2, this, item2);
+	// getMidRoom()->addEntity(worldItem2);
 
-	Item *     potion     = new Potion(Potion::Type::HealthHuge);
-	WorldItem *worldItem3 = new WorldItem(3800.0f, 3900.0f, TILE_SIZE / 2, this, potion);
-	getMidRoom()->addEntity(worldItem3);
+	// Item *     potion     = new Potion(Potion::Type::HealthHuge);
+	// WorldItem *worldItem3 = new WorldItem(3800.0f, 3900.0f, TILE_SIZE / 2, this, potion);
+	// getMidRoom()->addEntity(worldItem3);
 
 	multithreadGenerating(MAZE_SIZE * 4 / 5, 1);
-	// TODO: Add check to see if okay maze
 }
 
 void Maze::moveNorth()

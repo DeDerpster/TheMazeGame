@@ -29,7 +29,7 @@ void TransferObject::render()
 {
 	if(container)
 	{
-		container->getItem(index)->render(x, y, 0.0f, width, 9, true);
+		container->getItem(index)->render(x, y, 0.0f, width, 9, true, true);
 	}
 }
 
@@ -41,7 +41,8 @@ bool TransferObject::eventCallback(const Event::Event &e)
 
 		index     = ne.index;
 		container = ne.container;
-		// TODO: Make it so it doesn't render item in other places
+		container->getItem(index)->setForcedRender(true);
+		update();
 
 		return true;
 	}
@@ -56,6 +57,7 @@ bool TransferObject::eventCallback(const Event::Event &e)
 			}
 			else
 				Log::warning("Transfer object on incorrect layer!");
+
 			return true;
 		}
 		else if(e.getType() == Event::EventType::keyInput)
@@ -74,6 +76,7 @@ bool TransferObject::eventCallback(const Event::Event &e)
 
 void TransferObject::hasTransferred()
 {
+	container->getItem(index)->setForcedRender(false);
 	container = nullptr;
 	index     = 0;
 }

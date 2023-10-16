@@ -77,13 +77,13 @@ void Level::render()
 #else
 	Room *mid = getMidRoom();
 	mid->render();
-	if(mid->isOpen(Direction::north))
+	if(mid->isOpen(Direction::north) && get(midpoint + 1, midpoint))
 		get(midpoint + 1, midpoint)->render();
-	if(mid->isOpen(Direction::south))
+	if(mid->isOpen(Direction::south) && get(midpoint - 1, midpoint))
 		get(midpoint - 1, midpoint)->render();
-	if(mid->isOpen(Direction::east))
+	if(mid->isOpen(Direction::east) && get(midpoint, midpoint + 1))
 		get(midpoint, midpoint + 1)->render();
-	if(mid->isOpen(Direction::west))
+	if(mid->isOpen(Direction::west) && get(midpoint, midpoint - 1))
 		get(midpoint, midpoint - 1)->render();
 
 #endif
