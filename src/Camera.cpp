@@ -32,22 +32,22 @@ void Camera::update()
 	}
 	else
 	{
-		if(Application::isKeyPressed(GLFW_KEY_W) || Application::isKeyPressed(GLFW_KEY_UP))
+		if(Event::isKeyPressed(GLFW_KEY_W) || Event::isKeyPressed(GLFW_KEY_UP))
 		{
 			updateView = true;
 			y += moveSpeed;
 		}
-		if(Application::isKeyPressed(GLFW_KEY_S) || Application::isKeyPressed(GLFW_KEY_DOWN))
+		if(Event::isKeyPressed(GLFW_KEY_S) || Event::isKeyPressed(GLFW_KEY_DOWN))
 		{
 			updateView = true;
 			y -= moveSpeed;
 		}
-		if(Application::isKeyPressed(GLFW_KEY_A) || Application::isKeyPressed(GLFW_KEY_LEFT))
+		if(Event::isKeyPressed(GLFW_KEY_A) || Event::isKeyPressed(GLFW_KEY_LEFT))
 		{
 			updateView = true;
 			x -= moveSpeed;
 		}
-		if(Application::isKeyPressed(GLFW_KEY_D) || Application::isKeyPressed(GLFW_KEY_RIGHT))
+		if(Event::isKeyPressed(GLFW_KEY_D) || Event::isKeyPressed(GLFW_KEY_RIGHT))
 		{
 			updateView = true;
 			x += moveSpeed;
@@ -89,11 +89,11 @@ void Camera::imGuiRender()
 }
 #endif
 
-bool Camera::eventCallback(const Application::Event &e)
+bool Camera::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Application::EventType::scroll)
+	if(e.getType() == Event::EventType::scroll)
 	{
-		const Application::ScrollEvent &ne = static_cast<const Application::ScrollEvent &>(e);
+		const Event::ScrollEvent &ne = static_cast<const Event::ScrollEvent &>(e);
 
 		if(zoomPercentage == 0.25f && ne.yoffset < 0.0f)
 			return false;
@@ -112,9 +112,9 @@ bool Camera::eventCallback(const Application::Event &e)
 
 		return false;
 	}
-	else if(e.getType() == Application::EventType::windowResize)
+	else if(e.getType() == Event::EventType::windowResize)
 	{
-		const Application::WindowResizeEvent &ne = static_cast<const Application::WindowResizeEvent &>(e);
+		const Event::WindowResizeEvent &ne = static_cast<const Event::WindowResizeEvent &>(e);
 
 		//int widthChange  = ne.oWidth - ne.width;
 		//int heightChange = ne.oHeight - ne.height;
@@ -123,7 +123,7 @@ bool Camera::eventCallback(const Application::Event &e)
 		updateView = true;
 		return true;
 	}
-	else if(e.getType() == Application::EventType::mazeMovedEvent)
+	else if(e.getType() == Event::EventType::mazeMovedEvent)
 	{
 		changeUpdateView();
 	}

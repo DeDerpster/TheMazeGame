@@ -42,147 +42,121 @@
 
 #include "LogHeaders.h"
 
-namespace Log
+Log::Log()
 {
-	std::string logFile         = "Logs/Default.log";
-	std::string criticalMessage = "CRITICAL";
-	std::string errorMessage    = "ERROR";
-	std::string warningMessage  = "WARNING";
-	std::string debugMessage    = "DEBUG";
-	std::string variableMessage = "INFO";
-	std::string defaultMessage  = "INFO";
+	time_t     rawtime;
+	struct tm *timeinfo;
+	char       buffer[80];
 
-	bool hasInit = false;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	strftime(buffer, sizeof(buffer), "%d-%m-%Y %H-%M-%S", timeinfo);
+	std::string currentTime(buffer);
+
+	if(!std::filesystem::exists("Logs"))
+	{
+		std::cout << "Logs directory doesn't exist... creating one\n";
+		std::filesystem::create_directory("Logs");
+		if(std::filesystem::exists("Logs"))
+			std::cout << "Created directory\n";
+	}
+	logFile = "Logs/" + currentTime + ".log";
+
+	// variable("Initialised logging system", logFile);
+}
 
 #ifdef IS_ON_WINDOWS
-	void setConsoleColor(WORD c)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);
-	}
-#endif
-
-	void output(std::string &type, const char *message, const char *filepath, int line)
-	{
-		if(!hasInit)   // Checks to see if the Log has been initialised
-			return;
-#ifdef DEBUG
-		std::cout << "[" << type << "] " << message;
-		if(line != -1)
-			std::cout << " " << filepath << ":" << line;
-	#ifdef IS_ON_LINUX
-		std::cout << RESET;
-	#else
-		setConsoleColor(7);
+void setConsoleColour(LogColour c)
+{
+	#ifdef DEBUG
+	WORD colour = 7;
+	if(c == LogColour::critical)
+		colour = FOREGROUND_RED | FOREGROUND_INTENSITY;
+	else if(c == LogColour::error)
+		colour = FOREGROUND_RED;
+	else if(c == LogColour::warning)
+		colour = 14;
+	else if(c == LogColour::info)
+		colour = 7;
+	else if(c == LogColour::debug)
+		colour = FOREGROUND_GREEN;
+	else if(c == LogColour::variable)
+		colour = FOREGROUND_INTENSITY | 13;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colour);
 	#endif
-		std::cout << std::endl;
-#endif
-		std::ofstream file(logFile, std::ios_base::app);   // The std::ios_base::app allows it to write at end
-		file << "[" << type << "] " << message;
-		if(line != -1)
-			file << " " << filepath << ":" << line;
-		file << std::endl;
-		file.close();
-	}
-
-	void critical(const char *message, const char *file, int line)
-	{
-#ifdef IS_ON_LINUX
-		std::cout << BOLDRED;
+}
 #else
-		setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+void Log::setConsoleColour(LogColour c)
+{
+	#ifdef DEBUG
+	if(c == LogColour::critical)
+		std::cout << BOLDRED;
+	else if(c == LogColour::error)
+		std::cout << RED;
+	else if(c == LogColour::warning)
+		std::cout << YELLOW;
+	else if(c == LogColour::info)
+		std::cout << BOLDRED;
+	else if(c == LogColour::debug)
+		std::cout << GREEN;
+	else if(c == LogColour::variable)
+		std::cout << BOLDMAGENTA;
+	else
+		std::cout << RESET;
+	#endif
+}
 #endif
-		output(criticalMessage, message, file, line);
+
+void Log::output(std::string &type, const char *message, const char *filepath, int line)
+{
+#ifdef DEBUG
+	std::cout << "[" << type << "] " << message;
+	if(line != -1)
+		std::cout << " " << filepath << ":" << line;
+	setConsoleColour(LogColour::reset);
+	std::cout << std::endl;
+#endif
+	std::ofstream file(logFile, std::ios_base::app);   // The std::ios_base::app allows it to write at end
+	file << "[" << type << "] " << message;
+	if(line != -1)
+		file << " " << filepath << ":" << line;
+	file << std::endl;
+	file.close();
+}
+
+void Log::criticalImpl(const char *message, const char *file, int line)
+{
+	setConsoleColour(LogColour::critical);
+	output(criticalMessage, message, file, line);
 #ifdef DEBUG
 	#ifdef IS_ON_WINDOWS
-		__debugbreak();
+	__debugbreak();
 	#else
-		__builtin_trap();
+	__builtin_trap();
 	#endif
 #endif
-	}
+}
 
-	void error(const char *message, const char *file, int line)
-	{
-#ifdef IS_ON_LINUX
-		std::cout << RED;
-#else
-		setConsoleColor(FOREGROUND_RED);
-#endif
-		output(errorMessage, message, file, line);
-	}
+void Log::errorImpl(const char *message, const char *file, int line)
+{
+	setConsoleColour(LogColour::error);
+	output(errorMessage, message, file, line);
+}
 
-	void warning(const char *message)
-	{
-#ifdef IS_ON_LINUX
-		std::cout << YELLOW;
-#else
-		setConsoleColor(14);
-#endif
-		output(warningMessage, message, "", -1);
-	}
+void Log::warningImpl(const char *message)
+{
+	setConsoleColour(LogColour::warning);
+	output(warningMessage, message, "", -1);
+}
 
-	void info(const char *message)
-	{
-#ifdef IS_ON_LINUX
-		std::cout << RESET;
-#endif
-		output(defaultMessage, message, "", -1);
-	}
+void Log::infoImpl(const char *message)
+{
+	output(defaultMessage, message, "", -1);
+}
 
-	void debug(const char *message)
-	{
-#ifdef IS_ON_LINUX
-		std::cout << YELLOW;
-#else
-		setConsoleColor(FOREGROUND_GREEN);
-#endif
-		output(debugMessage, message, "", -1);
-	}
-
-	template <typename T>
-	void variable(const char *name, T var)
-	{
-		std::stringstream ss;
-		ss << name << ": " << var;
-#ifdef IS_ON_LINUX
-		std::cout << BOLDMAGENTA;
-#else
-		setConsoleColor(FOREGROUND_INTENSITY | 13);
-#endif
-		output(variableMessage, ss.str().c_str(), "", -1);
-	}
-
-	template void variable<int>(char const *, int);
-	template void variable<unsigned int>(char const *, unsigned int);
-	template void variable<double>(char const *, double);
-	template void variable<const std::string &>(char const *, const std::string &);
-	template void variable<unsigned char const *>(char const *, unsigned char const *);
-	template void variable<float>(char const *, float);
-	template void variable<bool>(char const *, bool);
-
-	void init()
-	{
-		time_t     rawtime;
-		struct tm *timeinfo;
-		char       buffer[80];
-
-		time(&rawtime);
-		timeinfo = localtime(&rawtime);
-
-		strftime(buffer, sizeof(buffer), "%d-%m-%Y %H-%M-%S", timeinfo);
-		std::string currentTime(buffer);
-
-		if(!std::filesystem::exists("Logs"))
-		{
-			std::cout << "Logs directory doesn't exist... creating one\n";
-			std::filesystem::create_directory("Logs");
-			if(std::filesystem::exists("Logs"))
-				std::cout << "Created directory\n";
-		}
-		logFile = "Logs/" + currentTime + ".log";
-
-		hasInit = true;
-
-		variable("Initialised logging system", logFile);
-	}
-}   // namespace Log
+void Log::debugImpl(const char *message)
+{
+	setConsoleColour(LogColour::debug);
+	output(debugMessage, message, "", -1);
+}

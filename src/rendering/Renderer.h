@@ -1,42 +1,36 @@
 #pragma once
 
 #include <array>
-#include <memory>
 #include <vector>
 
 #include "IndexBuffer.h"
+#include "SmartBuffer.h"
 #include "Texture.h"
 #include "Utils.h"
 #include "VertexArray.h"
 
 namespace Render   // Puts this in its own namespace
 {
-	class SmartBuffer
+	class Renderer
 	{
-	  private:
-		int      m_Offset;
-		uint32_t m_BufferSize;
-		uint32_t maxVertices;
+      private:
+		static Renderer s_Instance;
 
-		std::unique_ptr<VertexArray>  m_VAO;
-		std::unique_ptr<IndexBuffer>  m_IndexBuffer;
-		std::unique_ptr<VertexBuffer> m_VertexBuffer;
+		Renderer() {}
 
 	  public:
-		SmartBuffer(uint32_t maxVertices, void (*layoutCreator)(VertexBufferLayout &));
-		~SmartBuffer();
+		Renderer(const Renderer &) = delete;
 
-		bool addToBuffer(const void *vertices, uint32_t size);
-		void resetBuffer();
-		void draw() const;
-
-		uint32_t getBufferSize() { return m_BufferSize; }
-		bool     canStore(uint32_t size) { return m_Offset + size <= m_BufferSize; }
-		bool     isEmpty() { return m_Offset == 0; }
+		static Renderer &get()
+		{
+			static Renderer instance;
+			return instance;
+		}
 	};
 
 	// This creates a quad of vertices (a square) from given coordinates and rotation...
-	static std::array<Vertex, 4> CreateQuad(float x, float y, double rotation, float size, int texID)
+	static std::array<Vertex, 4>
+	CreateQuad(float x, float y, double rotation, float size, int texID)
 	{
 		// Creates a 2d rotation matrix, so that the object can be rotated
 		glm::mat2 rotationMatrix({glm::cos(rotation), -glm::sin(rotation)}, {glm::sin(rotation), glm::cos(rotation)});

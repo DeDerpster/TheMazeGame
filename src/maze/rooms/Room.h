@@ -26,22 +26,18 @@ class Room
 	std::vector<Tile> m_Tiles;          // NOTE: Please do not store this class on the stack!
 
   public:
-	Room()
-	{
-		m_Tiles.reserve(ROOM_SIZE * ROOM_SIZE);
-	}
-	virtual ~Room() {}
-	virtual void render(float x, float y) {}
-	virtual void update() {}
+	Room();
+	virtual ~Room();
+	virtual void render(float x, float y);
+	virtual void update();
 
 #ifdef DEBUG
-	virtual void imGuiRender() {}
+	virtual void imGuiRender();
 #endif
 
-	virtual bool isOpen(int entrance)
-	{
-		return m_Entrances[entrance];
-	}
+	virtual bool isOpen(int entrance);
 
-	Tile *getTile(int x, int y) { return &m_Tiles[y * ROOM_SIZE + x]; }
+	virtual void activeRoom();
+
+	Tile *getTile(int x, int y);
 };

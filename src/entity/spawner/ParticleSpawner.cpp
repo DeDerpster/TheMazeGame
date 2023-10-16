@@ -72,7 +72,7 @@ void ParticleSpawner::update()
 	}
 }
 
-bool ParticleSpawner::eventCallback(const Application::Event &e)
+bool ParticleSpawner::eventCallback(const Event::Event &e)
 {
 	for(Particle p : m_Particles)
 	{

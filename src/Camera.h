@@ -29,7 +29,7 @@ class Camera
 	void imGuiRender();
 #endif
 
-	bool eventCallback(const Application::Event &e);
+	bool eventCallback(const Event::Event &e);
 	bool setEffect(const Effect::RenderEffect &e);
 
 	glm::mat4 getView();

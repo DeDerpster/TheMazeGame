@@ -63,7 +63,7 @@ void Projectile::update()
 	}
 }
 
-bool Projectile::eventCallback(const Application::Event &e)
+bool Projectile::eventCallback(const Event::Event &e)
 {
 	return MovableEntity::eventCallback(e);
 }

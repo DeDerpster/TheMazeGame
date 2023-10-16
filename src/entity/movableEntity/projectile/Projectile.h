@@ -25,7 +25,7 @@ class Projectile : public MovableEntity
 
 	virtual void update() override;
 	virtual void render() override;
-	virtual bool eventCallback(const Application::Event &e) override;
+	virtual bool eventCallback(const Event::Event &e) override;
 
 	virtual void changeX(float changeBy) override;
 	virtual void changeY(float changeBy) override;

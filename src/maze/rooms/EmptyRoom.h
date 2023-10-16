@@ -9,8 +9,7 @@ class EmptyRoom : public Room
   public:
 	EmptyRoom(bool entrances[4]);
 	~EmptyRoom() override;
-	void render(float x, float y) override;
-	void update() override;
+
 #ifdef DEBUG
 	void imGuiRender() override;
 #endif

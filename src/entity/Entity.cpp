@@ -10,11 +10,11 @@ Entity::Entity(float x, float y, CollisionBox box, Level *level, uint16_t sprite
 	: x(x), y(y), m_Level(level), m_CollisionBox(box), m_SpriteID(spriteID) {}
 Entity::~Entity() {}
 
-bool Entity::eventCallback(const Application::Event &e)
+bool Entity::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Application::EventType::mazeMovedEvent)
+	if(e.getType() == Event::EventType::mazeMovedEvent)
 	{
-		const Application::MazeMovedEvent &ne = static_cast<const Application::MazeMovedEvent &>(e);
+		const Event::MazeMovedEvent &ne = static_cast<const Event::MazeMovedEvent &>(e);
 		x += ne.changeX;
 		y += ne.changeY;
 	}

@@ -35,5 +35,5 @@ class Follower : public Mob
 		following = e;
 	}
 
-	virtual bool eventCallback(const Application::Event &e) override;
+	virtual bool eventCallback(const Event::Event &e) override;
 };

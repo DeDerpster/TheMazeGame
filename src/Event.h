@@ -2,9 +2,9 @@
 
 #include "Utils.h"
 
-namespace Application
+namespace Event
 {
-	void eventInit();
+	void  init();
 	bool isKeyPressed(int key);
 	Vec2f getMousePos();
 

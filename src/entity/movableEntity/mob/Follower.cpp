@@ -95,7 +95,7 @@ void Follower::imGuiRender()
 }
 #endif
 
-bool Follower::eventCallback(const Application::Event &e)
+bool Follower::eventCallback(const Event::Event &e)
 {
 	return Mob::eventCallback(e);
 }

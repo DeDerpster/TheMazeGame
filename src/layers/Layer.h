@@ -19,7 +19,7 @@ class Layer
 
 	virtual void render()                                   = 0;
 	virtual void update()                                   = 0;
-	virtual bool eventCallback(const Application::Event &e) = 0;
+	virtual bool eventCallback(const Event::Event &e)       = 0;
 
 	virtual bool setEffect(Effect::RenderEffect *e);
 

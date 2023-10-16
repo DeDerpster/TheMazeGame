@@ -19,7 +19,7 @@ class WorldItem : public Entity
 	virtual void render() override;
 
 	virtual void update() override;
-	virtual bool eventCallback(const Application::Event &e) override;
+	virtual bool eventCallback(const Event::Event &e) override;
 #ifdef DEBUG
 	virtual void imGuiRender() override;
 #endif

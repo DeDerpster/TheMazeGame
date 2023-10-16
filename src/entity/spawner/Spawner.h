@@ -21,7 +21,7 @@ class Spawner
 	~Spawner();
 
 	virtual void update();
-	virtual bool eventCallback(const Application::Event &e);
+	virtual bool eventCallback(const Event::Event &e);
 
 	virtual bool deleteMe() { return m_Age == m_Lifetime; }
 };

@@ -102,22 +102,6 @@ EmptyRoom::EmptyRoom(bool entrances[4])
 
 EmptyRoom::~EmptyRoom() {}
 
-void EmptyRoom::render(float x, float y)
-{
-	for(int i = 0; i < m_Tiles.size(); i++)
-	{
-		m_Tiles[i].render(x, y);
-	}
-}
-
-void EmptyRoom::update()
-{
-	for(int i = 0; i < m_Tiles.size(); i++)
-	{
-		m_Tiles[i].update();
-	}
-}
-
 #ifdef DEBUG
 void EmptyRoom::imGuiRender()
 {

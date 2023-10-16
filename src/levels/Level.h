@@ -35,7 +35,7 @@ class Level : public Layer
 	virtual void imGuiRender() = 0;
 #endif
 
-	virtual bool eventCallback(const Application::Event &e) = 0;
+	virtual bool eventCallback(const Event::Event &e) = 0;
 
 	virtual Tile *              getTile(int x, int y) = 0;
 	virtual Player *            getPlayer() { return nullptr; }

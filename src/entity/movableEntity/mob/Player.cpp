@@ -28,19 +28,19 @@ void Player::update()
 		if(isInControl)
 		{
 			Vec2f ratio = {0, 0};
-			if(Application::isKeyPressed(GLFW_KEY_W) || Application::isKeyPressed(GLFW_KEY_UP))
+			if(Event::isKeyPressed(GLFW_KEY_W) || Event::isKeyPressed(GLFW_KEY_UP))
 			{
 				ratio.y += 1.0f;
 			}
-			if(Application::isKeyPressed(GLFW_KEY_S) || Application::isKeyPressed(GLFW_KEY_DOWN))
+			if(Event::isKeyPressed(GLFW_KEY_S) || Event::isKeyPressed(GLFW_KEY_DOWN))
 			{
 				ratio.y -= 1.0f;
 			}
-			if(Application::isKeyPressed(GLFW_KEY_A) || Application::isKeyPressed(GLFW_KEY_LEFT))
+			if(Event::isKeyPressed(GLFW_KEY_A) || Event::isKeyPressed(GLFW_KEY_LEFT))
 			{
 				ratio.x -= 1.0f;
 			}
-			if(Application::isKeyPressed(GLFW_KEY_D) || Application::isKeyPressed(GLFW_KEY_RIGHT))
+			if(Event::isKeyPressed(GLFW_KEY_D) || Event::isKeyPressed(GLFW_KEY_RIGHT))
 			{
 				ratio.x += 1.0f;
 			}
@@ -59,11 +59,11 @@ void Player::render()
 	Mob::render();
 }
 
-bool Player::eventCallback(const Application::Event &e)
+bool Player::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Application::EventType::keyInput)
+	if(e.getType() == Event::EventType::keyInput)
 	{
-		const Application::KeyboardEvent &ne = static_cast<const Application::KeyboardEvent &>(e);
+		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
 		if(ne.key == GLFW_KEY_SPACE && (ne.action == GLFW_PRESS || ne.action == GLFW_REPEAT) && m_CurrentWeapon != -1)
 		{
 			m_Weapons[m_CurrentWeapon]->attack(m_Level, *this, m_Dir, ne.action == GLFW_REPEAT);

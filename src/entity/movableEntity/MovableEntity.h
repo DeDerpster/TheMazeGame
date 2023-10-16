@@ -18,7 +18,7 @@ class MovableEntity : public Entity
 	MovableEntity(float x, float y, float speed, Direction dir, CollisionBox box, Level *level, uint16_t spriteID);
 	virtual ~MovableEntity();
 
-	virtual bool eventCallback(const Application::Event &e) override;
+	virtual bool eventCallback(const Event::Event &e) override;
 
 	virtual void move(float xa, float ya);
 	virtual void move(Vec2f ratio);

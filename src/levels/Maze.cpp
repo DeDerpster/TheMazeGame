@@ -144,33 +144,33 @@ void Maze::update()
 	{
 		Log::info("Player moved North");
 
-		Application::MazeMovedEvent e(0.0f, (float) -Tile::TILE_SIZE * ROOM_SIZE);
-		Application::callEvent(e, true);
 		moveNorth();
+		Event::MazeMovedEvent e(0.0f, (float) -Tile::TILE_SIZE * ROOM_SIZE);
+		Application::callEvent(e, true);
 	}
 	else if(m_Player.getY() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved South");
 
-		Application::MazeMovedEvent e(0.0f, (float) Tile::TILE_SIZE * ROOM_SIZE);
-		Application::callEvent(e, true);
 		moveSouth();
+		Event::MazeMovedEvent e(0.0f, (float) Tile::TILE_SIZE * ROOM_SIZE);
+		Application::callEvent(e, true);
 	}
 	if(m_Player.getX() > ((BOARD_SIZE / 2) + 2) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved East");
 
-		Application::MazeMovedEvent e((float) -Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
-		Application::callEvent(e, true);
 		moveEast();
+		Event::MazeMovedEvent e((float) -Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
+		Application::callEvent(e, true);
 	}
 	else if(m_Player.getX() < ((BOARD_SIZE / 2) + 1) * Tile::TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved West");
 
-		Application::MazeMovedEvent e((float) Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
-		Application::callEvent(e, true);
 		moveWest();
+		Event::MazeMovedEvent e((float) Tile::TILE_SIZE * ROOM_SIZE, 0.0f);
+		Application::callEvent(e, true);
 	}
 
 	m_Player.update();
@@ -241,7 +241,7 @@ void Maze::imGuiRender()
 }
 #endif
 
-bool Maze::eventCallback(const Application::Event &e)
+bool Maze::eventCallback(const Event::Event &e)
 {
 	if(m_Player.eventCallback(e))
 		return true;
@@ -256,6 +256,13 @@ bool Maze::eventCallback(const Application::Event &e)
 		if(entity->eventCallback(e))
 			return true;
 	}
+
+	if(e.getType() == Event::EventType::mazeMovedEvent)
+	{
+		int midpoint = BOARD_SIZE / 2 + 1;
+		get(midpoint, midpoint)->activeRoom();
+	}
+
 	return false;
 }
 

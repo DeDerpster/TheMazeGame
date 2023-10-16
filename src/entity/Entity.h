@@ -22,7 +22,7 @@ class Entity
 
 	virtual void update()                             = 0;
 	virtual void render()                             = 0;
-	virtual bool eventCallback(const Application::Event &e);
+	virtual bool eventCallback(const Event::Event &e);
 
 	float        getX() const;
 	float        getY() const;

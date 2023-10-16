@@ -25,11 +25,11 @@ void Spawner::update()
 		m_Age++;
 }
 
-bool Spawner::eventCallback(const Application::Event &e)
+bool Spawner::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Application::EventType::mazeMovedEvent)
+	if(e.getType() == Event::EventType::mazeMovedEvent)
 	{
-		const Application::MazeMovedEvent &ne = static_cast<const Application::MazeMovedEvent &>(e);
+		const Event::MazeMovedEvent &ne = static_cast<const Event::MazeMovedEvent &>(e);
 		x += ne.changeX;
 		y += ne.changeY;
 	}

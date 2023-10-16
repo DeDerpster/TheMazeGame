@@ -73,7 +73,7 @@ void MovableEntity::move(Vec2f ratio)
 	}
 }
 
-bool MovableEntity::eventCallback(const Application::Event &e)
+bool MovableEntity::eventCallback(const Event::Event &e)
 {
 	return Entity::eventCallback(e);
 }

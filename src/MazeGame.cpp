@@ -104,20 +104,16 @@ void gameLoop()
 int main(void)
 {
 	// Initialises the logging system and the application
-	Log::init();
-	bool isOk = Application::init();
-	if(!isOk)   // Checks if the Application initialised correctly
-	{
-		Log::critical("Failed to initialise! Will now shutdown!", LOGINFO);
-		return -1;
-	}
-	Random::init();   // Initialises randomised system
+	// Log::init();
+	// TODO: Add check to see if there was a problem booting up
+
+	Event::init();   // Initialises the events (in Event.h)
 
 	Log::info("Initialised program");
 
 	gameLoop();   // Starts the game loop
 
-	Application::terminate();   // Terminates the application
+	// Application::terminate();   // Terminates the application
 
 	return 0;
 }

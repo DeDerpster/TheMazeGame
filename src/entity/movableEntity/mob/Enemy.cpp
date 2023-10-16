@@ -130,7 +130,7 @@ void Enemy::render()
 	Mob::render();
 }
 
-bool Enemy::eventCallback(const Application::Event &e)
+bool Enemy::eventCallback(const Event::Event &e)
 {
 	return Mob::eventCallback(e);
 }

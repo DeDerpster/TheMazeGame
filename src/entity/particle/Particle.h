@@ -20,7 +20,7 @@ class Particle
 	~Particle();
 
 	virtual void update();
-	virtual bool eventCallback(const Application::Event &e);
+	virtual bool eventCallback(const Event::Event &e);
 
 	void changeX(float changeBy);
 	void changeY(float changeBy);

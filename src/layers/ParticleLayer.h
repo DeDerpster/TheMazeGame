@@ -16,7 +16,7 @@ class ParticleLayer : public Layer
 
 	virtual void render() override;
 	virtual void update() override;
-	virtual bool eventCallback(const Application::Event &e) override;
+	virtual bool eventCallback(const Event::Event &e) override;
 	virtual bool setEffect(Effect::RenderEffect *e) override;
 
 #ifdef DEBUG

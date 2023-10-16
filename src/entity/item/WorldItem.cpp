@@ -26,13 +26,13 @@ void WorldItem::render()
 	// Render::Text::addToBuffer(*m_Item->getName(), x - Application::getCamera()->getX(), y - Application::getCamera()->getY(), 0.5, {0.0f, 0.0f, 0.0f, 1.0f});
 }
 void WorldItem::update() {}
-bool WorldItem::eventCallback(const Application::Event &e)
+bool WorldItem::eventCallback(const Event::Event &e)
 {
 	if(!m_Item)
 		return false;
-	if(e.getType() == Application::EventType::mouseClicked && m_Level)
+	if(e.getType() == Event::EventType::mouseClicked && m_Level)
 	{
-		const Application::MouseClickedEvent &ne = static_cast<const Application::MouseClickedEvent &>(e);
+		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
 		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
 

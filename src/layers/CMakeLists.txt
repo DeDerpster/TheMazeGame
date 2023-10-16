@@ -1,3 +1,2 @@
-target_sources(${PROJECT_NAME} PRIVATE TextLayer.cpp
-                                       ParticleLayer.cpp
+target_sources(${PROJECT_NAME} PRIVATE ParticleLayer.cpp
                                        Layer.cpp)

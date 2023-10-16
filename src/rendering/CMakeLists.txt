@@ -7,4 +7,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC sprites
                                                   text
                                                   effect)
 
-target_sources(${PROJECT_NAME} PRIVATE Renderer.cpp)
+target_sources(${PROJECT_NAME} PRIVATE Renderer.cpp
+                                       SmartBuffer.cpp)

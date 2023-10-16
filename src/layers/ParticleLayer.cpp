@@ -59,7 +59,7 @@ void ParticleLayer::update()
 		s->update();
 }
 
-bool ParticleLayer::eventCallback(const Application::Event &e)
+bool ParticleLayer::eventCallback(const Event::Event &e)
 {
 	for(ParticleSpawner *s : m_Spawners)
 	{

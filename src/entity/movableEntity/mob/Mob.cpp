@@ -120,7 +120,7 @@ void Mob::update()
 	StatsMob::update();
 }
 
-bool Mob::eventCallback(const Application::Event &e)
+bool Mob::eventCallback(const Event::Event &e)
 {
 	return MovableEntity::eventCallback(e);
 }

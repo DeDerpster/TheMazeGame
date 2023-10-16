@@ -17,5 +17,5 @@ class Player : public Mob
 	virtual void imGuiRender() override;
 #endif
 
-	virtual bool eventCallback(const Application::Event &e) override;
+	virtual bool eventCallback(const Event::Event &e) override;
 };

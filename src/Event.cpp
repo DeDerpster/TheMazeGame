@@ -6,20 +6,20 @@
 #include "Log.h"
 #include "ShaderEffect.h"
 
-namespace Application
+namespace Event
 {
 	static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
 		KeyboardEvent e(key, scancode, action, mods);
-		callEvent(e);
+		Application::callEvent(e);
 	}
 
 	static void window_size_callback(GLFWwindow *window, int width, int height)
 	{
 		//windowSizeChange(windowWidth - width, windowHeight - height);
-		WindowResizeEvent e(getWidth(), getHeight(), width, height);
-		callEvent(e);
-		updateWindowSize(width, height);
+		WindowResizeEvent e(Application::getWidth(), Application::getHeight(), width, height);
+		Application::callEvent(e);
+		Application::updateWindowSize(width, height);
 		glViewport(0, 0, width, height);
 		std::string         name = "u_MVP";
 		Effect::UniformMat4 effect(name, Application::getProj());
@@ -29,7 +29,7 @@ namespace Application
 	static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 	{
 		ScrollEvent e(xoffset, yoffset);
-		callEvent(e);
+		Application::callEvent(e);
 	}
 
 	static void error_callback(int error, const char *description)
@@ -43,12 +43,12 @@ namespace Application
 		MouseClickedEvent e(mButton, getMousePos());
 		// Log::variable("Mouse X", e.pos.x);
 		// Log::variable("Mouse Y", e.pos.y);
-		callEvent(e);
+		Application::callEvent(e);
 	}
 
-	void eventInit()
+	void init()
 	{
-		GLFWwindow *window = static_cast<GLFWwindow *>(getWindow());
+		GLFWwindow *window = static_cast<GLFWwindow *>(Application::getWindow());
 		glfwSetKeyCallback(window, key_callback);   // TODO: Change this to one function
 		glfwSetWindowSizeCallback(window, window_size_callback);
 		glfwSetScrollCallback(window, scroll_callback);
@@ -58,8 +58,16 @@ namespace Application
 
 	bool isKeyPressed(int key)
 	{
-		int keystate = glfwGetKey(static_cast<GLFWwindow *>(getWindow()), key);
+		int keystate = glfwGetKey(static_cast<GLFWwindow *>(Application::getWindow()), key);
 		return keystate == GLFW_PRESS || keystate == GLFW_REPEAT;
+	}
+
+	Vec2f getMousePos()
+	{
+		double xPos, yPos;
+		glfwGetCursorPos((GLFWwindow *) Application::getWindow(), &xPos, &yPos);
+
+		return {(float) xPos, Application::getHeight() - (float) yPos};
 	}
 
 }   // namespace Application

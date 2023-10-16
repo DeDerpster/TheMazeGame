@@ -30,7 +30,7 @@ class ParticleSpawner : public Spawner
 	virtual ~ParticleSpawner();
 
 	virtual void update() override;
-	virtual bool eventCallback(const Application::Event &e) override;
+	virtual bool eventCallback(const Event::Event &e) override;
 
 	glm::vec4 *            getColour();
 	std::vector<Particle> *getParticles();

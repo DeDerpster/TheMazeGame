@@ -38,7 +38,7 @@ class Mob : public MovableEntity, public StatsMob
 
 	virtual void render();
 	virtual void update();
-	virtual bool eventCallback(const Application::Event &e);
+	virtual bool eventCallback(const Event::Event &e);
 
 	// void changeHealth(float changeBy) { m_Health += changeBy; }
 
