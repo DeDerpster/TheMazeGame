@@ -348,7 +348,6 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f destPos, CollisionBox b
 	// A* on tiles
 
 	// These are the coordinates to the nearest node (on the whole board)
-	// TODO: Here is the issue, need to account for the board offset
 	Vec2i startNode = {(int) round(relativeStart.x / X_STEP), (int) round(relativeStart.y / Y_STEP)};
 	Vec2i destNode  = {(int) round(relativeDest.x / X_STEP), (int) round(relativeDest.y / Y_STEP)};
 

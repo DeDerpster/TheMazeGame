@@ -50,7 +50,6 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 	}
 	else if(type == RoomType::NPC)
 	{
-		// TODO: Generate NPC
 		NPC *npc = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level);
 		m_Entities.push_back(npc);
 	}

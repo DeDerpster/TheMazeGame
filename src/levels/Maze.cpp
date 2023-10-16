@@ -71,7 +71,6 @@ void Maze::update()
 			resetMaze();
 	}
 
-	// TODO: NEEDS CHANGING!!
 	Vec2f playerPos = convertToRelativePos({m_Player.getX(), m_Player.getY()});
 	if(playerPos.y > (getMidPoint() + 1) * TILE_SIZE * ROOM_SIZE)
 	{
@@ -244,11 +243,12 @@ void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west)
 	bool entrances[4]          = {north, south, east, west};
 	RoomType type                  = RoomType::Empty;
 
+	// TODO: Make this based on the distance moved
 	int num = Random::getNum(0, 100);
 	if(num == 0)
 		type = RoomType::Exit;
 	else if(num < 6)
-		type = RoomType::NPC;   // NOTE: This was enemy
+		type = RoomType::Enemy;   // NOTE: This was enemy
 	else if(num < 11)
 		type = RoomType::NPC;
 	else if(num < 21)

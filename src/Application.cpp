@@ -19,6 +19,7 @@
 
 #include "Event.h"
 #include "Log.h"
+#include "MessageManager.h"
 #include "ShaderEffect.h"
 
 // SECTION: Initialises
@@ -153,6 +154,8 @@ void Application::updateImpl()   // Updates all the layers
 			break;
 	}
 	camera.update();
+
+	MessageManager::update();
 }
 
 void Application::renderImpl()   // Renders all the layers
@@ -163,6 +166,11 @@ void Application::renderImpl()   // Renders all the layers
 		layers[i]->render();
 		Render::render(layers[i]->getShaderEffects());
 	}
+
+	// TODO:: Make a layer for this or do something clever
+	MessageManager::render();
+	std::vector<uint16_t> temp;
+	Render::render(temp);
 }
 
 #ifdef DEBUG
