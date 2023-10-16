@@ -73,13 +73,13 @@ void Maze::render()
 	{
 		Room *mid = get(midpoint, midpoint);
 		mid->render(midpoint * multiple, midpoint * multiple);
-		if(mid->isOpen(0))
+		if(mid->isOpen(0) && get(midpoint + 1, midpoint))
 			get(midpoint + 1, midpoint)->render(midpoint * multiple, (midpoint + 1) * multiple);
-		if(mid->isOpen(1))
+		if(mid->isOpen(1) && get(midpoint - 1, midpoint))
 			get(midpoint - 1, midpoint)->render(midpoint * multiple, (midpoint - 1) * multiple);
-		if(mid->isOpen(2))
+		if(mid->isOpen(2) && get(midpoint, midpoint + 1))
 			get(midpoint, midpoint + 1)->render((midpoint + 1) * multiple, midpoint * multiple);
-		if(mid->isOpen(3))
+		if(mid->isOpen(3) && get(midpoint, midpoint - 1))
 			get(midpoint, midpoint - 1)->render((midpoint - 1) * multiple, midpoint * multiple);
 	}
 #else

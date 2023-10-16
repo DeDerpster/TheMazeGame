@@ -156,7 +156,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 
 	void update()   // Updates all the layers
 	{
-		for(int i = 0; i < 2; i++)
+		for(int i = 0; i < layers.size(); i++)
 		{
 			if(layers[i])
 				layers[i]->update();
@@ -166,7 +166,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 
 	void render()   // Renders all the layers
 	{
-		for(int i = 0; i < 2; i++)
+		for(int i = 0; i < layers.size(); i++)
 		{
 			if(layers[i])
 			{
@@ -179,7 +179,7 @@ namespace Application   // I've used a namespace here as I know there will only 
 #ifdef DEBUG
 	void imGuiRender()   // Renders ImGui in all the layers
 	{
-		for(int i = 0; i < 2; i++)
+		for(int i = 0; i < layers.size(); i++)
 		{
 			if(layers[i])
 				layers[i]->imGuiRender();
