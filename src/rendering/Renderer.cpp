@@ -466,7 +466,7 @@ void Render::textImpl(std::string &text, float x, float y, float scale, glm::vec
 void Render::hoverTextImpl(std::string &inpText, float x, float y, float scale, glm::vec4 textColour, glm::vec4 backgroundColour, uint8_t layer, bool isOverlay)
 {
 	// This creates a box with text in it - used for displaying names in the game
-	CollisionBox box = Render::getTextCollisionBox(inpText, scale);
+	CollisionBox box = Render::getTextCollisionBox(inpText, scale * Application::getGUIScale());
 
 	// Sets the variables
 	float borderWidth = 2.0f;

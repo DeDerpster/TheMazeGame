@@ -20,12 +20,14 @@
             Instead imagine when storing a room at position (0, 0) or index 0 in the array. When the maze needs to generate more of the maze on the north, the position in the array of that room will not change, it will still be at index 0, however the coordinates will change as its moved down therefore its now at (0, -1), and the new rooms generated will be at the end of the maze. However when accessing the array with the coordinate system it will seem as though all the rooms have moved down 1. This will save processing power moving all the rooms to different indices in the array.
 
             However, the rooms also will have to store coordinates of where they are. This results in having to go through all the rooms and updating the coordinates. To reduce this as much as possible, the coordinates will only be updates when one of the offsets loops back to the center, so for example going back to 0.
+
+        \clearpage
         \subsubsection{Prototype}
         For a prototype of the generation, I decided to write it in python with a room just consisting of being a cross section, this was to make sure that it wasn't too complex, while keeping the basic idea of the generation.
         \begin{figure}[hbt!]
             \centerline{\includegraphics[scale=0.5]{img/Design/Maze Generation.png}}
             \caption{Steps followed by the maze generation}
-            \label{fig}
+            \label{fig:MazeGen}
         \end{figure}
 
         The figure above briefly shows planning behind how the maze generation works, with the rooms outlined in black, as rooms that have a set place, with then the rooms highlighted in blue being the rooms yet to be generated, and thus in the "current" list.
@@ -58,7 +60,7 @@
             \begin{figure}[hbt!]
                 \centerline{\includegraphics[scale=0.3]{img/Design/A-star algorithm.png}}
                 \caption{Drawing describing the process of how the A* algorithm finds the shortest route}
-                \label{fig}
+                \label{fig:AStar}
             \end{figure}
 
             The final box shows what the Node class needs to store, in order for this to work, with the different colours representing different states a node can be in, labelled on the side.
@@ -92,7 +94,7 @@
             \begin{figure}[hbt!]
                 \centerline{\includegraphics[scale=0.3]{img/Design/Overall Design.png}}
                 \caption{Overall Design plan}
-                \label{fig}
+                \label{fig:OverallDesign}
             \end{figure}
 
             Please note that the weapons, potions, and books were gained from Shikashi's Fantasy Icons Pack v2 by Matt Firth. Also the tiles for the rooms were altered slightly to fit the needed tiles however the textures were originally from RPG Nature Tileset - Seasons by Stealthix. However, I will be making the design for each of the npcs as I cannot find any that will fit the design.
@@ -100,7 +102,7 @@
         \clearpage
         \subsubsection{NPCs}
             \begin{center}
-                \begin{tabular}{ | m{0.12\textwidth} | m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} | }
+                \begin{tabular}{ | m{0.13\textwidth} | m{0.11\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} m{0.12\textwidth} | }
                     \hline
                     \textbf{Name} & & & & & & \\
                     \hline
@@ -134,6 +136,7 @@
                     \hline
                 \end{tabular}
             \end{center}
+        \clearpage
         \subsubsection{Weapons}
             \textbf{General}
             \begin{center}
@@ -151,7 +154,6 @@
                     \hline
                 \end{tabular}
             \end{center}
-            \clearpage
             \textbf{Staffs}
             \begin{center}
                 \begin{tabular}{ | m{0.15\textwidth} | m{0.15\textwidth} | m{0.15\textwidth} | }
@@ -180,7 +182,6 @@
                     \hline
                 \end{tabular}
             \end{center}
-        \clearpage
         \subsubsection{Food}
             There are 15 different types of food that the player will be able to find throughout the maze, however they will do the same amount of healing to the player's health.
             \begin{center}
@@ -190,6 +191,7 @@
                     \centerline{\includegraphics{../res/textures/items/potions/food/Lemon.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Meat.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Pear.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Strawberry.png}} & \centerline{\includegraphics{../res/textures/items/potions/food/Tomato.png}} \\
                 \end{tabular}
             \end{center}
+        \clearpage
         \subsubsection{Book}
             There will be different books that the player will be able to find throughout the maze, once used will decrease the player's boredom stat.
 
@@ -225,6 +227,7 @@
             \textbf{Trapdoor} \newline
             \centerline{\includegraphics[scale=4]{../res/textures/tiles/Trapdoor.png}}
 
+        \clearpage
         \subsubsection{Room Layouts}
             These are pixel images that will determine the tile placements in the room, with the different shades corresponding to different tiles.
             \begin{center}
@@ -237,8 +240,6 @@
                 \end{tabular}
             \end{center}
 
-
-    \clearpage
     \subsection{General Design}
         \subsubsection{Stats}
             Each stat will influence part of how you play the game. % These will be upgraded through finding specific items in chests and experience gained from doing different activities like exploring or attacking.
@@ -344,8 +345,6 @@
                 distanceBetweenVec2i & start and end positions & Calculates the distance between two vectors using pythagoras \\
                 \hline
                 distanceBetweenVec2f & start and end positions &  Calculates the distance between two vectors using pythagoras\\
-                \hline
-                & & \\
                 \hline
             \end{tabular}
         \end{center}

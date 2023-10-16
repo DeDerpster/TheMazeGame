@@ -22,13 +22,14 @@
         \subsubsection{Conclusion}
             In conclusion, to make an infinite maze, I shall be using my own algorithm. This is slightly based off Prim's Algorithm, however instead of filling up the whole board, it leaves gaps. This is done by randomising entrances when placing a cell and then added only those possibilities to the list to generate more. This means that when the player moves north, it is able to generate paths that go back on itself however lead to dead end and not connect back up to the maze. This I feel will make a more dynamic maze when continually exploring the maze.
     \clearpage
-    \subsection{Existing Solutions} % TODO: Get a second existing solution
+    \subsection{Existing Solutions}
         \subsubsection{The Binding of Isaac}
             A similar game is The Binding of Isaac. What I liked about this game was the exploration and randomness, along with the challenge of fighting monsters in different rooms. However, I found it frustrating that there was limiting exploration on each level, as the level is not infinite. Furthermore, another issue I had was the only help that you could get was a familiar, in my game I wish to improve this by having set NPCs that you can find when exploring each level. Also, in binding of Isaac, the scrolling is  not smooth, jumping between each room. Also there are no corridors, making it seem less maze like.
             \begin{figure}[hbt!]
                 \centerline{\includegraphics[scale=0.3]{img/The Binding of Isaac.jpg}}
                 \caption{Picture from the binding of Isaac, showing the player (bottom right) attacking the enemies}
             \end{figure}
+    \clearpage
     \subsection{End Users}
         \subsubsection{\textbf{Description}}
             Teenagers who enjoy exploration video games. They should know the basic mechanics of a video game, such as using W, A, S, D keys to move around and space bar to attack. They should also have a curiosity to explore and play around with what they can do, as this would hopefully make it easier for them to understand how the game works, as the game will not have a tutorial explaining how the game works.
@@ -36,11 +37,11 @@
             \begin{itemize}
                 \item Have you played an exploration game before?
                 \begin{figure}[hbt!]
-                    \centerline{\includegraphics[scale=1]{img/Survey/Played Exploration Game.PNG}}
+                    \centerline{\includegraphics[scale=0.9]{img/Survey/Played Exploration Game.PNG}}
                     \caption{Responses from survey showing most people have played an exploration game}
-                    \label{fig}
+                    \label{fig:Question1}
                 \end{figure}
-                \clearpage
+                % \clearpage
                 \item How important is each section when looking for a game?
                 \begin{itemize}
                     \item Boss fights
@@ -49,10 +50,11 @@
                     \item Good story
                 \end{itemize}
                 \begin{figure}[hbt!]
-                    \centerline{\includegraphics[scale=1]{img/Survey/Importance of games.PNG}}
+                    \centerline{\includegraphics[scale=0.9]{img/Survey/Importance of games.PNG}}
                     \caption{Responses from the story showing that it is equally important to have intelligent enemies and NPCs you can interact with}
-                    \label{fig}
+                    \label{fig:Question2}
                 \end{figure}
+                \clearpage
                 \item What era do you like games to be designed as?
                 \begin{itemize}
                     \item Future
@@ -64,32 +66,32 @@
                 \begin{figure}[hbt!]
                     \centerline{\includegraphics[scale=1]{img/Survey/Era of Games.PNG}}
                     \caption{Responses from survey showing that most people like a Medieval design}
-                    \label{fig}
+                    \label{fig:Question3}
                 \end{figure}
-                \clearpage
                 \item Which do you prefer a weight-based system for the inventory (e.g. in Skyrim) or a space-based system (e.g. Minecraft)?
                 \begin{figure}[hbt!]
                     \centerline{\includegraphics[scale=1]{img/Survey/Inventory system.PNG}}
                     \caption{Responses from survey showing that most people like a weight-based system in a game}
-                    \label{fig}
+                    \label{fig:Question4}
                 \end{figure}
+                \clearpage
                 \item Do you prefer being able to move while attacking or a Pokémon style attack system?
                 \begin{figure}[hbt!]
                     \centerline{\includegraphics[scale=1]{img/Survey/Attacking System.PNG}}
                     \caption{Responses from survey showing that the attacking system should allow you to still control the player}
-                    \label{fig}
+                    \label{fig:Question5}
                 \end{figure}
-                \clearpage
                 \item Have you played "The Binding of Isaac"?
                 \begin{figure}[hbt!]
                     \centerline{\includegraphics[scale=1]{img/Survey/Capture.PNG}}
                     \caption{Responses from survey showing that most people in this survey had not played The Binding of Isaac}
-                    \label{fig}
+                    \label{fig:Question6}
                 \end{figure}
                 \begin{itemize}
                     \item If they had I asked what they liked about the game and what they think could be better (talked about in the conclusion)
                 \end{itemize}
             \end{itemize}
+            \clearpage
     \subsubsection{Conclusion}
         As shown in \figurename{ 2}, most people taking the survey had played and exploration or adventure game before, this means that the survey would be somewhat respective of the audience this game will be made for. Surprisingly, in \figurename{ 3}, most people believed that hard boss fights are less important than NPCs you can interact with and intelligent enemies, so I will prioritise those features over creating boss fights. For the design, I will be going for a Medieval theme as it seems as though most people prefer that design scheme (as shown in \figurename{ 4}). Also, I have chosen to use a space-based system for the inventory as in \figurename{ 5}, most people responding that they prefer that system. Also, I will allow the player to attack at any point in the maze (for example shooting a projectile) because (as shown in \figurename{ 6}) people prefer it over an attacking GUI.
 
@@ -107,6 +109,15 @@
         % \end{itemize}
         % From this, it seems that the reliance of chance for loot needs to be carefully managed. So, to combat this I have decided to change loot up between the levels, meaning that you cannot get overpowered loot on the first levels. Also I have decided to add a leveling system that allows you to upgrade your stats to allow more ways to play the game. Furthermore, I will need to create multiple ways to get down to different levels, for examples stairs, or a hidden passage that leads you to a treasure room on the next level.
     \clearpage
+    \subsection{Structure}
+        \begin{figure}[hbt!]
+            \centerline{\includegraphics[scale=0.5]{img/Design/Struture.jpg}}
+            \caption{Rough structure of the main principle of the application}
+            \label{fig:Structure}
+        \end{figure}
+        As shown in Figure \ref{fig:Structure}, the application will store multiple layers (which could be a level). These layers will store objects (which includes entities, spawners, particles etc.). The application will control the rendering and updating through the gameloop. This game loop will call a render function (which should be in all layers) on every layer. These render functions should then call the render function in all objects on the objects that it stores on the layer. Then these objects will use the renderer (which will be a singleton) to render themselves on the screen.
+
+        The same should happen for updating all the objects, the application should call the update function on the layer, which will then call the update function on all of its objects. This will allow a simple solution to the problem of how to render and update all the objects in the application. Furthermore, it will give the opportunity for the layer to determine what is rendered and updated.
     \subsection{Objectives}
         \begin{enumerate}
             \item Have an effective rendering system

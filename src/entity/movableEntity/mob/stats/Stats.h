@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "effects/Effect.h"
+#include "effect/Effect.h"
 
 class Stats
 {
@@ -70,5 +70,5 @@ class Stats
 	const float *getStaminaPointer();
 	const float *getMaxStaminaPointer();
 
-	void addEffect(StatsEffect &effect);
+	void addEffect(const StatsEffect &effect);
 };

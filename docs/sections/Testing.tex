@@ -176,27 +176,30 @@
                 \caption{The menu that is shown when the player dies}
                 \label{fig:DeathMenu}
             \end{figure}
+        \subsubsection{Video}
+            Link: **No longer exists**
+
+            The video contains different clips gathered through the testing phase. The table references specific times throughout it to showcase different features working as expected.
+        \clearpage
         \subsubsection{Table}
             \begin{center}
-                \begin{tabular}{ | m{0.2\textwidth} | m{0.5\textwidth} | m{0.1\textwidth} | m{0.1\textwidth} | }
+                \begin{tabular}{ | m{0.2\textwidth} | m{0.4\textwidth} | m{0.1\textwidth} | m{0.1\textwidth} | m{0.1\textwidth}| }
                     \hline
-                    \textbf{Objective} & \textbf{Expected Outcome} & \textbf{Passed?} & \textbf{Figures} \\
+                    \textbf{Objective} & \textbf{Expected Outcome} & \textbf{Passed?} & \textbf{Figures} & \textbf{Video} \\
                     \hline
-                    Have an effective rendering system & Have camera that can move around using OpenGL and be able to render a tile or object on the screen. & Yes & All \\
+                    Have an effective rendering system & Have camera that can move around using OpenGL and be able to render a tile or object on the screen. & Yes & All & All \\
                     \hline
-                    Be able to generate an infinite maze & Have a maze that can generate rooms and procedurally generated as the player moves around. & Yes & \ref{fig:FullMaze}\\
+                    Be able to generate an infinite maze & Have a maze that can generate rooms and procedurally generated as the player moves around. & Yes & \ref{fig:FullMaze} & All \\
                     \hline
-                    Create NPCs that rome the maze and can start following you & The player should be able to find NPCs, in the maze roaming around, and once clicked, should be able to get them to follow the player around using the A* algorithm. & Yes & \ref{fig:Follower}, \ref{fig:FollowerQuestion}, \ref{fig:FollowerFollowing} \\
+                    Create NPCs that rome the maze and can start following you & The player should be able to find NPCs, in the maze roaming around, and once clicked, should be able to get them to follow the player around using the A* algorithm. & Yes & \ref{fig:Follower}, \ref{fig:FollowerQuestion}, \ref{fig:FollowerFollowing} & 0:57-End 1:23-1:30 \\
                     \hline
-                    Add items and a way to collect them with a simple space-based inventory system & Have different items in the game which the player can collect with an inventory and pass onto their followers & Yes & \ref{fig:PlayerInventory}, \ref{fig:FollowerInventory} \\
+                    Add items and a way to collect them with a simple space-based inventory system & Have different items in the game which the player can collect with an inventory and pass onto their followers & Yes & \ref{fig:PlayerInventory}, \ref{fig:FollowerInventory} & 0:27-0:56 \\
                     \hline
-                    Add combat into the game & Allow the player to be able to find enemies in the maze, which will start attacking the player when in close proximity. The player is able to fight back (with their followers automatically attacking the enemy) firing projectiles from different weapons that do damage the the enemy and causes particles to spawn when it hits an object & Yes & \ref{fig:Firing}, \ref{fig:Enemy}, \ref{fig:FollowerAttacking} \\
+                    Add combat into the game & Allow the player to be able to find enemies in the maze, which will start attacking the player when in close proximity. The player is able to fight back (with their followers automatically attacking the enemy) firing projectiles from different weapons that do damage the the enemy and causes particles to spawn when it hits an object & Yes & \ref{fig:Firing}, \ref{fig:Enemy}, \ref{fig:FollowerAttacking} & 1:23-1:44 2:14-2:24 \\
                     \hline
-                    Create different rooms that can be found in the maze. &  Have different rooms, e.g. a chest and trap room, that can be found throughout the maze, also allow the room with the enemy in to automatically close the entrances so that the player cannot escape & Yes & \ref{fig:ChestRoom}, \ref{fig:ChestRoomInventory}, \ref{fig:TrapRoom}, \ref{fig:TrapRoomAttack}, \ref{fig:TrapdoorRoom} \\
+                    Create different rooms that can be found in the maze. &  Have different rooms, e.g. a chest and trap room, that can be found throughout the maze, also allow the room with the enemy in to automatically close the entrances so that the player cannot escape & Yes & \ref{fig:ChestRoom}, \ref{fig:ChestRoomInventory}, \ref{fig:TrapRoom}, \ref{fig:TrapRoomAttack}, \ref{fig:TrapdoorRoom} & 0:14-0:18, 0:24-0:26, 2:14-2:24 \\
                     \hline
-                    Create a menu system & Menus should be able to allow the user to navigate through the game, including one for the inventory and main menu. They should also allow the transfer of items between different containers such as a chest or a follower & Yes & \ref{fig:ExitMenu}, \ref{fig:GUI}, \ref{fig:MainMenu}, \ref{fig:WinMenu}, \ref{fig:DeathMenu}, \ref{fig:ChestRoomInventory}, \ref{fig:PlayerInventory}, \ref{fig:FollowerInventory} \\
-                    \hline
-                    Finalise everything & The sprites should be updated to a medieval theme with more stats for the player to try and attack & Yes & All \\
+                    Create a menu system & Menus should be able to allow the user to navigate through the game, including one for the inventory and main menu. They should also allow the transfer of items between different containers such as a chest or a follower & Yes & \ref{fig:ExitMenu}, \ref{fig:GUI}, \ref{fig:MainMenu}, \ref{fig:WinMenu}, \ref{fig:DeathMenu}, \ref{fig:ChestRoomInventory}, \ref{fig:PlayerInventory}, \ref{fig:FollowerInventory} & 0:00-0:13 \\
                     \hline
                 \end{tabular}
             \end{center}

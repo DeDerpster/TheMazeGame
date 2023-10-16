@@ -1,7 +1,7 @@
 #include "item/potion/Potion.h"
 
 #include "RandomGen.h"
-#include "entity/movableEntity/mob/stats/effects/Effect.h"
+#include "entity/movableEntity/mob/stats/effect/Effect.h"
 
 Potion::Potion(Type type)
 	: Item(std::string(), Sprite::ID::errorID)

@@ -296,7 +296,7 @@ bool Room::eventCallback(const Event::Event &e)
 	bool moveEntity = false;
 
 	// Checks for a player response (as it will have to move the follower into the maze)
-	if(e.getType() == Event::EventType::PlayerResponse)
+	if(e.getType() == Event::EventType::PlayerResponse && m_Level->getPlayer()->canAddFollower())
 	{
 		const Event::PlayerResponseEvent &ne = static_cast<const Event::PlayerResponseEvent &>(e);
 
@@ -415,9 +415,11 @@ void Room::checkForMobs()
 	{   // If it is locked it will check if any mobs are left
 		auto searchFunc = [this](const Entity *o) -> bool {
 			const Mob *mob = dynamic_cast<const Mob *>(o);
-			return mob && mob->getEnemy() == m_Level->getPlayer();
+			return mob && (mob->getEnemy() == m_Level->getPlayer() || mob->getFollowing());
 		};
+
 		std::vector<Entity *>::iterator it = std::find_if(m_Entities.begin(), m_Entities.end(), searchFunc);
+
 		if(it == m_Entities.end())
 		{
 			Event::ShowAltTileEvent e(false);

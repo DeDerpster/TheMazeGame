@@ -5,7 +5,7 @@
 #include "layer/level/Level.h"
 #include "rendering/sprite/Sprite.h"
 
-#include "particle/spawner/ParticleSpawner.h"
+#include "spawner/particle/ParticleSpawner.h"
 
 #include "event/game/MobDied.h"
 

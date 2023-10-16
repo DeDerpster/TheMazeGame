@@ -15,7 +15,7 @@
 #include "entity/movableEntity/mob/Player.h"
 #include "entity/movableEntity/projectile/Projectile.h"
 #include "maze/room/Room.h"
-#include "particle/spawner/Spawner.h"
+#include "spawner/Spawner.h"
 
 class Level : public Layer
 {

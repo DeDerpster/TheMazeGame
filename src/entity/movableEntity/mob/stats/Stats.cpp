@@ -227,7 +227,7 @@ const float *Stats::getMaxHealthPointer() { return &m_MaxHealth; }
 const float *Stats::getStaminaPointer() { return &m_Stamina; }
 const float *Stats::getMaxStaminaPointer() { return &m_MaxStamina; }
 
-void Stats::addEffect(StatsEffect &effect)
+void Stats::addEffect(const StatsEffect &effect)
 {
 	m_Effects.push_back(effect);
 }

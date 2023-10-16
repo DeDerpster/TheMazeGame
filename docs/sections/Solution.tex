@@ -1,7 +1,57 @@
 \documentclass[../Main.tex]{subfiles}
 
 \begin{document}
-    All of the files here are relative to the "src" folder.
+All of the files here are relative to the "src" folder.
+    \subsection{Skills Table}
+        Note: the table does not include every instance, only one instances.
+        \begin{center}
+            \begin{tabular}{ | m{0.51\textwidth} | m{0.30\textwidth} | m{0.10\textwidth} | }
+                \hline
+                \textbf{Skill} & \textbf{Filename}  & \textbf{Lines} \\
+                \hline
+                1D Array & maze/room/Room.cpp & 41 \\
+                \hline
+                2D Array & utils/AStarUtils.h & 135 \\
+                \hline
+                A Star Algorithm & utils/AStarUtils.h & 117-273 \\
+                \hline
+                Abstract Class & entity/Entity.h & 27 \\
+                \hline
+                Composition & layer/level/Level.h & 24 \\
+                \hline
+                Higher Order Functions & gui/object/MenuObject.h & 21 \\
+                \hline
+                Inheritance & layer/level/Level.h & 20 \\
+                \hline
+                Interface & utils/Container.h & 50-70 \\
+                \hline
+                Lambda Function & layer/GUILayer.cpp & 40 \\
+                \hline
+                Maze Generation Algorithm & layer/level/Maze.cpp & 244-348 \\
+                \hline
+                Multithreading & layer/level/Maze.cpp & 358-360 \\
+                \hline
+                Operation Overloading & utils/2dVec.h & 15-41 \\
+                \hline
+                Overriding & entity/object/WorldItem.h & 20 \\
+                \hline
+                Pattern Matching & layer/Layer.cpp & 14-45 \\
+                \hline
+                Read and Write to text file & utils/Log.cpp & 158-163 \\
+                \hline
+                Shortest Path Generator & layer/level/Level.h & 439-627 \\
+                \hline
+                Singleton & Application.h & 12-119 \\
+                \hline
+                Stack & layer/MessageManager.h & 41 \\
+                \hline
+                Unordered Map & rendering/glInterface/Shader.h & 14 \\
+                \hline
+                User defined data types & utils/Direction.h & 3-9 \\
+                \hline
+            \end{tabular}
+        \end{center}
+
     \subsection{Main files}
         \textbf{Main.cpp}
         \lstinputlisting[language = C++]{../src/MazeGame.cpp}
@@ -14,13 +64,19 @@
             \textbf{utils/AStarUtils.h}
             \lstinputlisting[language = C++]{../src/utils/AStarUtils.h}
 
-            \textbf{utils/Utils.h}
-            \lstinputlisting[language = C++]{../src/utils/Utils.h}
-            \textbf{Utils.cpp}
-            \lstinputlisting[language = C++]{../src/utils/Utils.cpp}
+            \textbf{utils/2dVec.h}
+            \lstinputlisting[language = C++]{../src/utils/2dVec.h}
 
-            \textbf{utils/RoomColours.h}
-            \lstinputlisting[language = C++]{../src/utils/RoomColours.h}
+            \textbf{utils/Direction.h}
+            \lstinputlisting[language = C++]{../src/utils/Direction.h}
+            \textbf{utils/Direction.cpp}
+            \lstinputlisting[language = C++]{../src/utils/Direction.cpp}
+
+            \textbf{utils/CollisionBox.h}
+            \lstinputlisting[language = C++]{../src/utils/CollisionBox.h}
+            \textbf{utils/CollisionBox.cpp}
+            \lstinputlisting[language = C++]{../src/utils/CollisionBox.cpp}
+
 
         \subsubsection{Camera}
             \textbf{utils/Camera.h}
@@ -36,12 +92,6 @@
             \textbf{utils/WeaponContainer.h}
             \lstinputlisting[language = C++]{../src/utils/WeaponContainer.h}
 
-        \subsubsection{Event}
-            \textbf{utils/Event.h}
-            \lstinputlisting[language = C++]{../src/utils/Event.h}
-            \textbf{utils/Event.cpp}
-            \lstinputlisting[language = C++]{../src/utils/Event.cpp}
-
         \subsubsection{Log}
             \textbf{utils/Log.h}
             \lstinputlisting[language = C++]{../src/utils/Log.h}
@@ -54,10 +104,60 @@
             \textbf{utils/RandomGen.cpp}
             \lstinputlisting[language = C++]{../src/utils/RandomGen.cpp}
 
+        \subsubsection{EffectsManager}
+            \textbf{utils/ShaderEffectsManager.h}
+            \lstinputlisting[language = C++]{../src/utils/ShaderEffectsManager.h}
+            \textbf{utils/ShaderEffectsManager.cpp}
+            \lstinputlisting[language = C++]{../src/utils/ShaderEffectsManager.cpp}
+
+    \subsection{Event}
+        \textbf{event/Event.h}
+        \lstinputlisting[language = C++]{../src/event/Event.h}
+        \textbf{event/Event.cpp}
+        \lstinputlisting[language = C++]{../src/event/Event.cpp}
+
+        \subsubsection{Effect Events}
+            \textbf{event/effect/ShaderEffect.h}
+            \lstinputlisting[language = C++]{../src/event/effect/ShaderEffect.h}
+
+        \subsubsection{Game Events}
+            \textbf{event/game/ChestOpened.h}
+            \lstinputlisting[language = C++]{../src/event/game/ChestOpened.h}
+
+            \textbf{event/game/MazeMoved.h}
+            \lstinputlisting[language = C++]{../src/event/game/MazeMoved.h}
+
+            \textbf{event/game/MobDied.h}
+            \lstinputlisting[language = C++]{../src/event/game/MobDied.h}
+
+            \textbf{event/game/PlayerResponse.h}
+            \lstinputlisting[language = C++]{../src/event/game/PlayerResponse.h}
+
+            \textbf{event/game/ShowAlternatives.h}
+            \lstinputlisting[language = C++]{../src/event/game/ShowAlternatives.h}
+
+        \subsubsection{Input Events}
+            \textbf{event/input/Keyboard.h}
+            \lstinputlisting[language = C++]{../src/event/input/Keyboard.h}
+
+            \textbf{event/input/Mouse.h}
+            \lstinputlisting[language = C++]{../src/event/input/Mouse.h}
+
+        \subsubsection{Menu Events}
+            \textbf{event/menu/ChangeGUIMenu.h}
+            \lstinputlisting[language = C++]{../src/event/menu/ChangeGUIMenu.h}
+
+            \textbf{event/menu/Transfer.h}
+            \lstinputlisting[language = C++]{../src/event/menu/Transfer.h}
+
+            \textbf{event/menu/WindowResize.h}
+            \lstinputlisting[language = C++]{../src/event/menu/WindowResize.h}
+
     \subsection{Rendering}
         \subsection{Renderer}
             \textbf{rendering/Buffer.h}
             \lstinputlisting[language = C++]{../src/rendering/Buffer.h}
+
             \textbf{rendering/RenderVertex.h}
             \lstinputlisting[language = C++]{../src/rendering/RenderVertex.h}
 
@@ -70,16 +170,6 @@
             \lstinputlisting[language = C++]{../src/rendering/Renderer.h}
             \textbf{rendering/Renderer.cpp}
             \lstinputlisting[language = C++]{../src/rendering/Renderer.cpp}
-
-        \subsubsection{Effects}
-            \textbf{rendering/effect/Effect.h}
-            \lstinputlisting[language = C++]{../src/rendering/effect/Effect.h}
-            \textbf{rendering/effect/ShaderEffectCarrier.h}
-            \lstinputlisting[language = C++]{../src/rendering/effect/ShaderEffectCarrier.h}
-            \textbf{rendering/effect/ShaderEffectsManager.h}
-            \lstinputlisting[language = C++]{../src/rendering/effect/ShaderEffectsManager.h}
-            \textbf{rendering/effect/ShaderEffectsManager.cpp}
-            \lstinputlisting[language = C++]{../src/rendering/effect/ShaderEffectsManager.cpp}
 
         \subsubsection{OpenGL Interface}
             \textbf{rendering/glInterface/glDebug.h}
@@ -114,91 +204,104 @@
             \lstinputlisting[language = C++]{../src/rendering/glInterface/VertexBufferLayout.h}
             \textbf{rendering/glInterface/VertexBufferLayout.cpp}
             \lstinputlisting[language = C++]{../src/rendering/glInterface/VertexBufferLayout.cpp}
+
         \subsubsection{Sprites}
-            \textbf{rendering/sprites/AnimatedSprite.h}
-            \lstinputlisting[language = C++]{../src/rendering/sprites/AnimatedSprite.h}
-            \textbf{rendering/sprites/AnimatedSprite.cpp}
-            \lstinputlisting[language = C++]{../src/rendering/sprites/AnimatedSprite.cpp}
+            \textbf{rendering/sprite/AnimatedSprite.h}
+            \lstinputlisting[language = C++]{../src/rendering/sprite/AnimatedSprite.h}
+            \textbf{rendering/sprite/AnimatedSprite.cpp}
+            \lstinputlisting[language = C++]{../src/rendering/sprite/AnimatedSprite.cpp}
 
-            \textbf{rendering/sprites/Sprite.h}
-            \lstinputlisting[language = C++]{../src/rendering/sprites/Sprite.h}
-            \textbf{rendering/sprites/Sprite.cpp}
-            \lstinputlisting[language = C++]{../src/rendering/sprites/Sprite.cpp}
+            \textbf{rendering/sprite/Sprite.h}
+            \lstinputlisting[language = C++]{../src/rendering/sprite/Sprite.h}
+            \textbf{rendering/sprite/Sprite.cpp}
+            \lstinputlisting[language = C++]{../src/rendering/sprite/Sprite.cpp}
 
-            \textbf{rendering/sprites/SpritePaths.h}
-            \lstinputlisting[language = C++]{../src/rendering/sprites/SpritePaths.h}
+            \textbf{rendering/sprite/SpritePaths.h}
+            \lstinputlisting[language = C++]{../src/rendering/sprite/SpritePaths.h}
 
-    \subsection{Particle}
+    \subsection{Spawners}
+        \textbf{spawner/Spawner.h}
+        \lstinputlisting[language = C++]{../src/spawner/Spawner.h}
+        \textbf{spawner/Spawner.cpp}
+        \lstinputlisting[language = C++]{../src/spawner/Spawner.cpp}
+
         \subsubsection{particle}
-            \textbf{particle/particle/Particle.h}
-            \lstinputlisting[language = C++]{../src/particle/particle/Particle.h}
-            \textbf{particle/particle/Particle.cpp}
-            \lstinputlisting[language = C++]{../src/particle/particle/Particle.cpp}
+            \textbf{spawner/particle/Particle.h}
+            \lstinputlisting[language = C++]{../src/spawner/particle/Particle.h}
+            \textbf{spawner/particle/Particle.cpp}
+            \lstinputlisting[language = C++]{../src/spawner/particle/Particle.cpp}
 
-        \subsubsection{spawner}
-            \textbf{particle/spawner/Spawner.h}
-            \lstinputlisting[language = C++]{../src/particle/spawner/Spawner.h}
-            \textbf{particle/spawner/Spawner.cpp}
-            \lstinputlisting[language = C++]{../src/particle/spawner/Spawner.cpp}
-
-            \textbf{particle/spawner/ParticleSpawner.h}
-            \lstinputlisting[language = C++]{../src/particle/spawner/ParticleSpawner.h}
-            \textbf{particle/spawner/ParticleSpawner.cpp}
-            \lstinputlisting[language = C++]{../src/particle/spawner/ParticleSpawner.cpp}
+            \textbf{spawner/particle/ParticleSpawner.h}
+            \lstinputlisting[language = C++]{../src/spawner/particle/ParticleSpawner.h}
+            \textbf{spawner/particle/ParticleSpawner.cpp}
+            \lstinputlisting[language = C++]{../src/spawner/particle/ParticleSpawner.cpp}
 
     \subsection{Maze}
         \subsubsection{Room}
-            \textbf{maze/rooms/Room.h}
-            \lstinputlisting[language = C++]{../src/maze/rooms/Room.h}
-            \textbf{maze/rooms/Room.cpp}
-            \lstinputlisting[language = C++]{../src/maze/rooms/Room.cpp}
+            \textbf{maze/room/Room.h}
+            \lstinputlisting[language = C++]{../src/maze/room/Room.h}
+            \textbf{maze/room/Room.cpp}
+            \lstinputlisting[language = C++]{../src/maze/room/Room.cpp}
 
         \subsubsection{Tiles}
-            \textbf{maze/tiles/Tile.h}
-            \lstinputlisting[language = C++]{../src/maze/tiles/Tile.h}
-            \textbf{maze/tiles/Tile.cpp}
-            \lstinputlisting[language = C++]{../src/maze/tiles/Tile.cpp}
+            \textbf{maze/tile/Tile.h}
+            \lstinputlisting[language = C++]{../src/maze/tile/Tile.h}
+            \textbf{maze/tile/Tile.cpp}
+            \lstinputlisting[language = C++]{../src/maze/tile/Tile.cpp}
 
-            \textbf{maze/tiles/Chest.h}
-            \lstinputlisting[language = C++]{../src/maze/tiles/Chest.h}
-            \textbf{maze/tiles/Chest.cpp}
-            \lstinputlisting[language = C++]{../src/maze/tiles/Chest.cpp}
+            \textbf{maze/tile/Chest.h}
+            \lstinputlisting[language = C++]{../src/maze/tile/Chest.h}
+            \textbf{maze/tile/Chest.cpp}
+            \lstinputlisting[language = C++]{../src/maze/tile/Chest.cpp}
 
-            \textbf{maze/tiles/SwitchTile.h}
-            \lstinputlisting[language = C++]{../src/maze/tiles/SwitchTile.h}
-            \textbf{maze/tiles/SwitchTile.cpp}
-            \lstinputlisting[language = C++]{../src/maze/tiles/SwitchTile.cpp}
+            \textbf{maze/tile/SwitchTile.h}
+            \lstinputlisting[language = C++]{../src/maze/tile/SwitchTile.h}
+            \textbf{maze/tile/SwitchTile.cpp}
+            \lstinputlisting[language = C++]{../src/maze/tile/SwitchTile.cpp}
 
-            \textbf{maze/tiles/Trap.h}
-            \lstinputlisting[language = C++]{../src/maze/tiles/Trap.h}
-            \textbf{maze/tiles/Trap.cpp}
-            \lstinputlisting[language = C++]{../src/maze/tiles/Trap.cpp}
+            \textbf{maze/tile/Trap.h}
+            \lstinputlisting[language = C++]{../src/maze/tile/Trap.h}
+            \textbf{maze/tile/Trap.cpp}
+            \lstinputlisting[language = C++]{../src/maze/tile/Trap.cpp}
 
-            \textbf{maze/tiles/Trapdoor.h}
-            \lstinputlisting[language = C++]{../src/maze/tiles/Trapdoor.h}
-            \textbf{maze/tiles/Trapdoor.cpp}
-            \lstinputlisting[language = C++]{../src/maze/tiles/Trapdoor.cpp}
+            \textbf{maze/tile/Trapdoor.h}
+            \lstinputlisting[language = C++]{../src/maze/tile/Trapdoor.h}
+            \textbf{maze/tile/Trapdoor.cpp}
+            \lstinputlisting[language = C++]{../src/maze/tile/Trapdoor.cpp}
 
-    \subsection{Levels}
-        \textbf{levels/Level.h}
-        \lstinputlisting[language = C++]{../src/levels/Level.h}
-        \textbf{levels/Level.cpp}
-        \lstinputlisting[language = C++]{../src/levels/Level.cpp}
-
-        \textbf{levels/Maze.h}
-        \lstinputlisting[language = C++]{../src/levels/Maze.h}
-        \textbf{levels/Maze.cpp}
-        \lstinputlisting[language = C++]{../src/levels/Maze.cpp}
     \subsection{Layers}
-        \textbf{layers/Layer.h}
-        \lstinputlisting[language = C++]{../src/layers/Layer.h}
-        \textbf{layers/Layer.cpp}
-        \lstinputlisting[language = C++]{../src/layers/Layer.cpp}
+        \textbf{layer/Layer.h}
+        \lstinputlisting[language = C++]{../src/layer/Layer.h}
+        \textbf{layer/Layer.cpp}
+        \lstinputlisting[language = C++]{../src/layer/Layer.cpp}
 
-        \textbf{layers/MessageManager.h}
-        \lstinputlisting[language = C++]{../src/layers/MessageManager.h}
-        \textbf{layers/MessageManager.cpp}
-        \lstinputlisting[language = C++]{../src/layers/MessageManager.cpp}
+        \subsubsection{Levels}
+            \textbf{layer/level/Level.h}
+            \lstinputlisting[language = C++]{../src/layer/level/Level.h}
+            \textbf{layer/level/Level.cpp}
+            \lstinputlisting[language = C++]{../src/layer/level/Level.cpp}
+
+            \textbf{layer/level/Maze.h}
+            \lstinputlisting[language = C++]{../src/layer/level/Maze.h}
+            \textbf{layer/level/Maze.cpp}
+            \lstinputlisting[language = C++]{../src/layer/level/Maze.cpp}
+
+        \subsubsection{GUI}
+            \textbf{layer/GUILayer.h}
+            \lstinputlisting[language = C++]{../src/layer/GUILayer.h}
+            \textbf{layer/GUILayer.cpp}
+            \lstinputlisting[language = C++]{../src/layer/GUILayer.cpp}
+
+            \textbf{layer/GUIStack.h}
+            \lstinputlisting[language = C++]{../src/layer/GUIStack.h}
+            \textbf{layer/GUIStack.cpp}
+            \lstinputlisting[language = C++]{../src/layer/GUIStack.cpp}
+
+            \textbf{layer/MessageManager.h}
+            \lstinputlisting[language = C++]{../src/layer/MessageManager.h}
+            \textbf{layer/MessageManager.cpp}
+            \lstinputlisting[language = C++]{../src/layer/MessageManager.cpp}
+
     \subsection{Items}
         \subsubsection{Base}
             \textbf{item/Item.h}
@@ -207,119 +310,113 @@
             \lstinputlisting[language = C++]{../src/item/Item.cpp}
 
         \subsubsection{Potions}
-            \textbf{item/potions/Potion.h}
-            \lstinputlisting[language = C++]{../src/item/potions/Potion.h}
-            \textbf{item/potions/Potion.cpp}
-            \lstinputlisting[language = C++]{../src/item/potions/Potion.cpp}
+            \textbf{item/potion/Potion.h}
+            \lstinputlisting[language = C++]{../src/item/potion/Potion.h}
+            \textbf{item/potion/Potion.cpp}
+            \lstinputlisting[language = C++]{../src/item/potion/Potion.cpp}
 
         \subsubsection{Weapons}
-            \textbf{item/weapons/Weapon.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/Weapon.h}
-            \textbf{item/weapons/Weapon.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/Weapon.cpp}
+            \textbf{item/weapon/Weapon.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/Weapon.h}
+            \textbf{item/weapon/Weapon.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/Weapon.cpp}
 
-            \textbf{item/weapons/general/Boomerang.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/general/Boomerang.h}
-            \textbf{item/weapons/general/Boomerang.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/general/Boomerang.cpp}
+            \textbf{item/weapon/general/Boomerang.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/general/Boomerang.h}
+            \textbf{item/weapon/general/Boomerang.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/general/Boomerang.cpp}
 
-            \textbf{item/weapons/general/Bow.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/general/Bow.h}
+            \textbf{item/weapon/general/Bow.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/general/Bow.h}
             \textbf{item/weapons/general/Bow.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/general/Bow.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/general/Bow.cpp}
 
-            \textbf{item/weapons/general/Crossbow.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/general/Crossbow.h}
+            \textbf{item/weapon/general/Crossbow.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/general/Crossbow.h}
             \textbf{item/weapons/general/Crossbow.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/general/Crossbow.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/general/Crossbow.cpp}
 
-            \textbf{item/weapons/general/Sling.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/general/Sling.h}
+            \textbf{item/weapon/general/Sling.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/general/Sling.h}
             \textbf{item/weapons/general/Sling.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/general/Sling.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/general/Sling.cpp}
 
-            \textbf{item/weapons/staffs/DarkStaff.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/DarkStaff.h}
-            \textbf{item/weapons/staffs/DarkStaff.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/DarkStaff.cpp}
+            \textbf{item/weapon/staff/DarkStaff.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/DarkStaff.h}
+            \textbf{item/weapons/staff/DarkStaff.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/DarkStaff.cpp}
 
-            \textbf{item/weapons/staffs/EarthStaff.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/EarthStaff.h}
-            \textbf{item/weapons/staffs/EarthStaff.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/EarthStaff.cpp}
+            \textbf{item/weapon/staff/EarthStaff.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/EarthStaff.h}
+            \textbf{item/weapons/staff/EarthStaff.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/EarthStaff.cpp}
 
-            \textbf{item/weapons/staffs/FireStaff.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/FireStaff.h}
-            \textbf{item/weapons/staffs/FireStaff.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/FireStaff.cpp}
+            \textbf{item/weapon/staff/FireStaff.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/FireStaff.h}
+            \textbf{item/weapons/staff/FireStaff.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/FireStaff.cpp}
 
-            \textbf{item/weapons/staffs/FrostStaff.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/FrostStaff.h}
-            \textbf{item/weapons/staffs/FrostStaff.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/FrostStaff.cpp}
+            \textbf{item/weapon/staff/FrostStaff.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/FrostStaff.h}
+            \textbf{item/weapons/staff/FrostStaff.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/FrostStaff.cpp}
 
-            \textbf{item/weapons/staffs/GoldStaff.h}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/GoldStaff.h}
-            \textbf{item/weapons/staffs/GoldStaff.cpp}
-            \lstinputlisting[language = C++]{../src/item/weapons/staffs/GoldStaff.cpp}
+            \textbf{item/weapon/staff/GoldStaff.h}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/GoldStaff.h}
+            \textbf{item/weapon/staff/GoldStaff.cpp}
+            \lstinputlisting[language = C++]{../src/item/weapon/staff/GoldStaff.cpp}
 
     \subsection{GUI}
-        \subsubsection{Layer}
-            \textbf{gui/GUILayer.h}
-            \lstinputlisting[language = C++]{../src/gui/GUILayer.h}
-            \textbf{gui/GUILayer.cpp}
-            \lstinputlisting[language = C++]{../src/gui/GUILayer.cpp}
-
-            \textbf{gui/GUIStack.h}
-            \lstinputlisting[language = C++]{../src/gui/GUIStack.h}
-            \textbf{gui/GUIStack.cpp}
-            \lstinputlisting[language = C++]{../src/gui/GUIStack.cpp}
-
         \subsubsection{Objects}
-            \textbf{gui/objects/MenuObject.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/MenuObject.h}
-            \textbf{gui/objects/MenuObject.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/MenuObject.cpp}
+            \textbf{gui/object/MenuObject.h}
+            \lstinputlisting[language = C++]{../src/gui/object/MenuObject.h}
+            \textbf{gui/object/MenuObject.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/MenuObject.cpp}
 
-            \textbf{gui/objects/Button.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/Button.h}
-            \textbf{gui/objects/Button.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/Button.cpp}
+            \textbf{gui/object/Button.h}
+            \lstinputlisting[language = C++]{../src/gui/object/Button.h}
+            \textbf{gui/object/Button.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/Button.cpp}
 
-            \textbf{gui/objects/Image.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/Image.h}
-            \textbf{gui/objects/Image.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/Image.cpp}
+            \textbf{gui/object/Image.h}
+            \lstinputlisting[language = C++]{../src/gui/object/Image.h}
+            \textbf{gui/object/Image.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/Image.cpp}
 
-            \textbf{gui/objects/MenuBackgroundObject.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/MenuBackgroundObject.h}
-            \textbf{gui/objects/MenuBackgroundObject.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/MenuBackgroundObject.cpp}
+            \textbf{gui/object/MenuBackgroundObject.h}
+            \lstinputlisting[language = C++]{../src/gui/object/MenuBackgroundObject.h}
+            \textbf{gui/object/MenuBackgroundObject.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/MenuBackgroundObject.cpp}
 
-            \textbf{gui/objects/MenuItemHolderManager.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/MenuItemHolderManager.h}
-            \textbf{gui/objects/MenuItemHolderManager.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/MenuItemHolderManager.cpp}
+            \textbf{gui/object/MenuItemHolderManager.h}
+            \lstinputlisting[language = C++]{../src/gui/object/MenuItemHolderManager.h}
+            \textbf{gui/object/MenuItemHolderManager.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/MenuItemHolderManager.cpp}
 
-            \textbf{gui/objects/StatBar.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/StatBar.h}
-            \textbf{gui/objects/StatBar.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/StatBar.cpp}
+            \textbf{gui/object/Slider.h}
+            \lstinputlisting[language = C++]{../src/gui/object/Slider.h}
+            \textbf{gui/object/Slider.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/Slider.cpp}
 
-            \textbf{gui/objects/Text.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/Text.h}
-            \textbf{gui/objects/Text.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/Text.cpp}
+            \textbf{gui/object/StatBar.h}
+            \lstinputlisting[language = C++]{../src/gui/object/StatBar.h}
+            \textbf{gui/object/StatBar.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/StatBar.cpp}
 
-            \textbf{gui/objects/TextMenuObject.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/TextMenuObject.h}
-            \textbf{gui/objects/TextMenuObject.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/TextMenuObject.cpp}
+            \textbf{gui/object/Text.h}
+            \lstinputlisting[language = C++]{../src/gui/object/Text.h}
+            \textbf{gui/object/Text.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/Text.cpp}
 
-            \textbf{gui/objects/TransferObject.h}
-            \lstinputlisting[language = C++]{../src/gui/objects/TransferObject.h}
-            \textbf{gui/objects/TransferObject.cpp}
-            \lstinputlisting[language = C++]{../src/gui/objects/TransferObject.cpp}
+            \textbf{gui/object/TextMenuObject.h}
+            \lstinputlisting[language = C++]{../src/gui/object/TextMenuObject.h}
+            \textbf{gui/object/TextMenuObject.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/TextMenuObject.cpp}
+
+            \textbf{gui/object/TransferObject.h}
+            \lstinputlisting[language = C++]{../src/gui/object/TransferObject.h}
+            \textbf{gui/object/TransferObject.cpp}
+            \lstinputlisting[language = C++]{../src/gui/object/TransferObject.cpp}
 
     \subsection{Entities}
         \subsubsection{Base}
@@ -339,10 +436,13 @@
             \textbf{entity/movableEntity/mob/Mob.cpp}
             \lstinputlisting[language = C++]{../src/entity/movableEntity/mob/Mob.cpp}
 
-            \textbf{entity/movableEntity/mob/StatsMob.h}
-            \lstinputlisting[language = C++]{../src/entity/movableEntity/mob/StatsMob.h}
-            \textbf{entity/movableEntity/mob/StatsMob.cpp}
-            \lstinputlisting[language = C++]{../src/entity/movableEntity/mob/StatsMob.cpp}
+            \textbf{entity/movableEntity/mob/stats/Stats.h}
+            \lstinputlisting[language = C++]{../src/entity/movableEntity/mob/stats/Stats.h}
+            \textbf{entity/movableEntity/mob/stats/Stats.cpp}
+            \lstinputlisting[language = C++]{../src/entity/movableEntity/mob/stats/Stats.cpp}
+
+            \textbf{entity/movableEntity/mob/stats/effect/Effect.h}
+            \lstinputlisting[language = C++]{../src/entity/movableEntity/mob/stats/effect/Effect.h}
 
             \textbf{entity/movableEntity/mob/Player.h}
             \lstinputlisting[language = C++]{../src/entity/movableEntity/mob/Player.h}
@@ -361,10 +461,10 @@
             \lstinputlisting[language = C++]{../src/entity/movableEntity/projectile/Projectile.cpp}
 
         \subsubsection{Object}
-            \textbf{entity/objects/WorldItem.h}
-            \lstinputlisting[language = C++]{../src/entity/objects/WorldItem.h}
-            \textbf{entity/objects/WorldItem.cpp}
-            \lstinputlisting[language = C++]{../src/entity/objects/WorldItem.cpp}
+            \textbf{entity/object/WorldItem.h}
+            \lstinputlisting[language = C++]{../src/entity/object/WorldItem.h}
+            \textbf{entity/object/WorldItem.cpp}
+            \lstinputlisting[language = C++]{../src/entity/object/WorldItem.cpp}
 
     \subsection{Headers}
         These headers are used because they allow me to precompile the headers so that it takes a shorter time to compile the whole project
@@ -382,6 +482,8 @@
         \lstinputlisting[language = C++]{../src/headers/LogHeaders.h}
         \textbf{headers/MazeHeaders.h}
         \lstinputlisting[language = C++]{../src/headers/MazeHeaders.h}
+        \textbf{utils/RoomColours.h}
+        \lstinputlisting[language = C++]{../src/headers/RoomColours.h}
 
     \subsection{Shaders}
         \textbf{res/shaders/SimpleShader.glsl}

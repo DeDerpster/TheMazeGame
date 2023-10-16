@@ -53,3 +53,5 @@ res/models
 docs/sections/*.pdf
 docs/sections/classes/*.pdf
 CMakeFiles
+justCode
+docs/doxygen

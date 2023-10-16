@@ -18,7 +18,7 @@ add_subdirectory(entity)
 add_subdirectory(utils)
 add_subdirectory(item)
 add_subdirectory(gui)
-add_subdirectory(particle)
+add_subdirectory(spawner)
 add_subdirectory(event)
 
 target_include_directories(${PROJECT_NAME} PUBLIC

@@ -284,7 +284,7 @@ void MIHManager::transferItem(TransferObject *o)
 		if(swap)
 		{
 			Weapon *mWeapon = dynamic_cast<Weapon *>(m_Items->getItem(hoverBox));
-			cancel          = oContainer->getType() == IContainer::Type::Weapon && !mWeapon;
+			cancel          = cancel || (oContainer->getType() == IContainer::Type::Weapon && !mWeapon);
 		}
 
 		// If an item cannot be stored it will send a message to the user saying it cannot be stored there

@@ -3,6 +3,7 @@
 #include "gui/object/Text.h"
 
 #include <chrono>
+#include <vector>
 
 class MessageManager
 {

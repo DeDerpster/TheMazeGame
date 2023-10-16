@@ -445,8 +445,9 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f destPos, CollisionBox b
 	relativeDest = getNextRoom(relativeStart, relativeDest);
 	if(relativeDest.x == -1 && relativeDest.y == -1)
 	{
-		// std::vector<Vec2f> *path = new std::vector<Vec2f>();
-		// path->push_back(destPos);
+		std::vector<Vec2f> *path = new std::vector<Vec2f>();
+		path->push_back(destPos);
+		return path;
 	}
 
 	return getNodePath(relativeStart, relativeDest, box);

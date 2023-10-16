@@ -2,7 +2,7 @@
 
 #include "event/game/ShowAlternatives.h"
 #include "layer/level/Level.h"
-#include "particle/spawner/ParticleSpawner.h"
+#include "spawner/particle/ParticleSpawner.h"
 
 SwitchTile::SwitchTile()
 	: Tile(), m_AltSpriteID(Sprite::ID::errorID), showAlt(false)

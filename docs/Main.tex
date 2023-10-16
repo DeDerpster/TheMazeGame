@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0.5cm]{geometry}
+\usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{verbatimbox}
 \usepackage{multicol}
@@ -17,48 +17,59 @@
 \usepackage{epigraph}
 \usepackage{lipsum}
 \usepackage{multirow}
+\usepackage{fancyhdr}
 
 \author{Wilf Silver}
 \date{September 2020}
 
 % Lsp
-\definecolor{mygreen}{rgb}{0,0.6,0}
-\definecolor{mygray}{rgb}{0.5,0.5,0.5}
-\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{myGray}{rgb}{0.5,0.5,0.5}
+\definecolor{myMauve}{rgb}{0.58,0,0.82}
+\definecolor{codeGreen}{rgb}{0,0.6,0}
+\definecolor{codeGrey}{rgb}{0.5,0.5,0.5}
+\definecolor{codePurple}{rgb}{0.58,0,0.82}
+\definecolor{backColour}{rgb}{0.95,0.95,0.92}
 
 \lstset{
-  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
-  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  backgroundcolor=\color{backColour},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
+  basicstyle=\ttfamily\footnotesize,        % the size of the fonts that are used for the code
   breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
   breaklines=true,                 % sets automatic line breaking
   captionpos=b,                    % sets the caption-position to bottom
-  commentstyle=\color{mygreen},    % comment style
+  commentstyle=\color{codeGreen},    % comment style
   deletekeywords={...},            % if you want to delete keywords from the given language
   escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
   extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
-  firstnumber=1000,                % start line enumeration with line 1000
+  firstnumber=1,                % start line enumeration with line 1000
   frame=none,	                   % adds a frame around the code
   keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
   keywordstyle=\color{blue},       % keyword style
   % language=Python,                 % the language of the code
 %   morekeywords={*,...},            % if you want to add more keywords to the set
-  numbers=none,                    % where to put the line-numbers; possible values are (none, left, right)
-  numbersep=5pt,                   % how far the line-numbers are from the code
-  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=2pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{codeGrey}, % the style that is used for the line-numbers
   rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
   showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
   showstringspaces=false,          % underline spaces within strings only
   showtabs=false,                  % show tabs within strings adding particular underscores
-  stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
-  stringstyle=\color{mymauve},     % string literal style
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{myMauve},     % string literal style
   tabsize=4,	                   % sets default tabsize to 2 spaces
   title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
 
+\geometry{
+ a4paper,
+ total={190mm,257mm},
+ left=10mm,
+ top=20mm,
+ }
+
 % Titlepage
 \renewcommand\epigraphflush{flushright}
 \renewcommand\epigraphsize{\normalsize}
-\setlength\epigraphwidth{0.25\textwidth}
+\setlength\epigraphwidth{0.3\textwidth}
 
 \definecolor{titlepagecolor}{cmyk}{1,.60,0,.40}
 
@@ -123,6 +134,13 @@
     urlcolor=black
 }
 
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Wilf Silver}
+\lhead{EMS}
+\rfoot{Page \thepage}
+\lfoot{The Maze Game}
+
 \begin{document}
   \begin{titlepage}
     \vspace*{5cm}
@@ -149,11 +167,12 @@
     \titlepagedecoration
   \end{titlepage}
   \tableofcontents
+
   \clearpage
   \section{Analysis}
       \subfile{sections/Analysis.tex}
   \clearpage
-  \section{Documented Design} % TODO: A* and Renderer and Graphical design
+  \section{Documented Design}
       \subfile{sections/Design.tex}
   \clearpage
   \section{Technical Solution}
