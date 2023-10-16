@@ -45,8 +45,11 @@
 // Projectiles
 #define PROJECTILE_FIRE ITEM_STICK + 1
 
+// Potions
+#define POTION_HEALTH PROJECTILE_FIRE + 1
+
 // Debug stuff
-#define DEBUG_CIRCLE PROJECTILE_FIRE + 1
+#define DEBUG_CIRCLE POTION_HEALTH + 1
 
 #define NUM_OF_SPRITES DEBUG_CIRCLE + 1
 
@@ -100,6 +103,9 @@ class Sprite
 
 		  // Projectiles
 		  sprites[PROJECTILE_FIRE] = std::make_unique<Sprite>("res/textures/projectiles/FireProjectile.png");
+
+		  // Potions
+		  sprites[POTION_HEALTH] = std::make_unique<Sprite>("res/textures/potions/Health.png");
 
 		  // DEBUG STUFF
 		  sprites[DEBUG_CIRCLE] = std::make_unique<Sprite>("res/textures/DebugCircle.png");

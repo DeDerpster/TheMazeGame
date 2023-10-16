@@ -62,7 +62,7 @@ Log::Log()
 	}
 	logFile = "Logs/" + currentTime + ".log";
 
-	// variable("Initialised logging system", logFile);
+	variableImpl("Initialised logging system", logFile);
 }
 
 #ifdef IS_ON_WINDOWS

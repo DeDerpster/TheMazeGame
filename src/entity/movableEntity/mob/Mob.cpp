@@ -1,6 +1,7 @@
 #include "Mob.h"
 #include "Tile.h"
 
+#include "Potion.h"
 #include "Weapon.h"
 
 #include <math.h>
@@ -48,7 +49,9 @@ Mob::Mob(float x, float y, float speed, Level *level, uint16_t spriteID)
 
 Mob::~Mob()
 {
-	for(Item *item : inventory)
+	for(Weapon *weapon : m_Weapons)
+		delete weapon;
+	for(Item *item : m_Inventory)
 		delete item;
 }
 
@@ -124,6 +127,32 @@ bool Mob::eventCallback(const Event::Event &e)
 	return MovableEntity::eventCallback(e);
 }
 
+void Mob::useItemInInventory(int index)
+{
+	if(index > m_Inventory.size())
+	{
+		Log::warning("Trying to access item outside of the inventory!");
+		return;
+	}
+
+	Item *  item = m_Inventory[index];
+	Weapon *wp   = dynamic_cast<Weapon *>(item);
+	if(wp)
+	{
+		// TODO: Fill this in :D
+		return;
+	}
+
+	Potion *pt = dynamic_cast<Potion *>(item);
+	if(pt)
+	{
+		pt->useOn(this);
+		m_Inventory.erase(m_Inventory.begin() + index);
+		return;
+	}
+	// NOTE: This is where other stuff will go :D
+}
+
 void Mob::setupAnimations()
 {
 	m_NorthAnimation = std::make_unique<AnimatedSprite>(2, m_SpriteID + SPRITE_NORTH);
@@ -138,12 +167,14 @@ void Mob::setupAnimations()
 void Mob::pickUp(Item *item)
 {
 	Weapon *weapon = dynamic_cast<Weapon *>(item);
-	if(weapon)
+	if(weapon && m_Weapons.size() < getMaxActiveWeapons())
 	{
 		m_Weapons.push_back(weapon);
 		if(m_CurrentWeapon == -1)
 			m_CurrentWeapon = 0;
 	}
+	else if(m_Inventory.size() < getMaxInventory())
+		m_Inventory.push_back(item);
 	else
-		inventory.push_back(item);
+		Log::warning("Need to actually do something here!");   // TODO: replace this
 }

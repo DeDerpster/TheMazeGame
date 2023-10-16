@@ -2,8 +2,8 @@
 
 #include "Renderer.h"
 
-Button::Button(Text text, float x, float y, float width, float height, std::function<void()> buttonPressFunc)
-	: MenuObject(x, y, width, height),
+Button::Button(Text text, float x, float y, float width, float height, Layer *layer, std::function<void()> buttonPressFunc)
+	: MenuObject(x, y, width, height, layer),
 	  m_Text(text),
 	  m_BackgroundColour({0.3f, 0.3f, 0.3f, 1.0f}),
 	  m_HoverColour({0.2f, 0.2f, 0.2f, 1.0f}),
@@ -15,8 +15,8 @@ Button::Button(Text text, float x, float y, float width, float height, std::func
 {
 }
 
-Button::Button(Text text, std::function<void(float *, float *, float *, float *)> posFunc, std::function<void()> buttonPressFunc)
-	: MenuObject(posFunc),
+Button::Button(Text text, std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, std::function<void()> buttonPressFunc)
+	: MenuObject(posFunc, layer),
 	  m_Text(text),
 	  m_BackgroundColour({0.3f, 0.3f, 0.3f, 1.0f}),
 	  m_HoverColour({0.2f, 0.2f, 0.2f, 1.0f}),
@@ -28,8 +28,8 @@ Button::Button(Text text, std::function<void(float *, float *, float *, float *)
 {
 }
 
-Button::Button(Text text, float x, float y, float width, float height, glm::vec4 backgroundColour, glm::vec4 hoverColour, glm::vec4 pressColour, std::function<void()> buttonPressFunc)
-	: MenuObject(x, y, width, height),
+Button::Button(Text text, float x, float y, float width, float height, Layer *layer, glm::vec4 backgroundColour, glm::vec4 hoverColour, glm::vec4 pressColour, std::function<void()> buttonPressFunc)
+	: MenuObject(x, y, width, height, layer),
 	  m_Text(text),
 	  m_BackgroundColour(backgroundColour),
 	  m_HoverColour(hoverColour),
@@ -41,8 +41,8 @@ Button::Button(Text text, float x, float y, float width, float height, glm::vec4
 {
 }
 
-Button::Button(Text text, std::function<void(float *, float *, float *, float *)> posFunc, glm::vec4 backgroundColour, glm::vec4 hoverColour, glm::vec4 pressColour, std::function<void()> buttonPressFunc)
-	: MenuObject(posFunc),
+Button::Button(Text text, std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, glm::vec4 backgroundColour, glm::vec4 hoverColour, glm::vec4 pressColour, std::function<void()> buttonPressFunc)
+	: MenuObject(posFunc, layer),
 	  m_Text(text),
 	  m_BackgroundColour(backgroundColour),
 	  m_HoverColour(hoverColour),

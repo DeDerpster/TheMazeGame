@@ -1,5 +1,6 @@
 #include "Core.h"
 
+#include <algorithm>
 #include <functional>
 #include <vector>
 
@@ -193,16 +194,17 @@ void Application::removeLayerImpl(int index)   // Removes layer
 
 void Application::removeLayerImpl(Layer *layer)
 {
-	for(int i = 0; i < layers.size(); i++)
-	{
-		if(layer == layers[i])
-		{
-			delete layers[i];
-			layers.erase(layers.begin() + i);
-			if(i < overlayStart)
-				overlayStart--;
-		}
-	}
+	layers.erase(std::find(layers.begin(), layers.end(), layer));
+	// for(int i = 0; i < layers.size(); i++)
+	// {
+	// 	if(layer == layers[i])
+	// 	{
+	// 		delete layers[i];
+	// 		layers.erase(layers.begin() + i);
+	// 		if(i < overlayStart)
+	// 			overlayStart--;
+	// 	}
+	// }
 }
 // !SECTION
 

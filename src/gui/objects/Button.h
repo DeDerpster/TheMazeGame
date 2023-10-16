@@ -33,10 +33,10 @@ class Button : public MenuObject
 	std::function<void()> buttonPressFunc;
 
   public:
-	Button(Text text, float x, float y, float width, float height, std::function<void()> buttonPressFunc);
-	Button(Text text, std::function<void(float *, float *, float *, float *)> posFunc, std::function<void()> buttonPressFunc);
-	Button(Text text, float x, float y, float width, float height, glm::vec4 backgroundColour, glm::vec4 hoverColour, glm::vec4 pressColour, std::function<void()> buttonPressFunc);
-	Button(Text text, std::function<void(float *, float *, float *, float *)> posFunc, glm::vec4 backgroundColour, glm::vec4 hoverColour, glm::vec4 pressColour, std::function<void()> buttonPressFunc);
+	Button(Text text, float x, float y, float width, float height, Layer *layer, std::function<void()> buttonPressFunc);
+	Button(Text text, std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, std::function<void()> buttonPressFunc);
+	Button(Text text, float x, float y, float width, float height, Layer *layer, glm::vec4 backgroundColour, glm::vec4 hoverColour, glm::vec4 pressColour, std::function<void()> buttonPressFunc);
+	Button(Text text, std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, glm::vec4 backgroundColour, glm::vec4 hoverColour, glm::vec4 pressColour, std::function<void()> buttonPressFunc);
 	virtual ~Button();
 
 	virtual void update() override;

@@ -12,6 +12,7 @@
 
 #include "Button.h"
 #include "GUILayer.h"
+#include "MenuBackgroundObject.h"
 #include "MenuItemHolderManager.h"
 #include "StatBar.h"
 
@@ -22,11 +23,18 @@
 #include "WorldItem.h"
 
 #include "FireStaff.h"
+#include "Potion.h"
 
 #define LAYER_MAX_FOR_DIRECTIONS 4
 
 Maze::Maze()
-	: Level(BOARD_SIZE * ROOM_SIZE, BOARD_SIZE * ROOM_SIZE), m_Player(4500.0f, 4500.0f, this)
+	: Level(BOARD_SIZE * ROOM_SIZE, BOARD_SIZE * ROOM_SIZE),
+	  xoffset(0),
+	  yoffset(0),
+	  finishedGenerating(true),
+	  m_Player(4500.0f, 4500.0f, this),
+	  m_OverlayGUI(new GUILayer(this)),
+	  m_InventoryGUI(new GUILayer(this))
 {
 	// NOTE: Because of how it is rendering the coords (0,0) on the board is the bottom left, not the top left!!
 
@@ -47,23 +55,78 @@ Maze::Maze()
 	WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, Tile::TILE_SIZE / 2, this, item2);
 	m_Entities.push_back(worldItem2);
 
+	auto healthPotionFunc = [](Mob *mob) {
+		mob->changeHealth(100);
+	};
+
+	Item *     potion     = new Potion("Large Health Potion", POTION_HEALTH, healthPotionFunc);
+	WorldItem *worldItem3 = new WorldItem(3800.0f, 3900.0f, Tile::TILE_SIZE / 2, this, potion);
+	m_Entities.push_back(worldItem3);
+
 	// Setting up overlay
-	GUILayer *guiLayer = new GUILayer();
+	// GUILayer *guiLayer = new GUILayer(this);
 	// auto      func     = []() {
 	//     Application::setIsPaused(!Application::getIsPaused());
 	// };
 	// guiLayer->addMenuObject(new Button({"Hello"}, 50, 25, 100, 50, func));
 
-	guiLayer->addMenuObject(new MIHManager(0, 0, 3, 1, 100, (std::vector<Item *> &) m_Player.getWeapons(), m_Player.getCurrentWeaponIndex()));
+	// Overlay GUI set up
+	{
+		auto clickedFunc = [](int index, Level *level) {
+			level->getPlayer()->setCurrentWeapon(index);
+		};
+		m_OverlayGUI->addMenuObject(new MIHManager(0, 0, 300, 100, 100, m_OverlayGUI, (std::vector<Item *> &) m_Player.getWeapons(), clickedFunc, m_Player.getCurrentWeaponPointer()));
 
-	auto posFunc = [](float *x, float *y, float *width, float *height) {
-		*x      = Application::getWidth() / 2;
-		*y      = 20;
-		*width  = Application::getWidth() / 3;
-		*height = 10;
-	};
-	guiLayer->addMenuObject(new StatBar(posFunc, m_Player.getHealthPointer(), m_Player.getMaxHealthPointer()));
-	Application::addOverlay(guiLayer);
+		auto posFunc = [](float *x, float *y, float *width, float *height) {
+			*x      = Application::getWidth() / 2;
+			*y      = 20;
+			*width  = Application::getWidth() / 3;
+			*height = 10;
+		};
+		m_OverlayGUI->addMenuObject(new StatBar(posFunc, m_OverlayGUI, m_Player.getHealthPointer(), m_Player.getMaxHealthPointer()));
+		Application::addOverlay(m_OverlayGUI);
+		activeGUI = m_OverlayGUI;
+	}
+
+	// Inventory GUI set up
+	{
+		auto backgroundPosFunc = [](float *x, float *y, float *width, float *height) {
+			*width  = 550;
+			*height = 575;
+			*x      = Application::getWidth() / 2;
+			*y      = Application::getHeight() / 2 + 75.0f / 2.0f;
+		};
+		auto exitFunc = [this]() mutable {
+			Application::removeLayer(activeGUI);
+			Application::addOverlay(m_OverlayGUI);
+			activeGUI = m_OverlayGUI;
+			Application::setIsPaused(false);
+		};
+		m_InventoryGUI->addMenuObject(new MenuBackground(backgroundPosFunc, m_InventoryGUI, {0.3f, 0.3f, 0.3f, 0.9f}, exitFunc));
+
+		auto clickedFunc = [this](int index, Level *level) {   // TODO: remove the level *
+			this->m_Player.useItemInInventory(index);
+		};
+
+		auto posFunc = [](float *x, float *y, float *width, float *height) {
+			*width  = 500;
+			*height = 400;
+			*x      = Application::getWidth() / 2 - *width / 2;
+			*y      = Application::getHeight() / 2 + *height / 2 - 112.5f;
+		};
+		m_InventoryGUI->addMenuObject(new MIHManager(posFunc, 100, m_InventoryGUI, m_Player.getInventory(), clickedFunc));
+
+		auto clickedWeaponFunc = [this](int index, Level *level) {
+			this->m_Player.setCurrentWeapon(index);
+		};
+		auto posWeaponFunc = [](float *x, float *y, float *width, float *height) {
+			*width  = 300;
+			*height = 100;
+			*x      = Application::getWidth() / 2 - *width / 2;
+			*y      = Application::getHeight() / 2 + 200;
+		};
+		m_InventoryGUI->addMenuObject(new MIHManager(posWeaponFunc, 100, m_OverlayGUI, (std::vector<Item *> &) m_Player.getWeapons(), clickedWeaponFunc, m_Player.getCurrentWeaponPointer()));
+	}
 
 	Log::info("Maze initialised");
 }
@@ -78,6 +141,10 @@ Maze::~Maze()
 	}
 	// for(Entity *entity : m_Entities)
 	// delete entity;
+	if(activeGUI != m_OverlayGUI)
+		delete m_OverlayGUI;
+	if(activeGUI != m_InventoryGUI)
+		delete m_InventoryGUI;
 	Log::info("Maze destroyed");
 }
 
@@ -272,6 +339,32 @@ bool Maze::eventCallback(const Event::Event &e)
 	{
 		int midpoint = BOARD_SIZE / 2 + 1;
 		get(midpoint, midpoint)->activeRoom();
+	}
+	else if(e.getType() == Event::EventType::keyInput)
+	{
+		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
+		if(activeGUI != m_InventoryGUI && ne.key == GLFW_KEY_E && ne.action == GLFW_PRESS)
+		{
+			Application::removeLayer(activeGUI);
+			Application::addOverlay(m_InventoryGUI);
+			activeGUI = m_InventoryGUI;
+
+			Application::setIsPaused(true);
+		}
+		else if(activeGUI != m_OverlayGUI && ne.key == GLFW_KEY_ESCAPE && ne.action == GLFW_PRESS)
+		{
+			Application::removeLayer(activeGUI);
+			Application::addOverlay(m_OverlayGUI);
+			activeGUI = m_OverlayGUI;
+			Application::setIsPaused(false);
+		}
+	}
+	else if(e.getType() == Event::EventType::windowResize)
+	{
+		if(activeGUI != m_OverlayGUI)
+			m_OverlayGUI->eventCallback(e);
+		if(activeGUI != m_InventoryGUI)
+			m_InventoryGUI->eventCallback(e);
 	}
 
 	return false;

@@ -14,7 +14,7 @@ class Weapon;
 class Mob : public MovableEntity, public StatsMob
 {
   protected:
-	std::vector<Item *>   inventory;
+	std::vector<Item *>   m_Inventory;
 	std::vector<Weapon *> m_Weapons;
 	int                   m_CurrentWeapon;
 
@@ -44,7 +44,10 @@ class Mob : public MovableEntity, public StatsMob
 	virtual bool deleteMe() { return isDead(); }
 
 	const std::vector<Weapon *> &getWeapons() { return m_Weapons; }
-	int *                        getCurrentWeaponIndex() { return &m_CurrentWeapon; }
+	const std::vector<Item *> &  getInventory() { return m_Inventory; }
+	int *                        getCurrentWeaponPointer() { return &m_CurrentWeapon; }
+	void                         setCurrentWeapon(int currentWeapon) { m_CurrentWeapon = currentWeapon; }
+	void                         useItemInInventory(int index);
 
 	void setIsInControl(bool i_isInControl) { isInControl = i_isInControl; }
 #ifdef DEBUG

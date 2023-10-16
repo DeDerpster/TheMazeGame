@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Camera.h"
+#include "GUILayer.h"
 #include "Level.h"
 #include "Renderer.h"
 #include "Room.h"
-#include "Shader.h"
 
 #include "AnimatedSprite.h"
 #include "MazeHeaders.h"
@@ -17,11 +17,11 @@ class Maze : public Level
 	static const int BOARD_SIZE = 11;
 
 	std::vector<Room *> board;         // This stores Room * so that you can have the different subclasses of rooms also stored
-	int                 xoffset = 0;   // This is the offset, which will allow the board not to shift all the pointers when more of the maze is generated
-	int                 yoffset = 0;   // instead this allows keeps track of how "offset" the coordinates are
+	int                 xoffset;       // This is the offset, which will allow the board not to shift all the pointers when more of the maze is generated
+	int                 yoffset;       // instead this allows keeps track of how "offset" the coordinates are
 
 	// This is for multithreading - and are the variables that allow threads to communicate
-	bool finishedGenerating = true;
+	bool finishedGenerating;
 
 	std::vector<Vec2i> currentPaths;   // This stores the current possible paths
 
@@ -39,6 +39,11 @@ class Maze : public Level
 	bool pathsWest[BOARD_SIZE];
 
 	Player                m_Player;
+
+	// Menu layers - these are the layers that are involved in the menu system and can be quickly pushed to the layer stack if needed
+	GUILayer *activeGUI;   // This stores the current GUI layer in the application stack, so that when deleting layers, it does not cause an error
+	GUILayer *m_OverlayGUI;
+	GUILayer *m_InventoryGUI;
 
 #ifdef DEBUG
 	bool renderAll = false;

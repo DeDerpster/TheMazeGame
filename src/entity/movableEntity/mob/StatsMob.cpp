@@ -20,7 +20,9 @@ StatsMob::StatsMob()
 	  m_Stat_CombatAbility(5),
 	  m_Stat_Boredom(0),
 	  m_Stat_Confidence(100),
-	  m_Stat_Attractiveness(1)
+	  m_Stat_Attractiveness(1),
+	  m_Stat_MaxActiveWeapons(3),
+	  m_Stat_MaxInventory(20)   // NOTE: This should not be changed
 {
 }
 
@@ -138,6 +140,8 @@ float    StatsMob::getHeath() { return m_Stat_Health; }
 float    StatsMob::getMaxHeath() { return m_Stat_MaxHealth; }
 float    StatsMob::getStamina() { return m_Stat_Stamina; }
 float    StatsMob::getMaxStamina() { return m_Stat_MaxStamina; }
+float    StatsMob::getMaxActiveWeapons() { return m_Stat_MaxActiveWeapons; }
+float    StatsMob::getMaxInventory() { return m_Stat_MaxInventory; }
 uint16_t StatsMob::getAttractiveness() { return m_Stat_Attractiveness; }
 
 const float *StatsMob::getHealthPointer() { return &m_Stat_Health; }

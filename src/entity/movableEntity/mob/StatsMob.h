@@ -14,6 +14,8 @@ class StatsMob
 	int      m_Stat_Confidence;
 	uint16_t m_Stat_Boredom;
 	uint16_t m_Stat_Attractiveness;
+	uint16_t m_Stat_MaxActiveWeapons;
+	uint16_t m_Stat_MaxInventory;
 
   public:
 	StatsMob();
@@ -39,6 +41,8 @@ class StatsMob
 	float    getMaxHeath();
 	float    getStamina();
 	float    getMaxStamina();
+	float    getMaxActiveWeapons();
+	float    getMaxInventory();
 	uint16_t getAttractiveness();
 
 	const float *getHealthPointer();

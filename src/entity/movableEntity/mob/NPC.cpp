@@ -194,6 +194,8 @@ void NPC::update()
 	{
 		attack();
 	}
+	else
+		isMoving = false;
 
 	Mob::update();
 }

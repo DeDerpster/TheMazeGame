@@ -202,7 +202,7 @@ struct TextObject : public RenderColouredObject
 	// by going through each character, so this takes in the character and the offset when creating the vertices
 	// This allows to correctly render rotated strings
 	std::array<TextVertex, 4> convertCharacterToVertices(Character *ch, float xOffset, uint16_t texSlot)
-	{
+	{   // FIXME: rendering isn't working for 'g' when centered on y axis
 		float newScale = scale / 100;
 
 		float xPos = position.x + ch->bearing.x * newScale;

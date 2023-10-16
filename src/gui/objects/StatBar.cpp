@@ -2,23 +2,23 @@
 
 #include "Renderer.h"
 
-StatBar::StatBar(float x, float y, float width, float height, const float *stat, const float *statMax)
-	: MenuObject(x, y, width, height), m_Stat(stat), m_StatMax(statMax), m_BackgroundColour({1.0f, 0.0f, 0.0f, 1.0f})
+StatBar::StatBar(float x, float y, float width, float height, Layer *layer, const float *stat, const float *statMax)
+	: MenuObject(x, y, width, height, layer), m_Stat(stat), m_StatMax(statMax), m_BackgroundColour({1.0f, 0.0f, 0.0f, 1.0f})
 {
 }
 
-StatBar::StatBar(std::function<void(float *, float *, float *, float *)> posFunc, const float *stat, const float *statMax)
-	: MenuObject(posFunc), m_Stat(stat), m_StatMax(statMax), m_BackgroundColour({1.0f, 0.0f, 0.0f, 1.0f})
+StatBar::StatBar(std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, const float *stat, const float *statMax)
+	: MenuObject(posFunc, layer), m_Stat(stat), m_StatMax(statMax), m_BackgroundColour({1.0f, 0.0f, 0.0f, 1.0f})
 {
 }
 
-StatBar::StatBar(float x, float y, float width, float height, const float *stat, const float *statMax, glm::vec4 backgroundColour)
-	: MenuObject(x, y, width, height), m_Stat(stat), m_StatMax(statMax), m_BackgroundColour(backgroundColour)
+StatBar::StatBar(float x, float y, float width, float height, Layer *layer, const float *stat, const float *statMax, glm::vec4 backgroundColour)
+	: MenuObject(x, y, width, height, layer), m_Stat(stat), m_StatMax(statMax), m_BackgroundColour(backgroundColour)
 {
 }
 
-StatBar::StatBar(std::function<void(float *, float *, float *, float *)> posFunc, const float *stat, const float *statMax, glm::vec4 backgroundColour)
-	: MenuObject(posFunc), m_Stat(stat), m_StatMax(statMax), m_BackgroundColour(backgroundColour)
+StatBar::StatBar(std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, const float *stat, const float *statMax, glm::vec4 backgroundColour)
+	: MenuObject(posFunc, layer), m_Stat(stat), m_StatMax(statMax), m_BackgroundColour(backgroundColour)
 {
 }
 

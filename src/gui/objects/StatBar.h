@@ -9,10 +9,10 @@ class StatBar : public MenuObject
 	glm::vec4    m_BackgroundColour;
 
   public:
-	StatBar(float x, float y, float width, float height, const float *stat, const float *statMax);
-	StatBar(std::function<void(float *, float *, float *, float *)> posFunc, const float *stat, const float *statMax);
-	StatBar(float x, float y, float width, float height, const float *stat, const float *statMax, glm::vec4 backgroundColour);
-	StatBar(std::function<void(float *, float *, float *, float *)> posFunc, const float *stat, const float *statMax, glm::vec4 backgroundColour);
+	StatBar(float x, float y, float width, float height, Layer *layer, const float *stat, const float *statMax);
+	StatBar(std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, const float *stat, const float *statMax);
+	StatBar(float x, float y, float width, float height, Layer *layer, const float *stat, const float *statMax, glm::vec4 backgroundColour);
+	StatBar(std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, const float *stat, const float *statMax, glm::vec4 backgroundColour);
 	virtual ~StatBar();
 
 	virtual void update() override;

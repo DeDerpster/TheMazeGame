@@ -98,7 +98,7 @@ class Render
 
 	// Functions for adding objects to buffers
 	void spriteImpl(float x, float y, double rotation, float width, float height, uint16_t spriteID, bool isOverlay);
-	void textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool isCentered, bool isOverlay);
+	void textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, bool isCentered, bool isOverlay);   // TODO: Make this order better
 	void rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, bool isCentered, bool isOverlay, bool bottomLayer);
 	void rectangleImpl(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, bool isCentered, bool isOverlay, bool bottomLayer);
 
