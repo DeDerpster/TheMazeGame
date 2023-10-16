@@ -11,14 +11,11 @@
 
 #include "Player.h"
 
+#include "KeyDefinitions.h"
+
 class Maze : public Level
 {
   protected:
-	static const int BOARD_SIZE = 11;
-
-	std::vector<Room *> board;         // This stores Room * so that you can have the different subclasses of rooms also stored
-	int                 xoffset;       // This is the offset, which will allow the board not to shift all the pointers when more of the maze is generated
-	int                 yoffset;       // instead this allows keeps track of how "offset" the coordinates are
 
 	// This is for multithreading - and are the variables that allow threads to communicate
 	bool finishedGenerating;
@@ -33,47 +30,42 @@ class Maze : public Level
 		isClosed  = 2
 	};
 
-	bool pathsNorth[BOARD_SIZE];   // This stores the avaliable paths for each direction, allowing generation when the player moves
-	bool pathsSouth[BOARD_SIZE];
-	bool pathsEast[BOARD_SIZE];
-	bool pathsWest[BOARD_SIZE];
+	bool pathsNorth[MAZE_SIZE];   // This stores the avaliable paths for each direction, allowing generation when the player moves
+	bool pathsSouth[MAZE_SIZE];
+	bool pathsEast[MAZE_SIZE];
+	bool pathsWest[MAZE_SIZE];
 
-	Player                m_Player;
-
+	// TODO: Change this to application?
 	// Menu layers - these are the layers that are involved in the menu system and can be quickly pushed to the layer stack if needed
 	GUILayer *activeGUI;   // This stores the current GUI layer in the application stack, so that when deleting layers, it does not cause an error
 	GUILayer *m_OverlayGUI;
 	GUILayer *m_InventoryGUI;
+	GUILayer *m_ChestGUI;
 
-#ifdef DEBUG
-	bool renderAll = false;
-#endif
-
-	int coordsToIndex(int x, int y);
+	std::function<void(std::vector<Item *> &)> setChestToMenu;
 
 	void addRoom(int x, int y, bool north, bool south, bool east, bool west);
-	void removeRoom(int y, int x);
 	void updatePaths();
 
 	void multithreadGenerating(int layerMax, int startMax);
 	void generatePaths(int layerMax, int startMax);
 
-	EntranceState shouldBeOpen(Room *room, int nextEntrance, int prob, int *pathCount);
+	EntranceState shouldBeOpen(Room *room, Direction nextEntrance, int prob, int *pathCount);
 	void          forceEntrance(EntranceState *north, EntranceState *south, EntranceState *east, EntranceState *west);
 
-	void playerDeath();
+	// TODO: Make this a event
+	virtual void playerDeath() override;
 	void resetMaze();
 
   public:
 	Maze();
 	~Maze();
 
-	virtual void render() override;
 	virtual void update() override;
+	virtual bool eventCallback(const Event::Event &e) override;
 #ifdef DEBUG
 	virtual void imGuiRender() override;
 #endif
-	virtual bool eventCallback(const Event::Event &e) override;
 
 	void generate();
 	void moveNorth();
@@ -81,11 +73,7 @@ class Maze : public Level
 	void moveEast();
 	void moveWest();
 
-	Room *                      get(int y, int x);
-	virtual Tile *              getTile(int x, int y) override;
-	virtual Player *            getPlayer() override { return &m_Player; }
-
-	virtual std::vector<Vec2f> *getPath(Vec2f startPos, Vec2f dest, CollisionBox collisionBox) override;
-
-	virtual Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox collisionBox) override;
+	// Functions for interaction with gui layers
+	virtual void openChest(std::vector<Item *> &items) override;
+	void         returnToGame();
 };

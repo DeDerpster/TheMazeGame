@@ -12,6 +12,13 @@ enum Direction
 	west
 };
 
+enum class RoomType
+{
+	Empty = 0,
+	Chest,
+	Trap
+};
+
 struct Vec2i
 {
 	int x, y;
@@ -66,3 +73,4 @@ float directionToRotation(Direction dir);
 float distBetweenVec2i(const Vec2i &start, const Vec2i &end);
 float distBetweenVec2f(const Vec2f &start, const Vec2f &end);
 
+bool doesPointIntersectWithBox(Vec2f point, Vec2f pos, CollisionBox box);

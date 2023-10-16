@@ -1,5 +1,7 @@
 #include "MovableEntity.h"
 
+#include "Level.h"
+
 MovableEntity::MovableEntity()
 	: Entity(), m_Speed(7.0f), isMoving(false), m_Dir(Direction::south), isGhost(false) {}
 
@@ -18,6 +20,7 @@ void MovableEntity::move(float xa, float ya)
 {
 	if(!isGhost)
 	{
+		// TODO: Update this
 		if(m_Level->directionalCollision(x, y, xa, 0.0f, getMovingCollisionBox()))
 			xa = 0;
 		if(m_Level->directionalCollision(x, y, 0.0f, ya, getMovingCollisionBox()))

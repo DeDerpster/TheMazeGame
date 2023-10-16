@@ -1,9 +1,10 @@
 #include "Entity.h"
 
-#include "Tile.h"
+#include "KeyDefinitions.h"
+#include "Level.h"
 
 Entity::Entity()
-	: x(0.0f), y(0.0f), width(Tile::TILE_SIZE), height(Tile::TILE_SIZE), m_Level(nullptr), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
+	: x(0.0f), y(0.0f), width(TILE_SIZE), height(TILE_SIZE), m_Level(nullptr), m_CollisionBox({{0.0f, 0.0f}, {0.0f, 0.0f}}), m_SpriteID(0) {}
 Entity::Entity(float x, float y, float size, uint16_t spriteID)
 	: x(x), y(y), width(size), height(size), m_Level(nullptr), m_CollisionBox({{-size / 2, -size / 2}, {size / 2, size / 2}}), m_SpriteID(spriteID) {}
 Entity::Entity(float x, float y, float size, Level *level, uint16_t spriteID)
@@ -25,16 +26,13 @@ bool Entity::eventCallback(const Event::Event &e)
 
 float Entity::getX() const { return x; }
 float Entity::getY() const { return y; }
+float Entity::getWidth() const { return width; }
+float Entity::getHeight() const { return height; }
 bool  Entity::getIsMoving() { return false; }
 
 bool Entity::doesIntersectWith(Vec2f pos)
 {
-	float lowerX = x + m_CollisionBox.lowerBound.x;
-	float lowerY = y + m_CollisionBox.lowerBound.y;
-	float upperX = x + m_CollisionBox.upperBound.x;
-	float upperY = y + m_CollisionBox.upperBound.y;
-
-	return pos.x > lowerX && pos.y > lowerY && pos.x < upperX && pos.y < upperY;
+	return doesPointIntersectWithBox(pos, {x, y}, m_CollisionBox);
 }
 bool Entity::deleteMe() { return false; }
 

@@ -10,7 +10,7 @@ namespace Effect
 	{
 	  public:
 		ObjectEffect() {}
-		virtual ~ObjectEffect() {}
+		virtual ~ObjectEffect() override {}
 
 		virtual EffectType getType() const = 0;
 	};
@@ -26,7 +26,7 @@ namespace Effect
 			: m_Spawner(s)
 		{
 		}
-		virtual ~ParticleSpawnerObject()
+		virtual ~ParticleSpawnerObject() override
 		{
 			if(!m_Spawner)
 				delete m_Spawner;

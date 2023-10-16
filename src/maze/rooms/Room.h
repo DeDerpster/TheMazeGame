@@ -1,43 +1,39 @@
 #pragma once
 
 #include "Camera.h"
-#include "Entity.h"
 #include "Renderer.h"
 #include "Tile.h"
+#include "Level.h"
+#include "Event.h"
+#include "Utils.h"
+#include "KeyDefinitions.h"
 
-#include <vector>
+#include <array>
 
-#define WALL_COLOUR       0xae
-#define FLOOR_COLOUR      0xff
-#define CORNER_OUT_COLOUR 0xcb
-#define CORNER_IN_COLOUR  0x4d
 
-#define NORTH_ENTRANCE 0
-#define SOUTH_ENTRANCE 1
-#define EAST_ENTRANCE  2
-#define WEST_ENTRANCE  3
-
-#define ROOM_SIZE 7
 
 class Room
 {
   protected:
+	float               x, y;
 	bool              m_Entrances[4];   // 0: North 1: South 2: East 3: West
-	std::vector<Tile> m_Tiles;          // NOTE: Please do not store this class on the stack!
+	RoomType                                m_Type;
+	Level *                                 m_Level;
+
+	std::array<Tile *, ROOM_SIZE * ROOM_SIZE> m_Tiles;   // NOTE: Please do not store this class on the stack!
 
   public:
-	Room();
+	Room(float x, float y, bool entrances[4], RoomType type, Level *level);
 	virtual ~Room();
-	virtual void render(float x, float y);
+	virtual void render();
 	virtual void update();
+	virtual bool eventCallback(const Event::Event &e);
 
 #ifdef DEBUG
 	virtual void imGuiRender();
 #endif
 
-	virtual bool isOpen(int entrance);
-
-	virtual void activeRoom();
+	virtual bool isOpen(Direction entrance);
 
 	Tile *getTile(int x, int y);
 };

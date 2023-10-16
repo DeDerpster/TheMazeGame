@@ -18,7 +18,7 @@ class Spawner
 	Spawner();
 	Spawner(float x, float y, Level *level);
 	Spawner(float x, float y, Level *level, uint16_t lifetime);
-	~Spawner();
+	virtual ~Spawner();
 
 	virtual void render() = 0;
 	virtual void update();

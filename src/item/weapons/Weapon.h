@@ -17,7 +17,7 @@ class Weapon : public Item
 	Weapon(float damage);
 	Weapon(const char *name, float damage, uint16_t spriteID);
 	Weapon(const char *name, float damage, uint16_t cooldown, uint16_t spriteID);
-	virtual ~Weapon();
+	virtual ~Weapon() override;
 
 	virtual void update();
 

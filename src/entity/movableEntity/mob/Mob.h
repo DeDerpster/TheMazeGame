@@ -33,7 +33,7 @@ class Mob : public MovableEntity, public StatsMob
 	Mob(float x, float y, Level *level);
 	Mob(float x, float y, Level *level, uint16_t spriteID);
 	Mob(float x, float y, float speed, Level *level, uint16_t spriteID);
-	virtual ~Mob();
+	virtual ~Mob() override;
 
 	void pickUp(Item *item);   // TODO: Make this into a bool to tell it whether it can pick it up
 
@@ -43,8 +43,8 @@ class Mob : public MovableEntity, public StatsMob
 
 	virtual bool deleteMe() { return isDead(); }
 
-	const std::vector<Weapon *> &getWeapons() { return m_Weapons; }
-	const std::vector<Item *> &  getInventory() { return m_Inventory; }
+	const std::vector<Weapon *> *getWeapons() { return &m_Weapons; }
+	const std::vector<Item *> *  getInventory() { return &m_Inventory; }
 	int *                        getCurrentWeaponPointer() { return &m_CurrentWeapon; }
 	void                         setCurrentWeapon(int currentWeapon) { m_CurrentWeapon = currentWeapon; }
 	void                         useItemInInventory(int index);

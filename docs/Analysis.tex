@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[margin=0.5cm]{geometry}
 \usepackage{graphicx}
+\usepackage{verbatimbox}
 \usepackage{multicol}
 \usepackage{wrapfig}
 \usepackage{array}
@@ -338,7 +339,7 @@
                 \end{figure}
                 \begin{center}
                     Variables
-                    \begin{tabular}{ | m{0.45\textwidth} | m{0.45\textwidth} | }
+                    \addvbuffer[12pt 8pt]{\begin{tabular}{ | m{0.45\textwidth} | m{0.45\textwidth} | }
                         \hline
                         \textbf{Variable Name} & \textbf{\textbf{Description}} \\
                         \hline
@@ -360,7 +361,7 @@
                         \hline
                         gameIsPaused & Stores whether the game is paused or not \\
                         \hline
-                    \end{tabular}
+                    \end{tabular}}
 
                     \clearpage
                     Functions

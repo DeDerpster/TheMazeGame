@@ -1,2 +1,1 @@
-target_sources(${PROJECT_NAME} PRIVATE EmptyRoom.cpp
-                                       Room.cpp)
+target_sources(${PROJECT_NAME} PRIVATE Room.cpp)

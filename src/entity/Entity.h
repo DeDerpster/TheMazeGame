@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Event.h"
-#include "Level.h"
+// #include "Level.h"
 #include "Log.h"
 #include "Utils.h"
+
+class Level;
 
 class Entity
 {
@@ -27,6 +29,8 @@ class Entity
 
 	float        getX() const;
 	float        getY() const;
+	float         getWidth() const;
+	float         getHeight() const;
 	virtual bool getIsMoving();
 	CollisionBox &getCollisionBox() { return m_CollisionBox; }
 	bool doesIntersectWith(Vec2f pos);

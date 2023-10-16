@@ -1,11 +1,12 @@
 #include "WorldItem.h"
 
 #include "Application.h"
+#include "KeyDefinitions.h"
+#include "Level.h"
 #include "Player.h"
-#include "Tile.h"
 
 WorldItem::WorldItem(Item *item)
-	: Entity(0.0f, 0.0f, Tile::TILE_SIZE / 2, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
+	: Entity(0.0f, 0.0f, TILE_SIZE / 2, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
 
 WorldItem::WorldItem(float x, float y, float size, Item *item)
 	: Entity(x, y, size, nullptr, item->getSpriteID()), m_Item(item), m_State(Button::State::None) {}
@@ -26,7 +27,7 @@ void WorldItem::render()
 		m_Item->render(x, y, 0.0f, width);
 		if(m_State == Button::State::Hover)
 		{
-			float scale = 35.0f;
+			float        scale    = 35.0f;
 			Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
 			CollisionBox box      = Render::getTextCollisionBox(*m_Item->getName(), scale);
 			Render::rectangle(mousePos.x, mousePos.y + 4.0f + box.upperBound.y / 2, 0.0f, box.upperBound.x + 2.0f, box.upperBound.y + 4.0f, {0.3f, 0.3f, 0.3f, 0.7f});
@@ -58,7 +59,7 @@ bool WorldItem::eventCallback(const Event::Event &e)
 		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
 
 		Player *player = m_Level->getPlayer();
-		if(doesIntersectWith(Application::getCamera()->convertWindowToLevel(ne.pos)) && distBetweenVec2f({player->getX(), player->getY()}, {x, y}) < 5 * Tile::TILE_SIZE)
+		if(doesIntersectWith(Application::getCamera()->convertWindowToLevel(ne.pos)) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
 		{
 			Log::info("Picked up");
 			player->pickUp(m_Item);

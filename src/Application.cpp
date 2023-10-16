@@ -194,7 +194,11 @@ void Application::removeLayerImpl(int index)   // Removes layer
 
 void Application::removeLayerImpl(Layer *layer)
 {
-	layers.erase(std::find(layers.begin(), layers.end(), layer));
+	std::vector<Layer *>::iterator index = std::find(layers.begin(), layers.end(), layer);
+	if(index != layers.end())
+		layers.erase(index);
+	else
+		Log::warning("Cannot find layer to remove!");
 	// for(int i = 0; i < layers.size(); i++)
 	// {
 	// 	if(layer == layers[i])

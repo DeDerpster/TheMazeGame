@@ -13,7 +13,7 @@ class ParticleLayer : public Layer
 
   public:
 	ParticleLayer();
-	virtual ~ParticleLayer();
+	virtual ~ParticleLayer() override;
 
 	virtual void render() override;
 	virtual void update() override;

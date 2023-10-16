@@ -5,8 +5,7 @@
 
 #include "Application.h"
 #include "FireStaff.h"
-#include "Room.h"
-#include "Tile.h"
+#include "KeyDefinitions.h"
 #include "Utils.h"
 
 NPC::NPC()
@@ -87,7 +86,7 @@ void NPC::follow()
 	}
 	float xDif        = following->getX() - x;
 	float yDif        = following->getY() - y;
-	float minDistAway = (Tile::TILE_SIZE / 3) * 2;
+	float minDistAway = (TILE_SIZE / 3) * 2;
 	if(!findingPath && (xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway))
 	{
 		findingPath = true;
@@ -192,7 +191,7 @@ void NPC::update()
 	{
 		follow();
 	}
-	else if(attacking && (int) attacking->getX() / (Tile::TILE_SIZE * ROOM_SIZE) == (int) x / (Tile::TILE_SIZE * ROOM_SIZE) && (int) attacking->getY() / (Tile::TILE_SIZE * ROOM_SIZE) == (int) y / (Tile::TILE_SIZE * ROOM_SIZE))
+	else if(attacking && (int) attacking->getX() / (TILE_SIZE * ROOM_SIZE) == (int) x / (TILE_SIZE * ROOM_SIZE) && (int) attacking->getY() / (TILE_SIZE * ROOM_SIZE) == (int) y / (TILE_SIZE * ROOM_SIZE))
 	{
 		attack();
 	}

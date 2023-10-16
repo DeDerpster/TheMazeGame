@@ -19,7 +19,7 @@ namespace Effect
 			: m_ID(id)
 		{
 		}
-		virtual ~ShaderEffectCarrier() {}
+		virtual ~ShaderEffectCarrier() override {}
 
 		uint16_t           getID() { return m_ID; }
 		virtual EffectType getType() const override { return EffectType::shaderEffect; }
@@ -33,7 +33,7 @@ namespace Effect
 			: ShaderEffectCarrier(id)
 		{
 		}
-		virtual ~RemoveShaderEffect() {}
+		virtual ~RemoveShaderEffect() override {}
 
 		virtual EffectType getType() const override { return EffectType::removeShaderEffect; }
 	};
@@ -64,7 +64,7 @@ namespace Effect
 			: RenderShaderEffect(name), vec(vec)
 		{
 		}
-		virtual ~UniformVec4() {}
+		virtual ~UniformVec4() override {}
 
 		virtual void setEffect(Shader &s) const override
 		{
@@ -84,7 +84,7 @@ namespace Effect
 			: RenderShaderEffect(name), mat(mat)
 		{
 		}
-		virtual ~UniformMat4() {}
+		virtual ~UniformMat4() override {}
 
 		virtual void setEffect(Shader &s) const override
 		{

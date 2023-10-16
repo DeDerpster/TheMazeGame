@@ -27,7 +27,7 @@ class ParticleSpawner : public Spawner
 	ParticleSpawner();
 	ParticleSpawner(float x, float y, Level *level);
 	ParticleSpawner(float x, float y, Level *level, uint16_t mLife, uint16_t spawnRate, uint16_t minLife, uint16_t maxLife, float xMinSpeed, float xMaxSpeed, float yMinSpeed, float yMaxSpeed, float minSize, float maxSize, uint16_t groupSize, glm::vec4 colour);
-	virtual ~ParticleSpawner();
+	virtual ~ParticleSpawner() override;
 
 	virtual void render() override;
 	virtual void update() override;

@@ -20,7 +20,7 @@ class Projectile : public MovableEntity
 	Projectile(float startX, float startY, float size, float damage, Direction dir, Mob *spawner, Level *level);
 	Projectile(float startX, float startY, float size, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box);
 	Projectile(float startX, float startY, float size, float maxDistance, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box, std::function<void(float, float, Direction, Level *)> collisionFunc);
-	virtual ~Projectile() {}
+	virtual ~Projectile() override {}
 
 	virtual void update() override;
 	virtual void render() override;

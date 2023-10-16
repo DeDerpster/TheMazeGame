@@ -461,6 +461,7 @@ CollisionBox Render::getTextCollisionBoxImpl(std::string &text, float scale)
 
 void Render::addElementToBuffer(std::vector<RenderObject *> *buffer, RenderObject *obj)
 {
+	// FIXME
 	// Checks if it wants to be ordered and there are enough elements in the buffer to order them
 	if(orderBuffersByYAxisSetting && buffer->size() > 0)
 	{

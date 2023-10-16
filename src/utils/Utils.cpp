@@ -38,3 +38,13 @@ float directionToRotation(Direction dir)
 	else
 		return 3.0f * M_PI_2;
 }
+
+bool doesPointIntersectWithBox(Vec2f point, Vec2f pos, CollisionBox box)
+{
+	float lowerX = pos.x + box.lowerBound.x;
+	float lowerY = pos.y + box.lowerBound.y;
+	float upperX = pos.x + box.upperBound.x;
+	float upperY = pos.y + box.upperBound.y;
+
+	return point.x > lowerX && point.y > lowerY && point.x < upperX && point.y < upperY;
+}

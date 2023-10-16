@@ -3,9 +3,9 @@
 #include <GLFW/glfw3.h>
 #include "ImGui.h"
 
-#include "Log.h"
-#include "Tile.h"
 #include "Application.h"
+#include "KeyDefinitions.h"
+#include "Log.h"
 #include "ShaderEffect.h"
 
 Camera::Camera()
@@ -168,10 +168,7 @@ void Camera::updateZoomEffect()
 
 bool Camera::isInFrame(float objX, float objY, CollisionBox &box)
 {   // TODO: Try and make the buffer of 1 tiles slightly smaller :D
-	return objX + box.upperBound.x + Tile::TILE_SIZE >  x - Application::getWidth()  / (zoomPercentage * 2)
-		&& objX + box.lowerBound.x - Tile::TILE_SIZE <= x + Application::getWidth()  / (zoomPercentage * 2)
-		&& objY + box.upperBound.y + Tile::TILE_SIZE >  y - Application::getHeight() / (zoomPercentage * 2)
-		&& objY + box.lowerBound.y - Tile::TILE_SIZE <= y + Application::getHeight() / (zoomPercentage * 2);
+	return objX + box.upperBound.x + TILE_SIZE > x - Application::getWidth() / (zoomPercentage * 2) && objX + box.lowerBound.x - TILE_SIZE <= x + Application::getWidth() / (zoomPercentage * 2) && objY + box.upperBound.y + TILE_SIZE > y - Application::getHeight() / (zoomPercentage * 2) && objY + box.lowerBound.y - TILE_SIZE <= y + Application::getHeight() / (zoomPercentage * 2);
 }
 
 void Camera::setLock(bool locked)

@@ -16,7 +16,7 @@ class GUILayer : public Layer
   public:
 	GUILayer();
 	GUILayer(Level *connectedLevel);
-	virtual ~GUILayer();
+	virtual ~GUILayer() override;
 
 	virtual void render() override;
 	virtual void update() override;

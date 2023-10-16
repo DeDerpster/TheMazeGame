@@ -13,7 +13,7 @@ class MenuBackground : public MenuObject
   public:
 	MenuBackground(float x, float y, float width, float height, Layer *layer, glm::vec4 colour, std::function<void()> exitFunc);
 	MenuBackground(std::function<void(float *, float *, float *, float *)> posFunc, Layer *layer, glm::vec4 colour, std::function<void()> exitFunc);
-	virtual ~MenuBackground();
+	virtual ~MenuBackground() override;
 
 	virtual void render() override;
 	virtual void update() override;

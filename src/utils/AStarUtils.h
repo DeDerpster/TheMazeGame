@@ -243,9 +243,7 @@ inline std::vector<Vec2f> *aStarAlgorithm(Vec2i startPos, Vec2i destPos, Collisi
 		path->push_back(convert(destPos));
 
 	if(hasWarned)
-	{
 		hasWarned = false;
-		Log::info("Has now found");
-	}
+
 	return path;
 }

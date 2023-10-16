@@ -1,7 +1,8 @@
 #include "Projectile.h"
 
+#include "KeyDefinitions.h"
 #include "Sprite.h"
-#include "Tile.h"
+#include "Level.h"
 
 #define defaultBox           \
 	{                        \
@@ -9,12 +10,12 @@
 	}
 
 Projectile::Projectile(float startX, float startY, float size, float damage, Direction dir, Mob *spawner, Level *level)
-	: MovableEntity(startX, startY, size, 7.0f, dir, defaultBox, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), spawner(spawner), hasCollided(false)
+	: MovableEntity(startX, startY, size, 7.0f, dir, defaultBox, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * TILE_SIZE), m_Damage(damage), spawner(spawner), hasCollided(false)
 {
 }
 
 Projectile::Projectile(float startX, float startY, float size, float damage, float speed, Direction dir, Mob *spawner, Level *level, CollisionBox box)
-	: MovableEntity(startX, startY, size, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * Tile::TILE_SIZE), m_Damage(damage), spawner(spawner), hasCollided(false)
+	: MovableEntity(startX, startY, size, speed, dir, box, level, PROJECTILE_FIRE), m_StartPos({startX, startY}), m_MaxDistance(10 * TILE_SIZE), m_Damage(damage), spawner(spawner), hasCollided(false)
 {
 }
 
