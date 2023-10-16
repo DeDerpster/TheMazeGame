@@ -8,6 +8,7 @@
 class Potion : public Item
 {
   public:
+	// Different potion types
 	enum class Type
 	{
 		Health,

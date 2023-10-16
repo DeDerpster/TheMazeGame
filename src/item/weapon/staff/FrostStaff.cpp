@@ -1,7 +1,7 @@
 #include "FrostStaff.h"
 
 #include "entity/movableEntity/mob/Mob.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 FrostStaff::FrostStaff()
 	: Weapon("Frost Staff", 15.0f, 30, Sprite::ID::weaponFrostStaff) {}
@@ -18,6 +18,7 @@ void FrostStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
 		else
 			damage = 0.0f;
 
+		// Spawns a frost projectile
 		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Frost));
 		if(m)
 		{

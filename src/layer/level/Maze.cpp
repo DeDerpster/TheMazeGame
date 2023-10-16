@@ -48,25 +48,29 @@ Maze::~Maze()
 
 void Maze::update()
 {
+	// If it hasn't finished generating it will not update
 	if(!finishedGenerating)
 		return;
 
-	if(finishedGenerating)
+	// Checks if there are any entrances
+	bool noEntrances = true;
+	for(int i = 0; i < MAZE_SIZE; i++)
 	{
-		bool noEntrances = true;
-		for(int i = 0; i < MAZE_SIZE; i++)
+		if(pathsNorth[i] || pathsSouth[i] || pathsEast[i] || pathsWest[i])
 		{
-			if(pathsNorth[i] || pathsSouth[i] || pathsEast[i] || pathsWest[i])
-			{
-				noEntrances = false;
-				break;
-			}
+			noEntrances = false;
+			break;
 		}
-
-		if(noEntrances)
-			resetMaze();
 	}
 
+	// If no entrances can be found it resets the maze
+	if(noEntrances)
+	{
+		Log::info("No entrances found!");
+		generate();
+	}
+
+	// Checks if the player has moved from the center room
 	Vec2f playerPos = convertToRelativePos({m_Player.getX(), m_Player.getY()});
 	if(playerPos.y > (getMidPoint() + 1) * TILE_SIZE * ROOM_SIZE)
 		playerMoved(Direction::north);
@@ -85,10 +89,8 @@ void Maze::update()
 void Maze::imGuiRender()
 {
 	if(ImGui::Button("Reload Maze"))
-	{
-		// TODO: Change player coords
 		generate();
-	}
+
 	ImGui::Checkbox("Render all", &renderAll);
 	m_Player.imGuiRender();
 }
@@ -101,16 +103,18 @@ bool Maze::eventCallback(const Event::Event &e)
 	case Event::EventType::KeyInput:
 	{
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
+		// Checks if the player has pressed E and then opens the menu
 		if(ne.key == Event::KeyboardKey::E && ne.action == Event::Action::Press)
 		{
-			Event::ChangeGUIActiveLayerEvent e(InGameGUILayer::playerInventory);
+			Event::ChangeGUIMenuEvent e(Event::ChangeGUIMenuEvent::Menu::PlayerInventory);
 			Application::callEvent(e, Event::CallType::Overlay);
 
 			return true;
 		}
 		else if(ne.key == Event::KeyboardKey::Escape && ne.action == Event::Action::Press)
 		{
-			Event::ChangeGUIActiveLayerEvent e(InGameGUILayer::exitMenu);
+			// If the player has pressed escape it opens the exit menu
+			Event::ChangeGUIMenuEvent e(Event::ChangeGUIMenuEvent::Menu::ExitMenu);
 			Application::callEvent(e, Event::CallType::Overlay);
 
 			return true;
@@ -124,20 +128,25 @@ bool Maze::eventCallback(const Event::Event &e)
 
 void Maze::endLevel()
 {
-	Event::ChangeGUIActiveLayerEvent e(InGameGUILayer::playerWin);
+	// If the level is ending it will display the player win level
+	Log::info("Player has win");
+	Event::ChangeGUIMenuEvent e(Event::ChangeGUIMenuEvent::Menu::PlayerWin);
 	Application::callEvent(e, Event::CallType::Overlay);
 }
 
 void Maze::playerDeath()
 {
+	// If the player dies the player death menu will be displayed
 	Log::info("Player has died");
-	Event::ChangeGUIActiveLayerEvent e(InGameGUILayer::playerDeath);
+	Event::ChangeGUIMenuEvent e(Event::ChangeGUIMenuEvent::Menu::PlayerDeath);
 	Application::callEvent(e, Event::CallType::Overlay);
 }
 
 void Maze::resetMaze()
 {
 	Log::info("Resetting the maze!");
+
+	// Deletes any entities, projectiles and spawners
 	for(Entity *e : m_Entities)
 		delete e;
 	m_Entities.clear();
@@ -146,40 +155,39 @@ void Maze::resetMaze()
 		delete p;
 	m_Projectiles.clear();
 
-	for(int i = 0; i < MAZE_SIZE * MAZE_SIZE; i++)
-	{
-		if(m_Board[i])
-		{
-			delete m_Board[i];
-			m_Board[i] = nullptr;
-		}
-	}
+	for(Spawner *s : m_Spawners)
+		delete s;
+	m_Spawners.clear();
 
+	// Generates the rooms
 	generate();
 }
 
 // SECTION: Rooms
+// Adds a random room in a given position
 void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west)
 {
-	bool     entrances[4] = {north, south, east, west};
-	RoomType type         = RoomType::Empty;
+	bool       entrances[4] = {north, south, east, west};
+	Room::Type type         = Room::Type::Empty;
 
+	// Uses a sigmoid function to change increase the chances over time
 	float graphX  = std::abs(x - MAZE_SIZE / 2) + std::abs(y - MAZE_SIZE / 2) + moves;
 	auto  sigmoid = [graphX](float lim, float decay) -> int {
         return round((2 * lim) / (1 + exp(-decay * graphX / 5.0f)) - lim);
 	};
 
-	int num = Random::getNum(1, 100);
+	// Creates a random variable and uses it to randomise the room type
+	int num = Random::uniformDist(1, 100);
 	if(num == sigmoid(1, 0.5f))
-		type = RoomType::Exit;
+		type = Room::Type::Exit;
 	else if(num < sigmoid(7, 1))
-		type = RoomType::Enemy;   // NOTE: This was enemy
+		type = Room::Type::Enemy;   // NOTE: This was enemy
 	else if(num < sigmoid(12, 1))
-		type = RoomType::NPC;
+		type = Room::Type::NPC;
 	else if(num < sigmoid(22, 1))
-		type = RoomType::Trap;
+		type = Room::Type::Trap;
 	else if(num < sigmoid(32, 2))
-		type = RoomType::Chest;
+		type = Room::Type::Chest;
 
 	Level::addRoom(x, y, entrances, type);
 }
@@ -188,16 +196,17 @@ void Maze::playerMoved(Direction dir)
 {
 	if(isMoving[dir])
 	{
+		// Resets this so that the moves variable only increases by 1 for every room
 		isMoving[dir] = false;
 
-		if(moves >= std::numeric_limits<uint64_t>::max() - 2)
-			moves = 0;
-		else
-			moves += 2;
+		// This counts the moves
+		// NOTE: It does not matter if there is an overflow as it will just go back to 0
+		moves += 2;
 	}
 	else
 		isMoving[dir] = true;
 
+	// Generates the room in the moved direction
 	switch(dir)
 	{
 	case Direction::north:
@@ -225,6 +234,7 @@ void Maze::playerMoved(Direction dir)
 		break;
 	}
 
+	// Tells the middle room it is the current room
 	getMidRoom()->active();
 }
 
@@ -246,10 +256,9 @@ void Maze::generatePaths(int layerMax, int startMax)
 	}
 
 	/*
-            This maze generation works using a tree style method, where each branch or path is generated one at a time, and then
-            any open entrances that is left is also then added to the currentPaths vector, ready to be generated in the next layer.
-            TODO: Add the ability to go back, if not many rooms have been created and look for spaces some can be
-        */
+		This maze generation works using a tree style method, where each branch or path is generated one at a time, and then
+		any open entrances that is left is also then added to the currentPaths vector, ready to be generated in the next layer.
+	*/
 
 	std::vector<Vec2i> newPaths;   // This stores the newPaths for the next layer
 	newPaths.reserve(MAZE_SIZE);   // Reserves space because, not all spaces may be used
@@ -286,7 +295,7 @@ void Maze::generatePaths(int layerMax, int startMax)
 			{
 				forceEntrance(&north, &south, &east, &west);
 
-				int r = Random::getNum(0, 2);
+				int r = Random::uniformDist(0, 2);
 				if(r != 2)
 				{
 					forceEntrance(&north, &south, &east, &west);
@@ -294,7 +303,7 @@ void Maze::generatePaths(int layerMax, int startMax)
 			}
 			else if(pathCount == 2 && layer < layerMax - MAZE_SIZE / 3)
 			{
-				int r = Random::getNum(0, 2);
+				int r = Random::uniformDist(0, 2);
 				if(r != 2)
 				{
 					forceEntrance(&north, &south, &east, &west);
@@ -341,7 +350,11 @@ void Maze::generatePaths(int layerMax, int startMax)
 void Maze::multithreadGenerating(int layerMax, int startMax)
 {
 	if(!finishedGenerating)
-		Log::critical("Stacked maze generating!!", LOGINFO);
+	{
+		Log::error("Stacked maze generating!!", LOGINFO);
+		return;
+	}
+
 	finishedGenerating = false;
 	std::thread t1(&Maze::generatePaths, this, layerMax, startMax);   // This starts the multithreading
 	t1.detach();
@@ -353,8 +366,8 @@ void Maze::generate()
 	{
 		if(m_Board[i])
 		{
-			delete m_Board[i];   // NOTE: This frees up the memory, but does not make it a nullptr
-			m_Board[i] = nullptr;
+			delete m_Board[i];      // NOTE: This frees up the memory, but does not make it a nullptr
+			m_Board[i] = nullptr;   // Therefore it has to make it a nullptr
 		}
 	}
 	m_BoardOffset.y = 0;
@@ -363,22 +376,11 @@ void Maze::generate()
 	// NOTE: MUST DELETE ALL ROOMS!
 
 	bool entrances[4] = {true, true, true, true};
-	Level::addRoom(midpoint, midpoint, entrances, RoomType::Empty);
+	Level::addRoom(midpoint, midpoint, entrances, Room::Type::Empty);
 	currentPaths.push_back({midpoint - 1, midpoint});
 	currentPaths.push_back({midpoint, midpoint - 1});
 	currentPaths.push_back({midpoint + 1, midpoint});
 	currentPaths.push_back({midpoint, midpoint + 1});
-
-	// Item *     item      = new FireStaff();
-	// WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, TILE_SIZE / 2, this, item);
-	// getMidRoom()->addEntity(worldItem);
-	// Item *     item2      = new FireStaff();
-	// WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, TILE_SIZE / 2, this, item2);
-	// getMidRoom()->addEntity(worldItem2);
-
-	// Item *     potion     = new Potion(Potion::Type::HealthHuge);
-	// WorldItem *worldItem3 = new WorldItem(3800.0f, 3900.0f, TILE_SIZE / 2, this, potion);
-	// getMidRoom()->addEntity(worldItem3);
 
 	multithreadGenerating(MAZE_SIZE * 4 / 5, 1);
 }
@@ -464,7 +466,7 @@ Maze::EntranceState Maze::shouldBeOpen(Room *room, Direction nextEntrance, int p
 	}
 	else
 	{   // Randomly generates whether the entrance will be open
-		int r = Random::getNum(0, prob);
+		int r = Random::uniformDist(0, prob);
 		if(r == 0)
 		{
 			(*pathCount)++;
@@ -495,7 +497,7 @@ void Maze::forceEntrance(Maze::EntranceState *north, Maze::EntranceState *south,
 	}
 	else if(entrances.size() > 0)
 	{
-		int r         = Random::getNum(0, entrances.size() - 1);
+		int r         = Random::uniformDist(0, entrances.size() - 1);
 		*entrances[r] = EntranceState::isOpen;
 	}
 }

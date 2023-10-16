@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MazeHeaders.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 #include "Camera.h"
 #include "KeyDefinitions.h"
@@ -41,7 +41,6 @@ class Maze : public Level
 	EntranceState shouldBeOpen(Room *room, Direction nextEntrance, int prob, int *pathCount);
 	void          forceEntrance(EntranceState *north, EntranceState *south, EntranceState *east, EntranceState *west);
 
-	// TODO: Make this a event
 	virtual void endLevel() override;
 	virtual void playerDeath() override;
 	void         resetMaze();

@@ -2,9 +2,11 @@
 
 namespace Event
 {
+	// Event initialisation
 	void init();
 
-	enum class EventType
+	// Stores all the different types of events
+	enum class EventType : uint8_t
 	{
 		KeyInput,
 		Scroll,
@@ -13,7 +15,7 @@ namespace Event
 		MazeMoved,
 		ShowAltTile,
 		ItemTransfer,
-		ChangeGUILayer,
+		ChangeGUIMenu,
 		ChestOpened,
 		PlayerResponse,
 		MobDied,
@@ -21,14 +23,16 @@ namespace Event
 		RemoveShaderEffect,
 	};
 
-	enum class Action
+	// The action of a key being pressed
+	enum class Action : uint8_t
 	{
 		Release = 0,
 		Press,
 		Repeat
 	};
 
-	enum class KeyboardMod
+	// The modifier that can happen with an event
+	enum class KeyboardMod : uint8_t
 	{
 		Shift           = 1,
 		Control         = 2,
@@ -39,13 +43,15 @@ namespace Event
 		ControlAltShift = 7,
 	};
 
-	enum class CallType
+	// The type of call type (where the event reaches)
+	enum class CallType : uint8_t
 	{
 		Normal,
 		Overlay,
 		All,
 	};
 
+	// Base struct for the event
 	struct Event
 	{
 		virtual EventType const getType() const        = 0;

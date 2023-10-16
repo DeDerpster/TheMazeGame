@@ -4,6 +4,8 @@
 
 #include "../particle/Particle.h"
 
+#include "Direction.h"
+
 #include <GLM.h>
 
 class ParticleSpawner : public Spawner
@@ -34,6 +36,7 @@ class ParticleSpawner : public Spawner
 	ParticleSpawner();
 	ParticleSpawner(float x, float y, Level *level);
 	ParticleSpawner(float x, float y, Level *level, uint16_t mLife, uint16_t spawnRate, uint16_t minLife, uint16_t maxLife, float xMinSpeed, float xMaxSpeed, float yMinSpeed, float yMaxSpeed, float minSize, float maxSize, uint16_t groupSize, glm::vec4 colour);
+	ParticleSpawner(float x, float y, Level *level, uint16_t mLife, uint16_t spawnRate, uint16_t minLife, uint16_t maxLife, Direction dir, float minSpeed, float maxSpeed, float minSize, float maxSize, uint16_t groupSize, glm::vec4 colour);
 	virtual ~ParticleSpawner() override;
 
 	virtual void render() override;

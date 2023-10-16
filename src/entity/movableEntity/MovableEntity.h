@@ -2,14 +2,16 @@
 
 #include "../Entity.h"
 
+#include "Direction.h"
+
 class MovableEntity : public Entity
 {
   protected:
-	float     m_Speed;
-	bool      isMoving;
-	Direction m_Dir;
+	float     m_Speed;    // Speed of the movable entity
+	bool      isMoving;   // Stores whether it is moving or not
+	Direction m_Dir;      // Stores the direction it is going in
 
-	bool isGhost;
+	bool isGhost;   // Variable only used with debugging but allows an entity to ignore collision detection
 
   public:
 	MovableEntity();
@@ -21,8 +23,9 @@ class MovableEntity : public Entity
 	virtual bool eventCallback(const Event::Event &e) override;
 
 	virtual void move(float xa, float ya);
-	virtual void move(Vec2f ratio);
+	virtual void move(Vec2f ratio);   // Allows movement with a ratio to maximise speed (and have it accurate)
 
+	// Functions to check if it can move in a given direction
 	bool canMove(float xa, float ya);
 	bool canMove(Vec2f ratio);
 

@@ -1,5 +1,6 @@
 #include "Text.h"
 
+#include "Application.h"
 #include "rendering/Renderer.h"
 
 Text::Text(std::string text)
@@ -18,5 +19,7 @@ Text::~Text()
 
 void Text::render(float xOffset, float yOffset, uint8_t layer)
 {
-	Render::text(m_Text, x + xOffset, y + yOffset, m_Scale, m_Colour, layer, isCentered, isOverlay);
+	// Renders the text with the given offset
+	// NOTE: The text automatically scales due to the GUI Scale
+	Render::text(m_Text, x + xOffset, y + yOffset, m_Scale * Application::getGUIScale(), m_Colour, layer, isCentered, isOverlay);
 }

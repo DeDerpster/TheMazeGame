@@ -6,7 +6,7 @@
 class TextMenuObject : public MenuObject
 {
   private:
-	Text m_Text;
+	Text m_Text;   // Stores the text
 
   public:
 	TextMenuObject(Text text, float x, float y, Layer *layer);

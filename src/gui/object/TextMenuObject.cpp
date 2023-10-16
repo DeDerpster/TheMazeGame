@@ -12,6 +12,7 @@ TextMenuObject::TextMenuObject(Text text, std::function<void(float *, float *)> 
 
 void TextMenuObject::render()
 {
+	// Renders the text
 	m_Text.render(x, y, 8);
 }
 

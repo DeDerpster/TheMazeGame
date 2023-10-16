@@ -1,7 +1,7 @@
 #include "Bow.h"
 
 #include "entity/movableEntity/mob/Mob.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 Bow::Bow()
 	: Weapon("Bow", 15.0f, 30, Sprite::ID::weaponBow) {}
@@ -18,6 +18,7 @@ void Bow::attack(Level *level, Entity &e, Direction dir, bool hold)
 		else
 			damage = 0.0f;
 
+		// Spawns an arrow projectile
 		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Arrow));
 		if(m)
 		{

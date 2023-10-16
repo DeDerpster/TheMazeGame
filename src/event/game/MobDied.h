@@ -6,6 +6,7 @@
 
 namespace Event
 {
+	// Event for when a mob dies
 	struct MobDiedEvent : Event
 	{
 		const Mob *mob;

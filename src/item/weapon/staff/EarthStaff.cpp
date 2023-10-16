@@ -1,7 +1,7 @@
 #include "EarthStaff.h"
 
 #include "entity/movableEntity/mob/Mob.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 EarthStaff::EarthStaff()
 	: Weapon("Earth Staff", 15.0f, 15, Sprite::ID::weaponEarthStaff) {}
@@ -18,6 +18,7 @@ void EarthStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
 		else
 			damage = 0.0f;
 
+		// Spawns a natural projectile
 		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Nature));
 		if(m)
 		{

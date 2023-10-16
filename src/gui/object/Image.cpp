@@ -14,7 +14,8 @@ Image::Image(std::function<void(float *, float *, float *, float *)> posFunc, Sp
 
 void Image::render()
 {
-	Render::sprite(x, y, 0.0f, width, height, m_SpriteID, 9, true);
+	// Renders the image
+	Render::sprite(x, y, 0.0f, width, height, m_SpriteID, 6, true);
 }
 
 void Image::update()

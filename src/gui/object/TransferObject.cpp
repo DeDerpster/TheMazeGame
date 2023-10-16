@@ -1,5 +1,7 @@
 #include "TransferObject.h"
 
+#include "Application.h"
+
 #include "layer/GUILayer.h"
 
 #include "event/input/Keyboard.h"
@@ -21,6 +23,7 @@ void TransferObject::update()
 {
 	if(container)
 	{
+		// Will update the its position based on the mouse
 		Vec2f mousePos = Event::getMousePos();
 
 		x = mousePos.x;
@@ -32,7 +35,8 @@ void TransferObject::render()
 {
 	if(container)
 	{
-		container->getItem(index)->render(x, y, 0.0f, width, 9, true, true);
+		// Renders if an object is being transferred
+		container->getItem(index)->render(x, y, 0.0f, width * Application::getGUIScale(), 9, true, true);
 	}
 }
 
@@ -42,13 +46,17 @@ bool TransferObject::eventCallback(const Event::Event &e)
 	{
 	case Event::EventType::ItemTransfer:
 	{
+		// If there is an item transfer event it will update its index and container
 		if(container)
 			return true;
 		const Event::ItemTransferEvent &ne = static_cast<const Event::ItemTransferEvent &>(e);
 
 		index     = ne.index;
 		container = ne.container;
+		// Will make it so that the object must be forced to be rendered (which will stop it being rendered in the MIHMs)
 		container->getItem(index)->setForcedRender(true);
+
+		// Updates its position (So there is no frames where it is in the wrong position)
 		update();
 
 		return true;
@@ -61,8 +69,9 @@ bool TransferObject::eventCallback(const Event::Event &e)
 
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
-		if(ne.button == Event::MouseButton::leftButton && ne.action == Event::Action::Press)
+		if(ne.button == Event::MouseButton::LeftButton && ne.action == Event::Action::Press)
 		{
+			// If there is a click it will send itself to the layer to be transferred (if possible)
 			GUILayer *layer = dynamic_cast<GUILayer *>(m_Layer);
 			if(layer)
 				layer->transferObject(this);
@@ -82,6 +91,7 @@ bool TransferObject::eventCallback(const Event::Event &e)
 
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
 
+		// If escape is clicked it will cancel the transfer
 		if(ne.key == Event::KeyboardKey::Escape && (ne.action == Event::Action::Press || ne.action == Event::Action::Repeat))
 		{
 			hasTransferred();
@@ -96,9 +106,22 @@ bool TransferObject::eventCallback(const Event::Event &e)
 	}
 }
 
+void TransferObject::removeItem()
+{
+	// This will remove an item from the container (and reset its variables)
+	container->getItem(index)->setForcedRender(false);
+	container->removeItem(index);
+	container = nullptr;
+	index     = 0;
+}
+
 void TransferObject::hasTransferred()
 {
-	container->getItem(index)->setForcedRender(false);
+	// Will reset the variables
+	if(container->size() == 0)
+		Log::error("The item has been transferred before resetting variables!", LOGINFO);
+	else
+		container->getItem(index)->setForcedRender(false);
 	container = nullptr;
 	index     = 0;
 }

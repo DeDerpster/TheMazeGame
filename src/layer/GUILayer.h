@@ -6,11 +6,12 @@
 
 #include "gui/object/MenuObject.h"
 #include "gui/object/TransferObject.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 class GUILayer : public Layer
 {
   public:
+	// Stores the different types of layers that can be created
 	enum class Type
 	{
 		MainMenu,

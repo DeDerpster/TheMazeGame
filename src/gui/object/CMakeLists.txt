@@ -6,4 +6,5 @@ target_sources(${PROJECT_NAME} PRIVATE Button.cpp
                                        Text.cpp
                                        TextMenuObject.cpp
                                        TransferObject.cpp
-                                       Image.cpp)
+                                       Image.cpp
+                                       Slider.cpp)

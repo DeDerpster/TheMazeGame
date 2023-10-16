@@ -5,12 +5,14 @@
 
 struct Text
 {
+	// Stores the relative position
 	float x, y;
 
-	std::string m_Text;
-	float       m_Scale;
-	glm::vec4   m_Colour;
+	std::string m_Text;     // Stores the text
+	float       m_Scale;    // Stores the scale of the text
+	glm::vec4   m_Colour;   // Stores the colour of the text
 
+	// Stores some settings for when rendering
 	bool isCentered, isOverlay;
 
 	Text(std::string text);

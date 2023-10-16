@@ -829,7 +829,7 @@
                     &#xa;                    &#xa;&#xa;
                 </mxCell>
                 &#xa;                &#xa;&#xa;
-                <mxCell id="zJQTShs8n5wMLcWdbgIG-10" value="-logFile&#10;-criticalMessage&#10;-errorMessage&#10;-warningMessage&#10;-debugMessage&#10;-variableMessage&#10;-defaultMessage&#10;&#10;-output(typeMessage, message, filePath, line)&#10;-setConsoleColour(colour)&#10;&#10;+get()&#10;+critical(message, file, line)&#10;+error(message, file, line)&#10;+warning(message)&#10;+info(message)&#10;+debug(message)&#10;+variable(name, var)" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;" parent="zJQTShs8n5wMLcWdbgIG-9" vertex="1">
+                <mxCell id="zJQTShs8n5wMLcWdbgIG-10" value="-logFile&#10;-criticalMessage&#10;-errorMessage&#10;-warningMessage&#10;-debugMessage&#10;-variableMessage&#10;-defaultMessage&#10;&#10;-output(typeMessage, message, filepath, line)&#10;-setConsoleColour(colour)&#10;&#10;+get()&#10;+critical(message, file, line)&#10;+error(message, file, line)&#10;+warning(message)&#10;+info(message)&#10;+debug(message)&#10;+variable(name, var)" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;" parent="zJQTShs8n5wMLcWdbgIG-9" vertex="1">
                     &#xa;                    &#xa;&#xa;
                     <mxGeometry y="30" width="260" height="270" as="geometry"/>
                     &#xa;                    &#xa;&#xa;

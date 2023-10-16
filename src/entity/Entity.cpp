@@ -1,7 +1,7 @@
 #include "Entity.h"
 
 #include "KeyDefinitions.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 #include "event/game/MazeMoved.h"
 
@@ -17,13 +17,14 @@ Entity::~Entity() {}
 
 bool Entity::eventCallback(const Event::Event &e)
 {
+	// Checks for maze moved event
 	switch(e.getType())
 	{
 	case Event::EventType::MazeMoved:
 	{
 		const Event::MazeMovedEvent &ne = static_cast<const Event::MazeMovedEvent &>(e);
-		x += ne.changeX;
-		y += ne.changeY;
+		changeX(ne.changeX);   // This is so that if this is overwritten it updates the variables accordingly
+		changeY(ne.changeY);
 	}
 	default:
 		return false;
@@ -40,6 +41,7 @@ bool Entity::doesIntersectWith(Vec2f pos)
 {
 	return doesPointIntersectWithBox(pos, {x, y}, m_CollisionBox);
 }
+
 bool Entity::deleteMe() { return false; }
 
 void Entity::changeX(float changeBy) { x += changeBy; }
@@ -48,11 +50,8 @@ void Entity::setLevel(Level *level) { m_Level = level; }
 
 bool Entity::hasCollidedWith(float xs, float ys, CollisionBox box)
 {
-	if(xs + box.lowerBound.x >= x + m_CollisionBox.upperBound.x || x + m_CollisionBox.lowerBound.x >= xs + box.upperBound.x)
-		return false;
-	if(ys + box.upperBound.y <= y + m_CollisionBox.lowerBound.y || y + m_CollisionBox.upperBound.y <= ys + box.lowerBound.y)
-		return false;
-	return true;
+	// Checks to see if the boxes intersec
+	return doesBoxIntersectWithBox({x, y}, m_CollisionBox, {xs, ys}, box);
 }
 
 #ifdef DEBUG

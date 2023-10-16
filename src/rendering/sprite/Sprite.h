@@ -4,7 +4,6 @@
 #include <string>
 
 #include "Log.h"
-#include "Utils.h"
 #include "rendering/glInterface/Texture.h"
 
 // Definitions for some basic structures of how sprites should be layed out

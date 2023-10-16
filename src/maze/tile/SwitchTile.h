@@ -1,14 +1,13 @@
 #pragma once
 
 #include "Tile.h"
-#include "Utils.h"
 
 class SwitchTile : public Tile
 {
   protected:
-	Sprite::ID m_AltSpriteID;
-	double   m_AltRotation;
-	bool     showAlt;
+	Sprite::ID m_AltSpriteID;   // Stores the secondary sprite ID
+	double     m_AltRotation;   // Stores the secondary rotation for the alternative sprite
+	bool       showAlt;         // Stores whether it is showing the alternative sprite
 
   public:
 	SwitchTile();
@@ -22,7 +21,8 @@ class SwitchTile : public Tile
 	virtual void imGuiRender() override;
 #endif
 
-	virtual bool isSolid() override
+	// Overrides isSolid to include a check to see whether it is showing the alternative sprite
+	virtual bool const isSolid() const override
 	{
 		return showAlt || m_IsSolid;
 	}

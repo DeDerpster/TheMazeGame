@@ -1,7 +1,7 @@
 #include "Crossbow.h"
 
 #include "entity/movableEntity/mob/Mob.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 Crossbow::Crossbow()
 	: Weapon("Crossbow", 20.0f, 25, Sprite::ID::weaponCrossbow) {}
@@ -18,6 +18,7 @@ void Crossbow::attack(Level *level, Entity &e, Direction dir, bool hold)
 		else
 			damage = 0.0f;
 
+		// Spawns an arrow projectile
 		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Arrow));
 		if(m)
 		{

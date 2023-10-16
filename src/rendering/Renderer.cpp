@@ -479,7 +479,7 @@ void Render::hoverTextImpl(std::string &inpText, float x, float y, float scale, 
 
 	// Draw a rectangle and then text
 	rectangle(x, y + yOffset + borderWidth + height / 2, 0.0f, width + 2 * borderWidth, height + 2 * borderWidth, backgroundColour, layer, true, isOverlay);
-	text(inpText, x, textY, scale, textColour, layer, true, isOverlay);
+	text(inpText, x, textY, scale * Application::getGUIScale(), textColour, layer, true, isOverlay);
 }
 
 void Render::rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, uint8_t layer, bool isCentered, bool isOverlay)

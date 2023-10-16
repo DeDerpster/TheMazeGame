@@ -1,13 +1,14 @@
 #include "Trapdoor.h"
 
+#include "2dVec.h"
 #include "Application.h"
-#include "Utils.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 #include "rendering/sprite/Sprite.h"
 
 #include "entity/movableEntity/mob/Player.h"
 
+#include "event/game/ShowAlternatives.h"
 #include "event/input/Mouse.h"
 
 Trapdoor::Trapdoor()
@@ -24,15 +25,11 @@ Trapdoor::~Trapdoor()
 {
 }
 
-CollisionBox Trapdoor::getCollisionBox()
-{
-	return {{-TILE_SIZE / 2, -TILE_SIZE / 2}, {TILE_SIZE / 2, TILE_SIZE / 2}};
-}
-
 void Trapdoor::render()
 {
-	uint8_t layer = 0;
-	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID, layer);
+	Tile::render();
+
+	// If the mouse is hovering over the trapdoor it will display its name
 	if(m_State == Button::State::Hover)
 	{
 		float       scale    = 35.0f;
@@ -58,22 +55,31 @@ bool Trapdoor::eventCallback(const Event::Event &e)
 	switch(e.getType())
 	{
 	case Event::EventType::MouseClicked:
-	{
-		if(!m_Level)
+	{   // Checks for a mouse clicked event
+		if(!m_Level || m_Locked)
 			return false;
 
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
 		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
 
-		Player *player = m_Level->getPlayer();
-		if(doesPointIntersectWithBox(Application::getCamera()->convertWindowToLevel(ne.pos), {x, y}, getCollisionBox()) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
+		// Checks the player is in proximity
+		Player *const player = m_Level->getPlayer();
+		if(doesPointIntersectWithBox(Application::getCamera()->convertWindowToLevel(ne.pos), {x, y}, getCollisionBox()) && distBetweenVec<Vec2f>({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
 		{
+			// Calls the endLevel function
 			m_Level->endLevel();
 			return true;
 		}
 
 		return false;
+	}
+
+	case Event::EventType::ShowAltTile:
+	{
+		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
+
+		m_Locked = ne.showAlt;
 	}
 
 	default:

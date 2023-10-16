@@ -7,6 +7,8 @@
 #include "Camera.h"
 #include "Log.h"
 
+#include "CollisionBox.h"
+
 class Application
 {
   public:
@@ -46,9 +48,14 @@ class Application
 	static int       getWidth() { return get().getWidthImpl(); }
 	static int       getHeight() { return get().getHeightImpl(); }
 	static void *    getWindow() { return get().getWindowImpl(); }
+	static float     getGUIScale() { return get().guiScale; }
+
+	static void changeGUIScale(float newScale) { get().changeGUIScaleImpl(newScale); }
 
 	static bool getIsPaused() { return get().gameIsPaused; }
 	static void setIsPaused(bool paused) { get().gameIsPaused = paused; }
+
+	static bool errorHasOccurred() { return get().problemBootingUp; }
 
   private:
 	static Application s_Instance;
@@ -67,7 +74,11 @@ class Application
 
 	uint16_t projEffectID;
 
+	float guiScale;
+
 	bool gameIsPaused;
+
+	bool problemBootingUp;
 
 	Application();
 
@@ -103,4 +114,6 @@ class Application
 	int       getWidthImpl();
 	int       getHeightImpl();
 	void *    getWindowImpl();
+
+	void changeGUIScaleImpl(float newScale);
 };

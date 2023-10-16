@@ -1,15 +1,14 @@
 #pragma once
 
 #include "Tile.h"
-#include "Utils.h"
 #include "gui/object/Button.h"
 
 class Trapdoor : public Tile
 {
   protected:
-	Button::State m_State;
+	Button::State m_State;   // Stores the state
 
-	CollisionBox getCollisionBox();
+	bool m_Locked;   // Allows it to be locked until the player defeats the enemies
 
   public:
 	Trapdoor();

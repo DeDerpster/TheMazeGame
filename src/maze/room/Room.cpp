@@ -4,7 +4,7 @@
 #include "Application.h"
 #include "Log.h"
 #include "RandomGen.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 #include "rendering/sprite/Sprite.h"
 
 #include "entity/movableEntity/mob/NPC.h"
@@ -31,30 +31,58 @@
 
 #define ROOMS_FOLDER "res/rooms/"
 
-Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
+Room::Room(float x, float y, bool entrances[4], Type type, Level *level)
 	: x(x), y(y), isLocked(false), m_Type(type), m_Level(level)
 {
+	// Sets the entrances
 	for(int i = 0; i < 4; i++)
 		m_Entrances[i] = entrances[i];
 
-	std::string filePath = ROOMS_FOLDER;
-	if(type == RoomType::Chest)
-		filePath.append("Chest.png");
-	else if(type == RoomType::Trap)
-		filePath.append("Trap.png");
-	else if(type == RoomType::Exit)
-		filePath.append("Exit.png");
-	else
-		filePath.append("Empty.png");
-
-	if(type == RoomType::Enemy)
+	// Determines what file to look at based on the type
+	std::string filepath = ROOMS_FOLDER;
+	switch(type)
 	{
+	case Type::Chest:
+		filepath.append("Chest.png");
+		break;
+	case Type::Trap:
+		filepath.append("Trap.png");
+
+		break;
+	case Type::Exit:
+	{
+		filepath.append("Exit.png");
+		// If the room is the exit it generates an enemy with 2 followers
+		NPC *enemy = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level, NPC::Type::Enemy);
+		enemy->setMaxFollowers(2);
+
+		enemy->setEnemy(m_Level->getPlayer());
+		m_Entities.push_back(enemy);
+
+		for(int i = 0; i < 2; i++)
+		{
+			if(enemy->canAddFollower())
+			{
+				NPC *follower = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level, NPC::Type::Follower);
+				enemy->addFollower(follower);
+				m_Entities.push_back(follower);
+			}
+		}
+
+		break;
+	}
+
+	case Type::Enemy:
+	{
+		filepath.append("Empty.png");
+
+		// If the room is an enemy it generates an enemy with a random number of followers
 		NPC *enemy = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level, NPC::Type::Enemy);
 		enemy->setEnemy(m_Level->getPlayer());
 		m_Entities.push_back(enemy);
 		while(enemy->canAddFollower())
 		{
-			int r = Random::getNum(0, 4);
+			int r = Random::uniformDist(0, 4);
 			if(r = 0)
 			{
 				NPC *follower = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level, NPC::Type::Follower);
@@ -64,16 +92,26 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 			else
 				break;
 		}
+
+		break;
 	}
-	else if(type == RoomType::NPC)
+
+	case Type::NPC:
 	{
+		// Generates a random NPC
 		NPC *npc = new NPC(x + (ROOM_SIZE / 2) * TILE_SIZE, y + (ROOM_SIZE / 2) * TILE_SIZE, m_Level, NPC::Type::Follower);
 		m_Entities.push_back(npc);
 	}
 
+	default:
+		filepath.append("Empty.png");
+		break;
+	}
+
+	// Loads the filepath for the room
 	int width, height, comp;
 	stbi_set_flip_vertically_on_load(1);   // This loads the bitmap file that contains the information to create the room
-	unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &comp, 4);
+	unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &comp, 4);
 
 	if(height != width || height != ROOM_SIZE)
 		Log::critical("Room file not configured properly!", LOGINFO);
@@ -88,23 +126,21 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 			unsigned char *pixelOffset = data + (i * width + j) * 4;
 
 			// This checks if any of the entrances are closed
-			if(pixelOffset[0] == CHEST_COLOUR)
+			switch(pixelOffset[0])
 			{
+			case CHEST_COLOUR:
 				m_Tiles[i * ROOM_SIZE + j] = new Chest(pos.x, pos.y, 0.0f, m_Level, false);   // This creates the tile and adds it to the vector
-			}
-			else if(pixelOffset[0] == DUD_CHEST_COLOUR)
-			{
+				break;
+			case DUD_CHEST_COLOUR:
 				m_Tiles[i * ROOM_SIZE + j] = new Chest(pos.x, pos.y, 0.0f, m_Level, true);   // This creates the tile and adds it to the vector
-			}
-			else if(pixelOffset[0] == TRAP_COLOUR)
-			{
+				break;
+			case TRAP_COLOUR:
 				m_Tiles[i * ROOM_SIZE + j] = new Trap(pos.x, pos.y, 0.0f, m_Level);   // This creates the tile and adds it to the vector
-			}
-			else if(pixelOffset[0] == TRAPDOOR_COLOUR)
-			{
+				break;
+			case TRAPDOOR_COLOUR:
 				m_Tiles[i * ROOM_SIZE + j] = new Trapdoor(pos.x, pos.y, 0.0f, m_Level);   // This creates the tile and adds it to the vector
-			}
-			else
+				break;
+			default:
 			{
 				Sprite::ID texID;
 				bool       isSolid  = true;
@@ -112,6 +148,7 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 				bool       isSwitch = false;
 				double     altRotation;
 
+				// If the entrances are closed it will force the tiles to be walls
 				if(!m_Entrances[Direction::north] && i == height - 1 && j != 0 && j != width - 1)
 				{
 					texID = Sprite::ID::tileBasicWall;
@@ -133,6 +170,7 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 				}
 				else
 				{
+					// If in the correct spot it will create a switch tile
 					if(((j == 0 || j == width - 1) && i > height / 2 - 2 && i < height / 2 + 2) || ((i == 0 || i == height - 1) && j > width / 2 - 2 && j < width / 2 + 2))
 					{
 						if(j == 0)   // Makes sure that the rotation is correct
@@ -146,8 +184,9 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 						isSwitch = true;
 					}
 
-					if(pixelOffset[0] == WALL_COLOUR)   // Checks the colour against the different defined ones
-					{
+					switch(pixelOffset[0])
+					{   // Checks against all the different colours to file the tile it is supposed to be
+					case WALL_COLOUR:
 						texID = Sprite::ID::tileBasicWall;
 						if(j == 0)   // Makes sure that the rotation is correct
 							rotation = 3 * M_PI / 2;
@@ -155,37 +194,43 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 							rotation = M_PI / 2;
 						else if(i == 0)
 							rotation = M_PI;
-					}
-					else if(pixelOffset[0] == FLOOR_COLOUR)
-					{
+
+						break;
+
+					case FLOOR_COLOUR:
 						isSolid = false;
-						if(i == height - 1 && !entrances[0])
-							texID = Sprite::ID::tileBasicWall;
-						else
-							texID = Sprite::ID::tileBasicFloor;
-					}
-					else if(pixelOffset[0] == CORNER_OUT_COLOUR)
-					{
+						texID = Sprite::ID::tileBasicFloor;
+
+						break;
+
+					case CORNER_OUT_COLOUR:
 						texID = Sprite::ID::tileBasicExtCorner;
+						// Makes sure the rotation is correct
 						if(j <= width / 2 && i <= height / 2)
 							rotation = 3 * M_PI / 2;
 						else if(j > width / 2 && i > height / 2)
 							rotation = M_PI / 2;
 						else if(j > width / 2 && i <= height / 2)
 							rotation = M_PI;
-					}
-					else if(pixelOffset[0] == CORNER_IN_COLOUR)
-					{
+
+						break;
+
+					case CORNER_IN_COLOUR:
 						texID = Sprite::ID::tileBasicIntCorner;
+						// Makes sure the rotation is correct
 						if(j <= width / 2 && i <= height / 2)
 							rotation = 3 * M_PI / 2;
 						else if(j > width / 2 && i > height / 2)
 							rotation = M_PI / 2;
 						else if(j > width / 2 && i <= height / 2)
 							rotation = M_PI;
-					}
-					else
+
+						break;
+
+					default:
+						Log::warning("Unknown colour when reading room file!");
 						continue;   // If it is an unknown colour it continues
+					}
 				}
 
 				if(isSwitch)
@@ -194,12 +239,15 @@ Room::Room(float x, float y, bool entrances[4], RoomType type, Level *level)
 				}
 				else
 					m_Tiles[i * ROOM_SIZE + j] = new Tile(pos.x, pos.y, rotation, texID, isSolid, m_Level);   // This creates the tile and adds it to the vector
+				break;
+			}
 			}
 		}
 	}
 }
 Room::~Room()
 {
+	// Deletes the tiles and entities it is storing
 	for(Tile *tile : m_Tiles)
 		delete tile;
 	for(Entity *entity : m_Entities)
@@ -216,9 +264,11 @@ void Room::render()
 
 void Room::update()
 {
+	// Updates all the tiles
 	for(Tile *tile : m_Tiles)
 		tile->update();
 
+	// Updates all the enemies and will delete the dead entities
 	for(auto it = m_Entities.begin(); it != m_Entities.end();)
 	{
 		(*it)->update();
@@ -245,24 +295,28 @@ bool Room::eventCallback(const Event::Event &e)
 {
 	bool moveEntity = false;
 
+	// Checks for a player response (as it will have to move the follower into the maze)
 	if(e.getType() == Event::EventType::PlayerResponse)
 	{
 		const Event::PlayerResponseEvent &ne = static_cast<const Event::PlayerResponseEvent &>(e);
 
-		if(ne.response == Event::PlayerResponseEvent::accept)
+		if(ne.response == Event::PlayerResponseEvent::Response::Accept)
 			moveEntity = true;
 	}
 
+	// Calls the event on all the tiles
 	for(Tile *tile : m_Tiles)
 	{
 		if(tile->eventCallback(e))
 			return true;
 	}
 
+	// Calls the event on the entities and moves the entity if needed
 	for(int i = 0; i < m_Entities.size(); i++)
 	{
 		if(m_Entities[i]->eventCallback(e))
 		{
+			// NOTE: It is not checking for a mob only whether it has responded to the player response
 			if(moveEntity)
 			{
 				m_Level->addEntity(m_Entities[i]);
@@ -276,18 +330,18 @@ bool Room::eventCallback(const Event::Event &e)
 
 	switch(e.getType())
 	{
-	case Event::EventType::ShowAltTile:
+	case Event::EventType::ShowAltTile:   // If show alt tiles is called it will update the lock and tile
 	{
 		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
 
 		if(ne.showAlt)
 		{
-			m_Type   = RoomType::Enemy;
+			m_Type   = Type::Enemy;   // This is to allow features of an enemy room when a follower attacks
 			isLocked = true;
 		}
 		else
 		{
-			m_Type   = RoomType::Empty;
+			m_Type   = Type::Empty;
 			isLocked = false;
 		}
 
@@ -296,6 +350,7 @@ bool Room::eventCallback(const Event::Event &e)
 
 	case Event::EventType::MazeMoved:
 	{
+		// Updates its position
 		const Event::MazeMovedEvent &ne = static_cast<const Event::MazeMovedEvent &>(e);
 
 		x += ne.changeX;
@@ -308,12 +363,13 @@ bool Room::eventCallback(const Event::Event &e)
 	{
 		const Event::MobDiedEvent &ne = static_cast<const Event::MobDiedEvent &>(e);
 
+		// Finds the mob in its entity list and removes it and deletes it
 		auto index = std::find(m_Entities.begin(), m_Entities.end(), ne.mob);
 		if(index != m_Entities.end())
 		{
 			delete ne.mob;
 			m_Entities.erase(index);
-			checkForMobs();
+			checkForMobs();   // Checks what mobs are left - if it is an enemy room and there are no mobs left it will open the entrances
 		}
 
 		return false;
@@ -326,13 +382,14 @@ bool Room::eventCallback(const Event::Event &e)
 
 bool Room::isOpen(Direction entrance)
 {
+	// Returns false if it is locked or the entrances state it is open
 	return !isLocked && m_Entrances[entrance];
 }
 
 void Room::active()
 {
-	if(m_Type == RoomType::Enemy)
-	{
+	if(m_Type == Type::Enemy || m_Type == Type::Exit)
+	{   // If it is an enemy room it calls a ShowAltTileEvent
 		Event::ShowAltTileEvent e(true);
 		Application::callEvent(e);
 	}
@@ -340,6 +397,7 @@ void Room::active()
 
 Entity *Room::entityCollisionDetection(float nextX, float nextY, CollisionBox box)
 {
+	// Checks all the entities in the room if it has collided with it
 	for(Entity *e : m_Entities)
 	{
 		if(e->hasCollidedWith(nextX, nextY, box))
@@ -354,7 +412,7 @@ Tile *Room::getTile(int x, int y) { return m_Tiles[y * ROOM_SIZE + x]; }
 void Room::checkForMobs()
 {
 	if(isLocked)
-	{
+	{   // If it is locked it will check if any mobs are left
 		auto searchFunc = [this](const Entity *o) -> bool {
 			const Mob *mob = dynamic_cast<const Mob *>(o);
 			return mob && mob->getEnemy() == m_Level->getPlayer();

@@ -7,7 +7,8 @@
 class Projectile : public MovableEntity
 {
   public:
-	enum class Type
+	// The different types of projectiles
+	enum class Type : uint8_t
 	{
 		Arrow,
 		Boomerang,
@@ -20,13 +21,13 @@ class Projectile : public MovableEntity
 	};
 
   protected:
-	Vec2f   m_StartPos;
-	float   m_MaxDistance;
-	float   m_Damage;
-	Entity *spawner;
-	bool    hasCollided;
-	double  m_Rotation;
-	double  m_RotationSpeed;
+	Vec2f   m_StartPos;        // Stores its start position
+	float   m_MaxDistance;     // Max distance it can travel
+	float   m_Damage;          // Damage it does to a mob
+	double  m_Rotation;        // Stores its rotation
+	double  m_RotationSpeed;   // Stores its rotation speed
+	Entity *spawner;           // The entity which fired the projectile
+	bool    hasCollided;       // Stores whether it has collided
 
 	std::function<void(float, float, Direction, Level *)> m_CollisionFunction;
 

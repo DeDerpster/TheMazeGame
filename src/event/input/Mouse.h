@@ -2,30 +2,32 @@
 
 #include "../Event.h"
 
-#include "Utils.h"
+#include "2dVec.h"
 
 namespace Event
 {
 	Vec2f getMousePos();
 
-	enum MouseButton
+	// Stores all the possible mouse buttons that are supported
+	enum class MouseButton : uint8_t
 	{
-		leftButton = 0,
-		rightButton,
-		middleButton,
-		button4,
-		button5,
-		button6,
-		button7,
-		button8,
+		LeftButton = 0,
+		RightButton,
+		MiddleButton,
+		Button4,
+		Button5,
+		Button6,
+		Button7,
+		Button8,
 	};
 
+	// Event for when mouse button changes state
 	struct MouseClickedEvent : Event
 	{
-		MouseButton button;
-		Vec2f       pos;
-		Action      action;
-		KeyboardMod mods;
+		MouseButton button;   // Stores the button that changed action
+		Vec2f       pos;      // Stores the position of the mouse
+		Action      action;   // Stores the action of the button
+		KeyboardMod mods;     // Stores the modifiers
 
 		MouseClickedEvent(MouseButton button, Vec2f pos, Action action, KeyboardMod mods)
 			: button(button), pos(pos), action(action), mods(mods) {}
@@ -34,8 +36,10 @@ namespace Event
 		virtual bool            ignoreIfPaused() const override { return false; }
 	};
 
+	// Event for scroll wheel changes
 	struct ScrollEvent : Event
 	{
+		// Stores the x and y offsets
 		double xoffset, yoffset;
 
 		ScrollEvent(double xoffset, double yoffset)

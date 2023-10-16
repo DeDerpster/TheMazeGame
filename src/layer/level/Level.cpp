@@ -27,6 +27,7 @@ Level::Level(float playerStartX, float playerStartY, int width, int height, Vec2
 
 Level::~Level()
 {
+	// Delets all the rooms, entities, projectiles and spawners
 	for(int i = 0; i < m_Board.size(); i++)
 	{
 		if(m_Board[i])
@@ -90,8 +91,6 @@ void Level::render()
 		get(midpoint, midpoint - 1)->render();
 
 #endif
-	// Render::render(m_ShaderEffectsIDs);
-
 	for(Entity *entity : m_Entities)
 		entity->render();
 
@@ -107,20 +106,18 @@ void Level::render()
 void Level::update()
 {
 	m_Player.update();
+	if(m_Player.deleteMe())   // Checks if the player has died
+		playerDeath();
 
+	// Updates all the entities and deletes them if they have died
 	for(auto it = m_Entities.begin(); it != m_Entities.end();)
 	{
 		(*it)->update();
-		if((*it)->deleteMe())
-		{
-			delete *it;
-			it = m_Entities.erase(it);
-		}
-		else if(isOutOfBound((*it)->getX(), (*it)->getY()))
+		if((*it)->deleteMe() || isOutOfBound((*it)->getX(), (*it)->getY()))
 		{
 			Mob *mob = dynamic_cast<Mob *>(*it);
 			if(mob)
-			{
+			{   // If it is a mob it will call the mob died
 				Application::callEventLater(new Event::MobDiedEvent(mob));
 				++it;
 			}
@@ -134,6 +131,7 @@ void Level::update()
 			++it;
 	}
 
+	// Goes through the projectiles and updates them and deletes them if needed
 	for(auto it = m_Projectiles.begin(); it != m_Projectiles.end();)
 	{
 		(*it)->update();
@@ -147,6 +145,7 @@ void Level::update()
 			++it;
 	}
 
+	// Updates all the spawners
 	for(auto it = m_Spawners.begin(); it != m_Spawners.end();)
 	{
 		(*it)->update();
@@ -159,6 +158,7 @@ void Level::update()
 			++it;
 	}
 
+	// Updates all the rooms that are visible to the player
 	int   midpoint = getMidPoint();
 	Room *mid      = getMidRoom();
 	mid->update();
@@ -174,6 +174,7 @@ void Level::update()
 
 bool Level::eventCallback(const Event::Event &e)
 {
+	// If it is a maze moved event it calls the event on all the rooms otherwise it only calls the event on the room the player is in
 	if(e.getType() == Event::EventType::MazeMoved)
 	{
 		for(Room *room : m_Board)
@@ -185,6 +186,7 @@ bool Level::eventCallback(const Event::Event &e)
 	else if(getMidRoom()->eventCallback(e))
 		return true;
 
+	// Calls the event on all the other objects in the maze
 	if(m_Player.eventCallback(e))
 		return true;
 
@@ -210,6 +212,7 @@ bool Level::eventCallback(const Event::Event &e)
 	{
 	case Event::EventType::MobDied:
 	{
+		// If a mob has died it will be deleted
 		const Event::MobDiedEvent &ne = static_cast<const Event::MobDiedEvent &>(e);
 
 		if(ne.mob == &m_Player)
@@ -229,6 +232,7 @@ bool Level::eventCallback(const Event::Event &e)
 
 	case Event::EventType::ShowAltTile:
 	{
+		// If a room is closing them it move all the entities in the maze to the nearest entrance
 		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
 
 		if(ne.showAlt)
@@ -260,10 +264,10 @@ bool Level::eventCallback(const Event::Event &e)
 				Vec2f relPos = convertToRelativePos(startPos) - getMidPoint() * ROOM_PIXEL_SIZE;
 
 				Direction shortestDir  = Direction::north;
-				float     shortestDist = distBetweenVec2f(relPos, dirToVec(shortestDir));
+				float     shortestDist = distBetweenVec(relPos, dirToVec(shortestDir));
 				for(int dir = Direction::south; dir <= Direction::west; dir++)
 				{
-					float dist = distBetweenVec2f(relPos, dirToVec(static_cast<Direction>(dir)));
+					float dist = distBetweenVec(relPos, dirToVec(static_cast<Direction>(dir)));
 					if(dist < shortestDist)
 					{
 						shortestDir  = static_cast<Direction>(dir);
@@ -294,14 +298,16 @@ bool Level::eventCallback(const Event::Event &e)
 	}
 }
 
-void Level::addRoom(int x, int y, bool entrances[4], RoomType type)
+void Level::addRoom(int x, int y, bool entrances[4], Room::Type type)
 {
+	// Checks if it is out of range
 	if(x < 0 || x >= MAZE_SIZE || y < 0 || y >= MAZE_SIZE)
 	{
 		Log::error("Tried to create room out of bounds", LOGINFO);
 		return;
 	}
 
+	// Adds room to the board
 	m_Board[coordsToIndex(x, y)] = new Room(getX() + x * ROOM_PIXEL_SIZE, getY() + y * ROOM_PIXEL_SIZE, entrances, type, this);
 }
 
@@ -312,60 +318,72 @@ void Level::removeRoom(int y, int x)
 		Log::error("Tried to delete room out of bounds", LOGINFO);
 		return;
 	}
+
+	// Deletes the room and sets it to a nullptr
 	delete m_Board[coordsToIndex(x, y)];
 	m_Board[coordsToIndex(x, y)] = nullptr;
 }
 
-Room *Level::get(int y, int x)
+Room *const Level::get(int y, int x) const
 {
+	// Returns the room at given coordinates
 	int index = coordsToIndex(x, y);
-	if(index == -1)
+	if(index == -1)   // The function will return -1 if the coordinates are out of range and will log so no need here
 		return nullptr;
-	return m_Board[coordsToIndex(x, y)];
+
+	return m_Board[index];
 }
 
-int Level::getMidPoint()
+int const Level::getMidPoint() const
 {
-	return MAZE_SIZE / 2;
+	return MAZE_SIZE / 2;   // Returns the mid point of the maze
 }
 
-Room *Level::getMidRoom()
+Room *const Level::getMidRoom() const
 {
-	return get(getMidPoint(), getMidPoint());
+	return get(getMidPoint(), getMidPoint());   // Returns the middle room
 }
 
-Tile *Level::getTile(int x, int y)
+const Tile *const Level::getTile(int x, int y) const
 {
+	// Returns tile from tile coordinates
+	// Calculates the room coordinates and the tile coordinates relative to the room
 	int roomX = x / ROOM_SIZE - m_BoardOffset.x;
 	int tileX = x % ROOM_SIZE;
 	int roomY = y / ROOM_SIZE - m_BoardOffset.y;
 	int tileY = y % ROOM_SIZE;
 
 	Room *room = get(roomY, roomX);
-	if(!room)
-	{
-		// Log::warning("Trying to access room that doesn't exist!");
+	if(!room)   // If the room doesn't exit it will return a nullptr
 		return nullptr;
-	}
 
 	return room->getTile(tileX, tileY);
 }
 
-Player *Level::getPlayer()
+Player *const Level::getPlayer()
 {
 	return &m_Player;
 }
 
-int Level::coordsToIndex(int x, int y)
+int const Level::coordsToIndex(int x, int y) const
 {
+	// If the coordinates are out of range it will return -1
 	if(x < 0 || x >= MAZE_SIZE || y < 0 || y >= MAZE_SIZE)
+	{
+		// Log::warning("Trying to access room out of range");
 		return -1;
+	}
+	// Adds the offsets to the coordinates
 	int xCoord = x + m_BoardOffset.x;
 	int yCoord = y + m_BoardOffset.y;
+
+	// If the coordinates have gone over the limit it will loop back to the start
 	if(xCoord >= MAZE_SIZE)
 		xCoord -= MAZE_SIZE;
 	if(yCoord >= MAZE_SIZE)
 		yCoord -= MAZE_SIZE;
+
+	// Returns the calculated index
 	return yCoord * MAZE_SIZE + xCoord;
 }
 
@@ -373,6 +391,7 @@ void Level::changeXOffset(int changeBy)
 {
 	m_BoardOffset.x += changeBy;
 
+	// If the offset has reached the edge of the maze it will return a maze moved event in the given direction
 	if(m_BoardOffset.x == MAZE_SIZE)
 	{
 		m_BoardOffset.x = 0;
@@ -392,6 +411,7 @@ void Level::changeYOffset(int changeBy)
 {
 	m_BoardOffset.y += changeBy;
 
+	// If the offset has reached the edge of the maze it will return a maze moved event in the given direction
 	if(m_BoardOffset.y == MAZE_SIZE)
 	{
 		m_BoardOffset.y = 0;
@@ -406,45 +426,58 @@ void Level::changeYOffset(int changeBy)
 	}
 }
 
-float Level::getX()
+float const Level::getX() const
 {
 	return m_BoardOffset.x * ROOM_PIXEL_SIZE;
 }
 
-float Level::getY()
+float const Level::getY() const
 {
 	return m_BoardOffset.y * ROOM_PIXEL_SIZE;
 }
 
 std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f destPos, CollisionBox box)
 {
+	// Makes the coordinates relative to the maze
 	Vec2f relativeStart = convertToRelativePos(startPos);
 	Vec2f relativeDest  = convertToRelativePos(destPos);
 
-	std::vector<Vec2f> *path = new std::vector<Vec2f>();
+	relativeDest = getNextRoom(relativeStart, relativeDest);
+	if(relativeDest.x == -1 && relativeDest.y == -1)
+	{
+		// std::vector<Vec2f> *path = new std::vector<Vec2f>();
+		// path->push_back(destPos);
+	}
 
+	return getNodePath(relativeStart, relativeDest, box);
+}
+
+Vec2f Level::getNextRoom(Vec2f relativeStart, Vec2f relativeDest)
+{
 	// A* on rooms
 	Vec2i startRoom = {(int) relativeStart.x / ROOM_PIXEL_SIZE, (int) relativeStart.y / ROOM_PIXEL_SIZE};
 	Vec2i destRoom  = {(int) relativeDest.x / ROOM_PIXEL_SIZE, (int) relativeDest.y / ROOM_PIXEL_SIZE};
 
+	// If the start and destination are in different rooms it will run the A* on the rooms for efficiency
 	if(startRoom != destRoom)
 	{
+		// Checks both rooms exist
 		if(!get(startRoom.y, startRoom.x) || !get(destRoom.y, destRoom.x))
 		{
 			Log::warning("Room that destination or start does not exist!");
-			std::vector<Vec2f> *path = new std::vector<Vec2f>();
-			path->push_back(destPos);
-			return path;
+			return {-1, -1};
 		}
 
+		// Sets the possible offsets that the algorithm can move in
 		std::array<Vec2i, 4> offsets;
 		offsets[0] = {0, 1};
 		offsets[1] = {0, -1};
 		offsets[2] = {1, 0};
 		offsets[3] = {-1, 0};
 
-		std::function<bool(int, int, int, int, CollisionBox)> collisionDetection = [this](int x, int y, int xs, int ys, CollisionBox box) -> bool {
-			if(!get(y + ys, x + xs) /* || !get(y, x)*/)
+		// Creates a function for collision detection with the rooms
+		std::function<bool(int, int, int, int)> collisionDetection = [this](int x, int y, int xs, int ys) -> bool {
+			if(!get(y + ys, x + xs) || !get(y, x))   // Checks both the rooms are nullptrs (if they are they cannot move)
 				return true;
 			else if(ys == 1)
 				return !get(y, x)->isOpen(Direction::north);
@@ -457,57 +490,69 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f destPos, CollisionBox b
 			else
 				return false;
 		};
+
+		// Creates a convertion so the algorithm returns coordinates relative to the level
 		std::function<Vec2f(Vec2i)> convert = [](Vec2i vec) -> Vec2f {
 			float mid = ((float) TILE_SIZE * ROOM_SIZE) / 2;
 			return {(float) vec.x * ROOM_PIXEL_SIZE + mid, (float) vec.y * ROOM_PIXEL_SIZE + mid};
 		};
-		std::vector<Vec2f> *myPath = aStarAlgorithm<MAZE_SIZE, MAZE_SIZE, offsets.size()>(startRoom, destRoom, box, offsets, collisionDetection, convert, MAZE_SIZE * MAZE_SIZE);
 
-		if(myPath->size() == 0)
-			Log::error("A* Algorithm: algorithm returned a empty path!", LOGINFO);
+		// Runs the A* algorithm with the custom settings
+		std::vector<Vec2f> *myPath = aStarAlgorithm<MAZE_SIZE, MAZE_SIZE, offsets.size()>(startRoom, destRoom, offsets, collisionDetection, convert, MAZE_SIZE * MAZE_SIZE);
+
+		if(myPath->size() == 0)   // Checks the path size is 0 (this should not happen)
+			Log::critical("A* Algorithm: algorithm returned a empty path!", LOGINFO);
 		else
 		{
+			// Changes the relative dest so be the next room so the next level of the A* can run
 			float mid    = ((float) TILE_SIZE * ROOM_SIZE) / 2;
 			relativeDest = (*myPath)[myPath->size() - 1];
 
+			// This changes the room based off the direction of the start (to make sure it is not returning a value of solid tile)
 			Vec2f distToStart = relativeStart - relativeDest;
 			if(fabs(distToStart.x) > fabs(distToStart.y))
 				relativeDest.x += (distToStart.x > 0 ? 1 : -1) * TILE_SIZE;
 			else
 				relativeDest.y += (distToStart.y > 0 ? 1 : -1) * TILE_SIZE;
-
-			destPos = {relativeDest.x + getX(), relativeDest.y + getY()};
 		}
 
 		delete myPath;
 	}
 
-	// A* on tiles
+	return relativeDest;
+}
 
+std::vector<Vec2f> *Level::getNodePath(Vec2f relativeStart, Vec2f relativeDest, CollisionBox box)
+{
 	// These are the coordinates to the nearest node (on the whole board)
 	Vec2i startNode = {(int) round(relativeStart.x / X_STEP), (int) round(relativeStart.y / Y_STEP)};
 	Vec2i destNode  = {(int) round(relativeDest.x / X_STEP), (int) round(relativeDest.y / Y_STEP)};
 
+	// Checks if the box there is collision detection with the destination
 	if(collisionDetection(destNode.x * X_STEP + getX(), destNode.y * Y_STEP + getY(), box))
 	{
-		// TODO: Put this in a separate function
+		// If there is it will look at the different nodes around the destination to see if there are any that do not collide
 		bool foundAlternative = false;
 		int  maxRange         = (int) round(TILE_SIZE / X_STEP) + 1;
 
+		// This will go through different ranges to find the closest
 		for(int range = 1; range < maxRange; range++)
 		{
+			// Looks as in a square formation around the positions
 			for(int x = -1; x < 2; x++)
 			{
 				for(int y = -1; y < 2; y++)
 				{
 					if(x == 0 && y == 0)
 						continue;
+					// Checks to see if that position is in the way
 					if(!collisionDetection((destNode.x + x * range) * X_STEP + getX(), (destNode.y + y * range) * Y_STEP + getY(), box))
 					{
+						// If it is not it will change the destNode position to the one that is not a collision
 						destNode.x += x * range;
 						destNode.y += y * range;
-						destPos.x += x * range * X_STEP;
-						destPos.y += y * range * Y_STEP;
+						relativeDest.x += x * range * X_STEP;
+						relativeDest.y += y * range * X_STEP;
 						foundAlternative = true;
 						break;
 					}
@@ -519,23 +564,35 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f destPos, CollisionBox b
 				break;
 		}
 
+		// If it could not find an alternative it will just return the destination
 		if(!foundAlternative)
 		{
 			Log::warning("A* Algorithm: Cannot find alternative for destination!");
-			path->push_back(destPos);
+			std::vector<Vec2f> *path = new std::vector<Vec2f>();
+			path->push_back({relativeDest.x + getX(), relativeDest.y + getY()});
 			return path;
 		}
 	}
+
+	// Checks if the start node is the dest node after this because the new found position might be the start node
 	if(startNode == destNode)
 	{
-		path->push_back(destPos);
+		std::vector<Vec2f> *path = new std::vector<Vec2f>();
+		path->push_back({relativeDest.x + getX(), relativeDest.y + getY()});
 		return path;
 	}
 
+	// Gives the coordinates to the grid with the relative destination to check its conversion is okay
+	return getGridPath(startNode, destNode, relativeDest, box);
+}
+
+std::vector<Vec2f> *Level::getGridPath(Vec2i startNode, Vec2i destNode, Vec2f relativeDest, CollisionBox box)
+{
 	// These positions are relative to the grid used in the A* algorithm
 	Vec2i gridStartPos = {X_MAX / X_STEP, Y_MAX / Y_STEP};
 	Vec2i gridDestPos  = {destNode.x - startNode.x + gridStartPos.x, destNode.y - startNode.y + gridStartPos.y};
 
+	// Creates the list of offsets
 	std::array<Vec2i, 8> offsets;
 	offsets[0] = {-1, 1};
 	offsets[1] = {0, 1};
@@ -546,34 +603,40 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f destPos, CollisionBox b
 	offsets[6] = {-1, -1};
 	offsets[7] = {-1, 0};
 
+	// Creates the conversion function
 	std::function<Vec2f(Vec2i)> convert = [gridStartPos, startNode, this](Vec2i vec) -> Vec2f {
 		return {(float) (vec.x - gridStartPos.x + startNode.x) * X_STEP + getX(),
 				(float) (vec.y - gridStartPos.y + startNode.y) * Y_STEP + getY()};
 	};
 
-	std::function<bool(int, int, int, int, CollisionBox)> collisionDetection = [this, &convert](int x, int y, int xs, int ys, CollisionBox box) -> bool {
+	// This is for checking the conversion is correct
+	Vec2f destPos    = {relativeDest.x + getX(), relativeDest.y + getY()};
+	Vec2f errorCheck = convert(gridDestPos) - destPos;
+	if(fabs(errorCheck.x) > X_STEP || fabs(errorCheck.y) > Y_STEP)
+		Log::error("Convertion does not result in the correct value!", LOGINFO);
+
+	// Creates the collision detection algorithm
+	std::function<bool(int, int, int, int)> collisionDetection = [this, &convert, box](int x, int y, int xs, int ys) -> bool {
 		Vec2f pos = convert({x, y});
 		return directionalCollision(pos.x, pos.y, xs * X_STEP, ys * Y_STEP, box);
 	};
 
-	Vec2f errorCheck = convert(gridDestPos) - destPos;
-
-	if(fabs(errorCheck.x) > X_STEP || fabs(errorCheck.y) > Y_STEP)
-		Log::critical("Convertion does not result in the correct value!", LOGINFO);
-
-	return aStarAlgorithm<2 * X_MAX / X_STEP, 2 * Y_MAX / Y_STEP, offsets.size()>(gridStartPos, gridDestPos, box, offsets, collisionDetection, convert, X_MAX / X_STEP);
+	// Runs the A* algorithm
+	return aStarAlgorithm<2 * X_MAX / X_STEP, 2 * Y_MAX / Y_STEP, offsets.size()>(gridStartPos, gridDestPos, offsets, collisionDetection, convert, X_MAX / X_STEP);
 }
 
-std::tuple<Direction, Projectile *> Level::getDirOfProjInRange(float x, float y, float range)
+Projectile *Level::getProjInRange(float x, float y, float range)
 {
-	Direction   closestDir  = Direction::north;
 	Projectile *closestProj = nullptr;
 	float       closestDist = range;
+
+	// Goes through all  the projectiles in the level
 	for(Projectile *proj : m_Projectiles)
 	{
-		float dist = distBetweenVec2f({x, y}, {proj->getX(), proj->getY()});
+		//gets the distance between the projectiles
+		float dist = distBetweenVec<Vec2f>({x, y}, {proj->getX(), proj->getY()});
 		if(dist < closestDist)
-		{
+		{   // If it is closer than current projectile it will check its direction
 			Direction dir   = proj->getDirection();
 			float     distX = proj->getX() - x;
 			float     distY = proj->getY() - y;
@@ -582,29 +645,22 @@ std::tuple<Direction, Projectile *> Level::getDirOfProjInRange(float x, float y,
 			if(std::fabs(distX) > std::fabs(distY))
 			{
 				if((distX < 0 && dir == Direction::east) || (distX > 0 && dir == Direction::west))
-				{
-					closestDir  = dir;
 					closestProj = proj;
-				}
 			}
 			else if(std::fabs(distX) > std::fabs(distY))
 			{
 				if((distY < 0 && dir == Direction::north) || (distY > 0 && dir == Direction::south))
-				{
-					closestDir  = dir;
 					closestProj = proj;
-				}
 			}
-			else   // TODO: Check if this is going the right way
-			{
-				closestDir  = dir;
+			else
 				closestProj = proj;
-			}
 		}
 	}
-	return {closestDir, closestProj};
+
+	return closestProj;
 }
 
+// Simple conversion functions to convert to relative positions
 float Level::convertToRelativeX(float x)
 {
 	return x - getX();
@@ -626,42 +682,80 @@ bool Level::isOutOfBound(float x, float y)
 	return pos.x < 0 || pos.x > width * TILE_SIZE || pos.y < 0 || pos.y > height * TILE_SIZE;
 }
 
-bool Level::collisionPointDetection(float nextX, float nextY)
+void Level::addEntityToRoom(Entity *e)
 {
-	int   tileX = (int) nextX / TILE_SIZE;
-	int   tileY = (int) nextY / TILE_SIZE;
-	Tile *tile  = getTile(tileX, tileY);
-	if(!tile)
-		return true;
+	// Gets the room coordinates of the entity
+	Vec2f relativePos = convertToRelativePos({e->getX(), e->getY()});
 
-	return tile->isSolid();
+	int roomX = (int) (relativePos.x / ROOM_PIXEL_SIZE);
+	int roomY = (int) (relativePos.y / ROOM_PIXEL_SIZE);
+	// Gets the room and adds the entity into the rooms
+	Room *room = get(roomY, roomX);
+	if(room)
+		room->addEntity(e);
+	else
+	{
+		Log::error("Cannot put entity into room that does not exist!", LOGINFO);
+		delete e;
+	}
 }
 
-bool Level::collisionTileDetection(int x, int y)
+Entity *Level::entityCollisionDetection(float nextX, float nextY, CollisionBox box)
 {
-	Tile *tile = getTile(x, y);
-	if(!tile)
+	// Goes through and checks if its collided with any entities
+	if(m_Player.hasCollidedWith(nextX, nextY, box))
+		return &m_Player;
+
+	for(Entity *e : m_Entities)
+	{
+		if(e->hasCollidedWith(nextX, nextY, box))
+			return e;
+	}
+
+	return getMidRoom()->entityCollisionDetection(nextX, nextY, box);
+}
+
+bool Level::collisionPointDetection(float nextX, float nextY)
+{
+	// Gets the position of tile
+	int tileX = (int) nextX / TILE_SIZE;
+	int tileY = (int) nextY / TILE_SIZE;
+
+	return collisionTileDetection(tileX, tileY);
+}
+
+bool Level::collisionTileDetection(int tileX, int tileY)
+{
+	const Tile *const tile = getTile(tileX, tileY);
+	if(!tile)   // If there is no tile it will return a collision
 		return true;
 
+	// Returns whether the tile is solid
 	return tile->isSolid();
 }
 
 bool Level::collisionDetection(float nextX, float nextY, CollisionBox box)
 {
+	// Checks none of the points are out-of-bounds
 	if(isOutOfBound(nextX + box.lowerBound.x, nextY + box.lowerBound.y) || isOutOfBound(nextX + box.upperBound.x, nextY + box.upperBound.y))
 		return true;
 
+	// Checks each corner of the collision box for a collision detection
 	bool lowerLeft  = collisionPointDetection(nextX + box.lowerBound.x, nextY + box.lowerBound.y);
 	bool lowerRight = collisionPointDetection(nextX + box.upperBound.x, nextY + box.lowerBound.y);
 	bool upperLeft  = collisionPointDetection(nextX + box.lowerBound.x, nextY + box.upperBound.y);
 	bool upperRight = collisionPointDetection(nextX + box.upperBound.x, nextY + box.upperBound.y);
 
+	// If any of the points have hit something it will return it as a collision
 	return lowerLeft || lowerRight || upperLeft || upperRight;
 }
 
 bool Level::directionalCollision(float x, float y, float xs, float ys, CollisionBox box)
 {
+	// Runs the directional collision check algorithm to get whether there has been a collision in the x or y position
 	auto [colX, colY] = directionalCollisionCheck(x, y, xs, ys, box);
+
+	// Returns true if any collision has been detected
 	return colX || colY;
 }
 
@@ -669,24 +763,33 @@ std::tuple<bool, bool> Level::directionalCollisionCheck(float x, float y, float 
 {
 	if(xs == 0 && ys == 0)
 	{
+		// If there is not movement it will just run the conventional collision detection algorithm
 		bool collision = collisionDetection(x, y, box);
+
 		return {collision, collision};
 	}
 	else
 	{
+		// Checks if the points are out of bounds
 		if(isOutOfBound(x + box.lowerBound.x, y + box.lowerBound.y) || isOutOfBound(x + box.upperBound.x, y + box.upperBound.y))
 			return {true, true};
 
+		// Creates a function for the directional collision checks
 		auto checks = [this](float x, float y, float xs, float ys, Vec2f(&posOffsets)[3]) -> std::tuple<bool, bool> {
 			bool colX = false;
 			bool colY = false;
+
+			// Goes through all the offsets
 			for(int i = 0; i < 3; i++)
 			{
 				if(posOffsets[i].x == 0.0f && posOffsets[i].y == 0.0f)
 					continue;
 
+				// Runs a line collision check algorithm on each point
 				auto [tempX, tempY] = lineCollisionCheck(x + posOffsets[i].x, y + posOffsets[i].y, xs, ys, true);
 
+				// Checks if a collision has been detected
+				// NOTE: It does not just overwrite colX or colY because there could be a collision in one and this time it is false, so it would be turned to false
 				if(tempX)
 					colX = true;
 				if(tempY)
@@ -694,9 +797,11 @@ std::tuple<bool, bool> Level::directionalCollisionCheck(float x, float y, float 
 				if(colX && colY)
 					break;
 			}
+
 			return {colX, colY};
 		};
 
+		// Goes through all the different possibilities of moving directions
 		if((xs > 0 && ys > 0) || (xs < 0 && ys < 0))   // Travelling along a line close to this: / path
 		{
 			Vec2f offsets[3] = {
@@ -748,20 +853,6 @@ std::tuple<bool, bool> Level::directionalCollisionCheck(float x, float y, float 
 			return checks(x, y, xs, ys, offsets);
 		}
 	}
-}
-
-Entity *Level::entityCollisionDetection(float nextX, float nextY, CollisionBox box)
-{
-	if(m_Player.hasCollidedWith(nextX, nextY, box))
-		return &m_Player;
-
-	for(Entity *e : m_Entities)
-	{
-		if(e->hasCollidedWith(nextX, nextY, box))
-			return e;
-	}
-
-	return getMidRoom()->entityCollisionDetection(nextX, nextY, box);
 }
 
 std::tuple<bool, bool> Level::lineCollisionCheck(float x, float y, float xs, float ys, bool returnFirst)

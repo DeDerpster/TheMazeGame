@@ -2,7 +2,7 @@
 
 #include "Application.h"
 #include "Log.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 #include "rendering/sprite/Sprite.h"
 
 #include "event/game/MazeMoved.h"
@@ -20,8 +20,14 @@ Tile::~Tile()
 {
 }
 
+CollisionBox Tile::getCollisionBox()   // Simple collision box for a tile
+{
+	return {{-TILE_SIZE / 2, -TILE_SIZE / 2}, {TILE_SIZE / 2, TILE_SIZE / 2}};
+}
+
 void Tile::render()
 {
+	// Renders the tile on layer 0
 	uint8_t layer = 0;
 	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID, layer);
 }
@@ -35,7 +41,7 @@ bool Tile::eventCallback(const Event::Event &e)
 	switch(e.getType())
 	{
 	case Event::EventType::MazeMoved:
-	{
+	{   // Checks for maze moved events and updates its position
 		const Event::MazeMovedEvent &ne = static_cast<const Event::MazeMovedEvent &>(e);
 		x += ne.changeX;
 		y += ne.changeY;

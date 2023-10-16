@@ -44,8 +44,16 @@
 
 bool Log::outputting = false;
 
+const std::string Log::criticalMessage = "CRITICAL";
+const std::string Log::errorMessage    = "ERROR";
+const std::string Log::warningMessage  = "WARNING";
+const std::string Log::debugMessage    = "DEBUG";
+const std::string Log::variableMessage = "VAR";
+const std::string Log::defaultMessage  = "INFO";
+
 Log::Log()
 {
+	// Initialises the log file and names it by the time of initialisation
 	time_t     rawtime;
 	struct tm *timeinfo;
 	char       buffer[80];
@@ -56,6 +64,7 @@ Log::Log()
 	strftime(buffer, sizeof(buffer), "%d-%m-%Y %H-%M-%S", timeinfo);
 	std::string currentTime(buffer);
 
+	// Checks the file directory exits (if it doesn't it will create one)
 	if(!std::filesystem::exists("logs"))
 	{
 		std::cout << "Logs directory doesn't exist... creating one\n";
@@ -63,34 +72,41 @@ Log::Log()
 		if(std::filesystem::exists("logs"))
 			std::cout << "Created directory\n";
 	}
+	// Updates the log file name
 	logFile = "logs/" + currentTime + ".log";
 
-	variableImpl("Initialised logging system", logFile);
+	// Logs the first message with the log file name
+	// It does not use variable function as it is still creating the class which would cause a loop as that calls get()
+	std::stringstream ss;
+	ss << "Logging file initialised: " << logFile;
+	std::string title = "Hello World!";
+	output(title, ss.str().c_str(), "", -1, LogColour::Debug);
 }
 
+// Two different functions for changing the colour of the text in the terminal
 #ifdef IS_ON_WINDOWS
 void Log::setConsoleColour(LogColour c)
 {
 	WORD colour = 7;
 	switch(c) {
-		case LogColour::critical:
-			colour = FOREGROUND_RED | FOREGROUND_INTENSITY;
-			break;
-		case LogColour::error:
-			colour = FOREGROUND_RED;
-			break;
-		case LogColour::warning:
-			colour = 14;
-			break;
-		case LogColour::debug:
-			colour = FOREGROUND_GREEN;
-			break;
-		case LogColour::variable:
-			colour = FOREGROUND_INTENSITY | 13;
-			break;
-		default:
-			colour = 7;
-			break;
+	case LogColour::Critical:
+		colour = FOREGROUND_RED | FOREGROUND_INTENSITY;
+		break;
+	case LogColour::Error:
+		colour = FOREGROUND_RED;
+		break;
+	case LogColour::Warning:
+		colour = 14;
+		break;
+	case LogColour::Debug:
+		colour = FOREGROUND_GREEN;
+		break;
+	case LogColour::Variable:
+		colour = FOREGROUND_INTENSITY | 13;
+		break;
+	default:
+		colour = 7;
+		break;
 	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colour);
 }
@@ -98,21 +114,19 @@ void Log::setConsoleColour(LogColour c)
 void Log::setConsoleColour(LogColour c)
 {
 	switch(c) {
-	case LogColour::critical:
+	case LogColour::Critical:
 		std::cout << BOLDRED;
 		break;
-	case LogColour::error:
+	case LogColour::Error:
 		std::cout << RED;
 		break;
-	case LogColour::warning:
+	case LogColour::Warning:
 		std::cout << YELLOW;
 		break;
-	case LogColour::info:
-		break;
-	case LogColour::debug:
+	case LogColour::Debug:
 		std::cout << GREEN;
 		break;
-	case LogColour::variable:
+	case LogColour::Variable:
 		std::cout << BOLDMAGENTA;
 		break;
 	default:
@@ -126,52 +140,28 @@ void Log::output(const std::string &type, const char *message, const char *filep
 {
 	// This is to stop conflicts of two threads trying to access the logging system at the same time
 	while(outputting) { std::this_thread::sleep_for(std::chrono::milliseconds(100)); };
+
+	// Tells the program that it is outputting
 	outputting = true;
+
 #ifdef DEBUG
+	// If in debug mode it will print the message to the console
 	setConsoleColour(colour);
 	std::cout << "[" << type << "] " << message;
 	if(line != -1)
 		std::cout << " " << filepath << ":" << line;
-	setConsoleColour(LogColour::reset);
+	setConsoleColour(LogColour::Reset);
 	std::cout << std::endl;
 #endif
+
+	// This saves the message to a new line of the log file
 	std::ofstream file(logFile, std::ios_base::app);   // The std::ios_base::app allows it to write at end
 	file << "[" << type << "] " << message;
 	if(line != -1)
 		file << " " << filepath << ":" << line;
 	file << std::endl;
 	file.close();
+
+	// Finishes outputting
 	outputting = false;
-}
-
-void Log::criticalImpl(const char *message, const char *file, int line)
-{
-	output(criticalMessage, message, file, line, LogColour::critical);
-#ifdef DEBUG
-	#ifdef IS_ON_WINDOWS
-	__debugbreak();
-	#else
-	__builtin_trap();
-	#endif
-#endif
-}
-
-void Log::errorImpl(const char *message, const char *file, int line)
-{
-	output(errorMessage, message, file, line, LogColour::error);
-}
-
-void Log::warningImpl(const char *message)
-{
-	output(warningMessage, message, "", -1, LogColour::warning);
-}
-
-void Log::infoImpl(const char *message)
-{
-	output(defaultMessage, message, "", -1, LogColour::info);
-}
-
-void Log::debugImpl(const char *message)
-{
-	output(debugMessage, message, "", -1, LogColour::debug);
 }

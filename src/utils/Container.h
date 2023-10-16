@@ -22,7 +22,7 @@ class Container : public std::vector<T>
 	}
 
 	bool     isFull() { return std::vector<T>::size() == maxSize; }
-	void     setMaxSize(int maxSize) { maxSize = maxSize; }
+	void     setMaxSize(int newMaxSize) { maxSize = newMaxSize; }
 	uint16_t getMaxSize() { return maxSize; }
 
 	void push_back(const T &element)
@@ -51,10 +51,11 @@ class IContainer
 {
   public:
 	// Stores teh type
-	enum Type
+	enum class Type
 	{
-		item,
-		weapon
+		None,
+		Item,
+		Weapon
 	};
 
   public:
@@ -65,4 +66,5 @@ class IContainer
 	virtual Type     getType() const          = 0;
 	virtual Item *   getItem(int index) const = 0;   // This function returns an item pointer version of the item wanted (as weapon pointers can be converted into item pointers)
 	virtual uint16_t size()                   = 0;
+	virtual void     removeItem(int index)    = 0;
 };

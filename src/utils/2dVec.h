@@ -1,48 +1,17 @@
 #pragma once
 
-enum Direction
-{
-	north = 0,
-	south,
-	east,
-	west
-};
+#include <math.h>
 
-enum class RoomType
-{
-	Empty,
-	Chest,
-	Trap,
-	Enemy,
-	NPC,
-	Exit
-};
-
-enum InGameGUILayer
-{
-	overlay = 0,
-	playerInventory,
-	chestInventory,
-	npcInventory,
-	npcInteraction,
-	exitMenu,
-	playerDeath,
-	playerWin
-};
-
-enum GUIInventoryIDCode
-{
-	none,
-	inventory,
-	weapons
-};
-
+// Simple integer vector
 struct Vec2i
 {
 	int x, y;
-	// Vec2i(): x(0), y(0) {}
+
+	// Returns the sum of the numbers squared
+	float squareSum() { return x * x + y * y; }
 };
 
+// Boolean expressions
 inline bool operator!=(const Vec2i &lhs, const Vec2i &rhs)
 {
 	return lhs.x != rhs.x || lhs.y != rhs.y;
@@ -53,19 +22,34 @@ inline bool operator==(const Vec2i &lhs, const Vec2i &rhs)
 	return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
+// Basic maths operations
+inline Vec2i operator-(const Vec2i &lhs, const Vec2i &rhs)
+{
+	return {lhs.x - rhs.x, lhs.y - rhs.y};
+}
+
+inline Vec2i operator+(const Vec2i &lhs, const Vec2i &rhs)
+{
+	return {lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
+// Printing (for logging)
 inline std::ostream &operator<<(std::ostream &out, const Vec2i &data)
 {
 	out << "(" << data.x << ", " << data.y << ")";
 	return out;
 }
 
+// Simple float vector
 struct Vec2f
 {
 	float x, y;
-	// Vec2f(): x(0.0f), y(0.0f) {}
-	// Vec2f(float x, float y): x(x), y(y) {}
+
+	// Returns the sum of the numbers squared
+	float squareSum() { return x * x + y * y; }
 };
 
+// Boolean operations
 inline bool operator!=(const Vec2f &lhs, const Vec2f &rhs)
 {
 	return lhs.x != rhs.x || lhs.y != rhs.y;
@@ -76,6 +60,7 @@ inline bool operator==(const Vec2f &lhs, const Vec2f &rhs)
 	return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
+// Basic maths operations
 inline Vec2f operator+(const Vec2f &lhs, const Vec2f &rhs)
 {
 	return {lhs.x + rhs.x, lhs.y + rhs.y};
@@ -93,25 +78,17 @@ inline Vec2f operator-(const Vec2f &lhs, const float &rhs)
 	return {lhs.x - rhs, lhs.y - rhs};
 }
 
+// Printing (for logging)
 inline std::ostream &operator<<(std::ostream &out, const Vec2f &data)
 {
 	out << "(" << data.x << ", " << data.y << ")";
 	return out;
 }
 
-struct CollisionBox
+// Uses pythagoras theorem to work out the distance between two points
+template <typename T>
+float distBetweenVec(const T &start, const T &end)
 {
-	Vec2f lowerBound, upperBound;
-};   // Lowerbound is the Bottom Left, upperbound is the top right
-
-
-
-uint32_t factorial(int num);
-float directionToRotation(Direction dir);
-
-// TODO: Change this into a template
-float distBetweenVec2i(const Vec2i &start, const Vec2i &end);
-float distBetweenVec2f(const Vec2f &start, const Vec2f &end);
-
-bool doesPointIntersectWithBox(Vec2f point, Vec2f pos, CollisionBox box);
-bool doesBoxIntersectWithBox(Vec2f pos1, CollisionBox box1, Vec2f pos2, CollisionBox box2);
+	T difference = start - end;
+	return std::sqrt(difference.squareSum());
+}

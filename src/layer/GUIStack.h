@@ -5,14 +5,15 @@
 #include <vector>
 
 #include "GUILayer.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 class GUIStack : public Layer
 {
-  public:
   private:
+	// Stores the active layer
 	int m_ActiveLayer;
 
+	// Stores the gui layers in the stack
 	std::vector<GUILayer *> m_Layers;
 
   public:

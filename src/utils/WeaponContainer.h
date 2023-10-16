@@ -16,15 +16,20 @@ class WeaponContainer : public IContainer, public Container<Weapon *>
 			delete weapon;
 	}
 
-	virtual Type getType() const override { return IContainer::Type::weapon; }
+	virtual Type getType() const override { return IContainer::Type::Weapon; }
 
 	virtual Item *getItem(int index) const override
 	{
 		return static_cast<Item *>(Container<Weapon *>::operator[](index));
 	}
 
-	virtual uint16_t size()
+	virtual uint16_t size() override
 	{
 		return Container<Weapon *>::size();
+	}
+
+	virtual void removeItem(int index) override
+	{
+		Container<Weapon *>::erase(Container<Weapon *>::begin() + index);
 	}
 };

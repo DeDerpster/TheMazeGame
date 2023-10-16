@@ -4,6 +4,7 @@
 
 namespace Event
 {
+	// Event for locking a room and showing the alternative tiles of switch tiles
 	struct ShowAltTileEvent : Event
 	{
 		bool showAlt;

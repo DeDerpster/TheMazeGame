@@ -27,6 +27,7 @@ namespace Effect
 
 		std::string     getName() { return m_Name; }
 		Event::CallType getType() { return m_Type; }
+		// Applies the effect to a give shader
 		virtual void    setEffect(Shader &s) const = 0;
 
 		bool forSimpleShader() { return simpleShader; }
@@ -46,11 +47,13 @@ namespace Effect
 		}
 		virtual ~UniformVec4() override {}
 
+		// Applies the effect to a give shader
 		virtual void setEffect(Shader &s) const override
 		{
 			s.setUniform4f(m_Name, vec[0], vec[1], vec[2], vec[3]);
 		}
 
+		// Allows the effect to be altered
 		void setVec(glm::vec4 newVec) { vec = newVec; }
 	};
 
@@ -66,10 +69,13 @@ namespace Effect
 		}
 		virtual ~UniformMat4() override {}
 
+		// Applies the effect to a given shader
 		virtual void setEffect(Shader &s) const override
 		{
 			s.setUniformMat4f(m_Name, mat);
 		}
+
+		// Allows the effect to be altered
 		void setMat(glm::mat4 newMat) { mat = newMat; }
 	};
 
@@ -104,13 +110,19 @@ namespace Effect
 
 	  private:
 		static ShaderEffectsManager s_Instance;
+		// This stores all the effects
 		std::vector<ShaderEffect *> m_Effects;
 
 		ShaderEffectsManager();
 
+		// Sends an effect to the layers and stores it and returns it's ID
 		uint16_t      sendEffectImpl(const std::string &s, glm::vec4 vec, Event::CallType callType, bool simpleShader, bool spriteShader, bool textShader);
 		uint16_t      sendEffectImpl(const std::string &s, glm::mat4 mat, Event::CallType callType, bool simpleShader, bool spriteShader, bool textShader);
+
+		// Deletes a shader attached to an id
 		void          deleteShaderEffectImpl(uint16_t id);
+
+		// Ways of getting a shader
 		ShaderEffect *getShaderEffectImpl(uint16_t id);
 		uint16_t      findShaderEffectImpl(const std::string &s);
 

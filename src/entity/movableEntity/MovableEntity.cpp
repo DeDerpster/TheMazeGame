@@ -1,6 +1,6 @@
 #include "MovableEntity.h"
 
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 MovableEntity::MovableEntity()
 	: Entity(), m_Speed(7.0f), isMoving(false), m_Dir(Direction::south), isGhost(false) {}
@@ -20,37 +20,37 @@ void MovableEntity::move(float xa, float ya)
 {
 	if(!isGhost)
 	{
+		// Uses directional collision check to see which direction it can move in
 		auto [colX, colY] = m_Level->directionalCollisionCheck(x, y, xa, ya, getMovingCollisionBox());
+
+		// If it cant move in a given direction it sets that offset to 0
 		if(colX)
 			xa = 0;
 		if(colY)
 			ya = 0;
-		if(xa == 0 && ya == 0)
-		{
-			isMoving = false;
-			return;
-		}
 	}
+
+	if(xa == 0 && ya == 0)
+	{
+		isMoving = false;
+		return;
+	}
+
+	// Moves in the direction
 	isMoving = true;
 	x += xa;
 	y += ya;
-	if(fabs(xa) > fabs(ya))
+
+	// Works out which direction it is going in (using whichever one direction has the most change)
+	if(fabs(xa) > fabs(ya) && xa != 0)
 	{
-		if(ya < 0)
-			m_Dir = Direction::south;
-		else if(ya > 0)
-			m_Dir = Direction::north;
 		if(xa < 0)
 			m_Dir = Direction::west;
 		else if(xa > 0)
 			m_Dir = Direction::east;
 	}
-	else
+	else   // NOTE: If xa is 0, ya cannot be zero because of the check earlier
 	{
-		if(xa < 0)
-			m_Dir = Direction::west;
-		else if(xa > 0)
-			m_Dir = Direction::east;
 		if(ya < 0)
 			m_Dir = Direction::south;
 		else if(ya > 0)
@@ -66,6 +66,7 @@ void MovableEntity::move(Vec2f ratio)
 		move(0.0f, ratio.y > 0 ? m_Speed : -m_Speed);
 	else
 	{
+		// Calculates the real x and y offsets from the speed using pythagoras' theorem
 		float speedSquared = m_Speed * m_Speed;
 		float sum          = std::fabs(ratio.x) + std::fabs(ratio.y);
 		float sumSquared   = sum * sum;
@@ -76,17 +77,19 @@ void MovableEntity::move(Vec2f ratio)
 
 bool MovableEntity::canMove(float xa, float ya)
 {
+	if(isGhost) return true;
 
+	// Uses directional collision check to see which direction it cannot move
 	auto [colX, colY] = m_Level->directionalCollisionCheck(x, y, xa, ya, getMovingCollisionBox());
-	if(colX)
-		xa = 0;
-	if(colY)
-		ya = 0;
-	return !(xa == 0 && ya == 0);
+
+	return !(colX && colY);
 }
 
 bool MovableEntity::canMove(Vec2f ratio)
 {
+	if(isGhost) return true;
+
+	// Calculates the movement in each direction and passes it to canMove(float xs, float ys)
 	if(ratio.y == 0)
 		return canMove(m_Speed, 0.0f);
 	else if(ratio.x == 0)
@@ -108,6 +111,7 @@ bool MovableEntity::eventCallback(const Event::Event &e)
 
 CollisionBox MovableEntity::getMovingCollisionBox()
 {
+	// Returns a slightly altered collision box that is used for moving (slightly different as it is a top down game)
 	return {m_CollisionBox.lowerBound,
 			{m_CollisionBox.upperBound.x, m_CollisionBox.upperBound.y / 4.0f}};
 }

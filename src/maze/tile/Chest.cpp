@@ -2,10 +2,10 @@
 
 #include "KeyDefinitions.h"
 
+#include "2dVec.h"
 #include "Application.h"
 #include "RandomGen.h"
-#include "Utils.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 #include "rendering/sprite/Sprite.h"
 
@@ -21,7 +21,7 @@ Chest::Chest()
 }
 
 Chest::Chest(float x, float y, double rotation, Level *level, bool isDud)
-	: Tile(x, y, rotation, Sprite::ID::tileBasicChest, true, level), m_Inventory(DEFAULT_INVENTORY_SIZE), m_State(Button::State::None), m_IsDud(isDud)
+	: Tile(x, y, rotation, Sprite::ID::tileBasicChest, true, level), m_Inventory(DEFAULT_INVENTORY_SIZE), m_State(Button::State::None), m_IsDud(isDud), m_HasOpened(false)
 {
 	// If it isn't a dud, it will generate an inventory
 	if(!m_IsDud)
@@ -36,20 +36,15 @@ Chest::~Chest()
 void Chest::generateInventory()
 {
 	// Generates a random number of items and uses the Random::getItem() to get a random item
-	int numOfItems = Random::getNum(2, 10);
+	int numOfItems = Random::uniformDist(2, 10);
 	for(int i = 0; i < numOfItems; i++)
 		m_Inventory.push_back(Random::getItem());
-}
-
-CollisionBox Chest::getCollisionBox()   // Simple collision box for a chest
-{
-	return {{-TILE_SIZE / 2, -TILE_SIZE / 2}, {TILE_SIZE / 2, TILE_SIZE / 2}};
 }
 
 void Chest::render()
 {
 	// Renders itself
-	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID, 0);
+	Tile::render();
 	// If there is a mouse over it, it will render text over it
 	if(m_State == Button::State::Hover && !Application::getIsPaused())
 	{
@@ -83,13 +78,21 @@ bool Chest::eventCallback(const Event::Event &e)
 
 		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
 
-		Player *player = m_Level->getPlayer();
-		if(doesPointIntersectWithBox(Application::getCamera()->convertWindowToLevel(ne.pos), {x, y}, getCollisionBox()) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
+		Player *const player = m_Level->getPlayer();
+		// Checks if the player is within range of clicking it
+		if(doesPointIntersectWithBox(Application::getCamera()->convertWindowToLevel(ne.pos), {x, y}, getCollisionBox()) && distBetweenVec<Vec2f>({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
 		{
-			Event::ChangeGUIActiveLayerEvent e1(InGameGUILayer::chestInventory);
+			if(!m_HasOpened)
+			{
+				player->getStats()->hasFoundChest();
+				m_HasOpened = false;
+			}
+			// Sends out an event to change the menu
+			Event::ChangeGUIMenuEvent e1(Event::ChangeGUIMenuEvent::Menu::ChestInventory);
 			Application::callEvent(e1, Event::CallType::Overlay);
 
-			Event::ChestOpenedEvent e2(&m_Inventory, nullptr, GUIInventoryIDCode::inventory);
+			// Sets out an event with a pointer to its inventory for the MIHM to pick up on and change to
+			Event::ChestOpenedEvent e2(&m_Inventory, nullptr);
 			Application::callEvent(e2, Event::CallType::Overlay);
 
 			return true;

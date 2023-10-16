@@ -9,12 +9,12 @@ Player::Player()
 }
 
 Player::Player(float x, float y)
-	: Mob(x, y)
+	: Mob(x, y, false)
 {
 }
 
 Player::Player(float x, float y, Level *level)
-	: Mob(x, y, level)
+	: Mob(x, y, level, false)
 {
 }
 
@@ -26,6 +26,7 @@ void Player::update()
 {
 	if(isInControl)
 	{
+		// Sees what keys are being pressed and updates position accordingly
 		Vec2f ratio = {0, 0};
 		if(Event::isKeyPressed(Event::KeyboardKey::W) || Event::isKeyPressed(Event::KeyboardKey::Up))
 			ratio.y += 1.0f;
@@ -59,7 +60,23 @@ bool Player::eventCallback(const Event::Event &e)
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
 		if(ne.key == Event::KeyboardKey::Space && (ne.action == Event::Action::Press || ne.action == Event::Action::Repeat) && m_CurrentWeapon != -1)
 		{
+			// If space is pressed it will attack
 			useCurrentWeapon(ne.action == Event::Action::Repeat);
+			return true;
+		}   // Changes active weapon based on keys 1, 2 and 3
+		else if(ne.key == Event::KeyboardKey::Num1 && ne.action == Event::Action::Press && m_Weapons.size() > 0)
+		{
+			m_CurrentWeapon = 0;
+			return true;
+		}
+		else if(ne.key == Event::KeyboardKey::Num2 && ne.action == Event::Action::Press && m_Weapons.size() > 1)
+		{
+			m_CurrentWeapon = 1;
+			return true;
+		}
+		else if(ne.key == Event::KeyboardKey::Num3 && ne.action == Event::Action::Press && m_Weapons.size() > 2)
+		{
+			m_CurrentWeapon = 2;
 			return true;
 		}
 
@@ -71,6 +88,7 @@ bool Player::eventCallback(const Event::Event &e)
 	}
 }
 
+// Calls a warning if trying to set the following or enemy of the player
 void Player::setFollowing(Mob *following)
 {
 	Log::warning("Trying to set player follower!");

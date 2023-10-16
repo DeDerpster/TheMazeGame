@@ -22,6 +22,7 @@ Item::~Item()
 
 void Item::render(float x, float y, double rotation, float size, uint8_t layer, bool isOverlay, bool forceRender)
 {
+	// Renders the item at a give position
 	if(!forceRenderOnly || forceRender)
 		Render::sprite(x, y, rotation, size, m_SpriteID, layer, isOverlay);
 }

@@ -21,7 +21,8 @@ MenuBackground::~MenuBackground()
 
 void MenuBackground::render()
 {
-	uint8_t layer = 7;
+	// Renders the background on layer 6
+	uint8_t layer = 6;
 	Render::rectangle(x, y, 0.0f, width, height, m_Colour, layer, true, true);
 }
 
@@ -37,6 +38,7 @@ bool MenuBackground::eventCallback(const Event::Event &e)
 	{
 		const Event::KeyboardEvent &ne = static_cast<const Event::KeyboardEvent &>(e);
 
+		// If the escape key has been pressed it will call the exit function
 		if(ne.key == Event::KeyboardKey::Escape && ne.action == Event::Action::Press)
 		{
 			m_ExitFunc();
@@ -50,7 +52,8 @@ bool MenuBackground::eventCallback(const Event::Event &e)
 	{
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
-		if(ne.button == Event::MouseButton::leftButton && ne.action == Event::Action::Press && (ne.pos.x < x - width / 2 || ne.pos.x > x + width / 2 || ne.pos.y < y - height / 2 || ne.pos.y > y + height / 2))
+		// If the mouse has been clicked outside the background it will call the exit function
+		if(ne.button == Event::MouseButton::LeftButton && ne.action == Event::Action::Press && !isMouseOver())
 		{
 			m_ExitFunc();
 			return true;
@@ -62,4 +65,11 @@ bool MenuBackground::eventCallback(const Event::Event &e)
 	default:
 		return MenuObject::eventCallback(e);
 	}
+}
+
+bool MenuBackground::isMouseOver()
+{
+	// Returns if teh mouse is over the background
+	Vec2f mousePos = Event::getMousePos();
+	return !(mousePos.x < x - width / 2 || mousePos.x > x + width / 2 || mousePos.y < y - height / 2 || mousePos.y > y + height / 2);
 }

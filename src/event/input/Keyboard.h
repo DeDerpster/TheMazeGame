@@ -4,7 +4,8 @@
 
 namespace Event
 {
-	enum class KeyboardKey
+	// Stores all the keyboard keys that could be pressed (directly relates to GLFW keys)
+	enum class KeyboardKey : int
 	{
 		Unknown       = -1,
 		Space         = 32,
@@ -129,8 +130,10 @@ namespace Event
 		Menu          = 348
 	};
 
+	// Function to check whether a given key is pressed
 	bool isKeyPressed(KeyboardKey key);
 
+	// Event for when a key changes state
 	struct KeyboardEvent : Event
 	{
 		KeyboardKey key;

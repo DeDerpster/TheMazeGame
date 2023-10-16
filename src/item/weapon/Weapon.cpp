@@ -19,6 +19,7 @@ Weapon::~Weapon() {}
 
 void Weapon::update()
 {
+	// Updates the cooldown
 	if(m_Cooldown != 0)
 		m_Cooldown--;
 }

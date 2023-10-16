@@ -5,6 +5,8 @@
 #include "entity/movableEntity/mob/Mob.h"
 #include "layer/Layer.h"
 
+#include "CollisionBox.h"
+
 class Camera
 {
   private:

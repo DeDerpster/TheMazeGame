@@ -2,19 +2,31 @@
 
 #include "../Event.h"
 
-#include "Utils.h"
-
 namespace Event
 {
-	struct ChangeGUIActiveLayerEvent : Event
+	// Event for changing the current menu shown in the stack
+	struct ChangeGUIMenuEvent : Event
 	{
-		InGameGUILayer layer;
+		enum class Menu : uint8_t
+		{   // Different menus while playing the game
+			Overlay = 0,
+			PlayerInventory,
+			ChestInventory,
+			NPCInventory,
+			NPCInteraction,
+			ExitMenu,
+			PlayerDeath,
+			PlayerWin
+		};
 
-		ChangeGUIActiveLayerEvent(InGameGUILayer layer)
-			: layer(layer)
+		Menu menu;
+
+		ChangeGUIMenuEvent(Menu menu)
+			: menu(menu)
 		{
 		}
-		virtual EventType const getType() const override { return EventType::ChangeGUILayer; }
+
+		virtual EventType const getType() const override { return EventType::ChangeGUIMenu; }
 		virtual bool            ignoreIfPaused() const override { return false; }
 	};
 }   // namespace Event

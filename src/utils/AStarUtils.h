@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Utils.h"
+#include "2dVec.h"
+#include "CollisionBox.h"
+
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -112,7 +114,7 @@ static bool hasWarned = false;
 
 // NOTE: This is meant to deal with a number of situations in which to use A star, so if the grid is made to only be a portion of the map, the conversion must happen beforehand
 template <size_t width, size_t height, size_t numOfPoints>
-inline std::vector<Vec2f> *aStarAlgorithm(Vec2i startPos, Vec2i destPos, CollisionBox box, std::array<Vec2i, numOfPoints> &offsets, std::function<bool(int, int, int, int, CollisionBox)> &collisionDetection, std::function<Vec2f(Vec2i)> &convert, int pathLimit)
+inline std::vector<Vec2f> *aStarAlgorithm(Vec2i startPos, Vec2i destPos, std::array<Vec2i, numOfPoints> &offsets, std::function<bool(int, int, int, int)> &collisionDetection, std::function<Vec2f(Vec2i)> &convert, int pathLimit)
 {
 	// Creates the vector that will be returned on the heap so that it does not get deleted when this function is exited
 	std::vector<Vec2f> *path = new std::vector<Vec2f>();
@@ -137,7 +139,7 @@ inline std::vector<Vec2f> *aStarAlgorithm(Vec2i startPos, Vec2i destPos, Collisi
 			if(nextPos.x >= width || nextPos.x < 0 || nextPos.y >= height || nextPos.y < 0)
 				return true;
 
-			if(collisionDetection(nextPos.x - offset.x, nextPos.y - offset.y, offset.x, offset.y, box))
+			if(collisionDetection(nextPos.x - offset.x, nextPos.y - offset.y, offset.x, offset.y))
 				return true;
 
 			return closedList[nextPos.x][nextPos.y];
@@ -161,7 +163,7 @@ inline std::vector<Vec2f> *aStarAlgorithm(Vec2i startPos, Vec2i destPos, Collisi
 
 		{
 			// Sets the start node and adds it to the open list
-			float hCost                            = distBetweenVec2i(startPos, destPos);
+			float hCost                            = distBetweenVec(startPos, destPos);
 			nodeMap[startPos.x][startPos.y].parent = {-1, -1};
 			nodeMap[startPos.x][startPos.y].fCost  = hCost;
 			nodeMap[startPos.x][startPos.y].gCost  = 0.0f;
@@ -188,8 +190,8 @@ inline std::vector<Vec2f> *aStarAlgorithm(Vec2i startPos, Vec2i destPos, Collisi
 					continue;
 
 				// Calculates the cost of the node
-				float gCost = currentNode->gCost + distBetweenVec2i(currentPos, nextPos);
-				float hCost = distBetweenVec2i(nextPos, destPos);
+				float gCost = currentNode->gCost + distBetweenVec(currentPos, nextPos);
+				float hCost = distBetweenVec(nextPos, destPos);
 				float fCost = gCost + hCost;
 
 				// Checks if there is already a node in the node map

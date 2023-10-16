@@ -1,7 +1,7 @@
 #include "ParticleSpawner.h"
 
 #include "RandomGen.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 ParticleSpawner::ParticleSpawner()
 	: Spawner(), m_ParticleSpawnRate(4), m_Colour({0.0f, 0.0f, 0.0f, 1.0f})
@@ -40,6 +40,61 @@ ParticleSpawner::ParticleSpawner(float x, float y, Level *level, uint16_t mLife,
 {
 }
 
+ParticleSpawner::ParticleSpawner(float x, float y, Level *level, uint16_t mLife, uint16_t spawnRate, uint16_t minLife, uint16_t maxLife, Direction dir, float minSpeed, float maxSpeed, float minSize, float maxSize, uint16_t groupSize, glm::vec4 colour)
+	: Spawner(x, y, level, mLife),
+	  m_ParticleSpawnRate(spawnRate),
+	  m_ParticleMinLifeTime(minLife),
+	  m_ParticleMaxLifeTime(maxLife),
+	  m_ParticleMinSize(minSize),
+	  m_ParticleMaxSize(maxSize),
+	  m_NumOfParticles(groupSize),
+	  m_Colour(colour)
+{
+	switch(dir)
+	{
+	case Direction::north:
+		m_ParticleXMinSpeed = -maxSpeed;
+		m_ParticleXMaxSpeed = maxSpeed;
+		m_ParticleYMinSpeed = minSpeed;
+		m_ParticleYMaxSpeed = maxSpeed;
+
+		break;
+
+	case Direction::south:
+		m_ParticleXMinSpeed = -maxSpeed;
+		m_ParticleXMaxSpeed = maxSpeed;
+		m_ParticleYMinSpeed = -maxSpeed;
+		m_ParticleYMaxSpeed = -minSpeed;
+
+		break;
+
+	case Direction::east:
+		m_ParticleXMinSpeed = minSpeed;
+		m_ParticleXMaxSpeed = maxSpeed;
+		m_ParticleYMinSpeed = -maxSpeed;
+		m_ParticleYMaxSpeed = maxSpeed;
+
+		break;
+
+	case Direction::west:
+		m_ParticleXMinSpeed = -maxSpeed;
+		m_ParticleXMaxSpeed = -minSpeed;
+		m_ParticleYMinSpeed = -maxSpeed;
+		m_ParticleYMaxSpeed = maxSpeed;
+
+		break;
+
+	default:
+		Log::warning("Unknown direction when creating particle spawner");
+		m_ParticleXMinSpeed = 0.0f;
+		m_ParticleXMaxSpeed = 0.0f;
+		m_ParticleYMinSpeed = 0.0f;
+		m_ParticleYMaxSpeed = 0.0f;
+
+		break;
+	}
+}
+
 ParticleSpawner::~ParticleSpawner()
 {
 	// Doesn't have to delete the particles as that is handled by the vector class
@@ -62,11 +117,11 @@ void ParticleSpawner::update()
 			for(int i = 0; i < m_NumOfParticles; i++)
 			{
 				// Creates random stats and applies them to a new particle
-				int      xGen     = Random::getNum((int) (m_ParticleXMinSpeed * 10), (int) (m_ParticleXMaxSpeed * 10));
-				int      yGen     = Random::getNum((int) (m_ParticleYMinSpeed * 10), (int) (m_ParticleYMaxSpeed * 10));
+				int      xGen     = Random::uniformDist((int) (m_ParticleXMinSpeed * 10), (int) (m_ParticleXMaxSpeed * 10));
+				int      yGen     = Random::uniformDist((int) (m_ParticleYMinSpeed * 10), (int) (m_ParticleYMaxSpeed * 10));
 				Vec2f    dir      = {(float) xGen / 10, (float) yGen / 10};
-				float    size     = (float) Random::getNum((int) (m_ParticleMinSize * 10), (int) (m_ParticleMaxSize * 10)) / 10;
-				uint16_t lifetime = Random::getNum(m_ParticleMinLifeTime, m_ParticleMaxLifeTime);
+				float    size     = (float) Random::uniformDist((int) (m_ParticleMinSize * 10), (int) (m_ParticleMaxSize * 10)) / 10;
+				uint16_t lifetime = Random::uniformDist(m_ParticleMinLifeTime, m_ParticleMaxLifeTime);
 				m_Particles.emplace_back(x, y, size, dir, lifetime, m_Colour);
 			}
 		}

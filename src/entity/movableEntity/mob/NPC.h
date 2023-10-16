@@ -7,13 +7,15 @@
 class NPC : public Mob
 {
   public:
-	enum class Type
+	// Stores the different types of NPCs (only used for creation)
+	enum class Type : uint8_t
 	{
 		Follower,
 		Enemy
 	};
 
-	enum class Race
+	// Stores the race of NPC (only used for creation)
+	enum class Race : uint8_t
 	{
 		Frost,
 		Fire,
@@ -21,10 +23,11 @@ class NPC : public Mob
 	};
 
   private:
-    std::string m_Name;
+	std::string m_Name;   // Stores the name of the NPC
 
-    enum class AttackMove
-    {
+	// Different attack moves an NPC can make
+	enum class AttackMove : uint8_t
+	{
 	  None,
 	  Dodge,
 	  RunAway,
@@ -33,24 +36,26 @@ class NPC : public Mob
 	  GoToPoint,
 	  Attack
 	};
-	AttackMove m_Attack;
+	AttackMove m_Attack;   // Stores the current attack the enemy is doing
 
-	Vec2f    m_Center;
-	Vec2f    m_NextPos;
-	bool     m_NextPosActive;
-	uint32_t m_TimeSinceMoved;
-	uint32_t m_WaitFor;
+	// Stores information for attacking
+	Vec2f    m_Center;           // Stores the coordinates of the room current room
+	Vec2f    m_NextPos;          // Stores the next position of the NPC
+	bool     m_NextPosActive;    // Stores whether the next position is currently being used
+	uint32_t m_TimeSinceMoved;   // Stores the time since the NPC has changed attack moves
+	uint32_t m_WaitFor;          // Stores how long it should wait for before it should change attack move
 
-	bool isRunningAway;
-
+	// Generates the inventory of the follower
 	void generateInventory(Race race);
 
-	void findPath(Vec2f dest, float speed);
-	void attack();
-	void follow();
-	void roam();
+	void findPath(Vec2f dest, float speed);   // Finds shortest path to point
+	void attack();                            // Function that controls the attacking aspect of NPC
+	void follow();                            // Function that controls the following aspect of NPC
+	void roam();                              // Function that controls the roaming aspect of NPC
 
-	void generateNextPos();
+	void generateNextPos();   // Generates a random next postion
+
+	void goToPointInRoom();   // Goes to point random point in room when attacking
 
   public:
 	NPC();
@@ -64,9 +69,10 @@ class NPC : public Mob
 	virtual void imGuiRender() override;
 #endif
 
-	void goToPointInRoom();
-
 	virtual void setFollowing(Mob *following) override;
 
 	virtual bool eventCallback(const Event::Event &e) override;
+
+	virtual void changeX(float changeBy) override;
+	virtual void changeY(float changeBy) override;
 };

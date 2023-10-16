@@ -7,7 +7,9 @@
 class MenuBackground : public MenuObject
 {
   private:
+	// Stores the colour of the background
 	glm::vec4             m_Colour;
+	// Function called when exitting the menu
 	std::function<void()> m_ExitFunc;
 
   public:
@@ -18,4 +20,6 @@ class MenuBackground : public MenuObject
 	virtual void render() override;
 	virtual void update() override;
 	virtual bool eventCallback(const Event::Event &e) override;
+
+	bool isMouseOver();
 };

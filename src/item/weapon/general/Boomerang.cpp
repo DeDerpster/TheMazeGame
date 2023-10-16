@@ -1,7 +1,7 @@
 #include "Boomerang.h"
 
 #include "entity/movableEntity/mob/Mob.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 Boomerang::Boomerang()
 	: Weapon("Boomerang", 20.0f, 50, Sprite::ID::weaponBoomerang) {}
@@ -18,6 +18,7 @@ void Boomerang::attack(Level *level, Entity &e, Direction dir, bool hold)
 		else
 			damage = 0.0f;
 
+		// Spawns a boomerang projectile
 		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Boomerang));
 		if(m)
 		{

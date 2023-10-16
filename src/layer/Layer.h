@@ -12,6 +12,7 @@
 class Layer
 {
   protected:
+	// Stores the current effect ids that are used when rendering
 	std::vector<uint16_t> m_ShaderEffectsIDs;
 
   public:

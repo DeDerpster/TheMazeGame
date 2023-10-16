@@ -1,7 +1,7 @@
 #include "GoldStaff.h"
 
 #include "entity/movableEntity/mob/Mob.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 GoldStaff::GoldStaff()
 	: Weapon("Gold Staff", 30.0f, 25, Sprite::ID::weaponGoldStaff) {}
@@ -18,6 +18,7 @@ void GoldStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
 		else
 			damage = 0.0f;
 
+		// Spawns a gold projectile
 		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Gold));
 		if(m)
 		{

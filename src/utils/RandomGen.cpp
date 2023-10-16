@@ -17,34 +17,53 @@
 
 Random::Random()
 {
+	// This initialises the generator with a seed that is the time reversed
 	generator.seed(reverseNum(time(NULL)));
 	Log::info("Initialised random number engine");
 }
 
-int Random::getNumImpl(int min, int max)
+int Random::uniformDistImpl(int min, int max)
 {
+	// Checks if the numbers are indeed the minimum and maximum
 	if(min == max || min > max)
 	{
 		Log::warning("Min and Max are the same or max is less than min!");
 		return max;
 	}
+
+	// Creates a distribution with the minimum and maximum
 	std::uniform_int_distribution<int> distribution(min, max);
+
 	return distribution(generator);
 }
 
-int Random::getWeightedNumImpl(std::vector<float> nums)
+int Random::binomialDistImpl(int trials, float probability)
 {
-	std::discrete_distribution<int> distribution(nums.begin(), nums.end());
+	// Generates a binomial distribution with the given variables
+	std::binomial_distribution<int> distribution(trials, probability);
+
 	return distribution(generator);
 }
 
+// This will return a random index of the vector of probabilities given
+int Random::customDistImpl(std::vector<float> nums)
+{
+	// This will return an index using the vector as a list of probabilities
+	// This is useful to gain non-uniform distrutions
+	std::discrete_distribution<int> distribution(nums.begin(), nums.end());
+
+	return distribution(generator);
+}
+
+// This returns a random item
 Item *Random::getItemImpl()
 {
 	Item *item;
-	int   r = getNum(0, 2);
+	int   r = uniformDist(0, 2);
+	// Has a 1/3rd chance or returning a weapon
 	if(r == 0)
 	{
-		int r1 = getNum(0, 100);
+		int r1 = uniformDist(0, 100);
 		if(r1 < 15)
 			item = new Boomerang();
 		else if(r1 < 30)
@@ -66,12 +85,13 @@ Item *Random::getItemImpl()
 	}
 	else
 	{
-		int          r1 = getNum(0, 8);
+		// Otherwise it will generate a random pointion type
+		int          r1 = uniformDist(0, 8);
 		Potion::Type type;
 		if(r1 < 2)
 		{
 			int temp = r1 * POTION_SPRITES;
-			int r2   = getNum(0, 9);
+			int r2   = uniformDist(0, 9);
 			if(r2 > 8)
 				temp += 3;
 			else if(r2 > 6)
@@ -83,13 +103,14 @@ Item *Random::getItemImpl()
 		}
 		else if(r1 < 4)
 		{
-			int r2 = getNum(0, 2);
+			// These are potion for books
+			int r2 = uniformDist(0, 2);
 			if(r2 == 0)
 				type = Potion::Type::MagicBook;
 			else
 				type = Potion::Type::Book;
 		}
-		else
+		else   // Will return a food type
 			type = Potion::Type::Food;
 
 		item = new Potion(type);
@@ -98,6 +119,7 @@ Item *Random::getItemImpl()
 	return item;
 }
 
+// Function for inversing a number
 int Random::reverseNum(int num)   // This returns a number in reverse
 {
 	int reverse = 0, rem;

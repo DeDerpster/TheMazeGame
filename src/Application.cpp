@@ -4,7 +4,7 @@
 #include "rendering/Renderer.h"
 #include "rendering/sprite/Sprite.h"
 
-#include "level/Maze.h"
+#include "layer/level/Maze.h"
 #include "maze/tile/Tile.h"
 
 #include "rendering/glInterface/VertexBufferLayout.h"
@@ -15,6 +15,7 @@
 #include "Log.h"
 #include "ShaderEffectsManager.h"
 #include "event/Event.h"
+#include "event/menu/WindowResize.h"
 #include "layer/MessageManager.h"
 
 // SECTION: Initialises
@@ -24,13 +25,16 @@ Application::Application()
 	  windowHeight(540),
 	  proj(glm::ortho(0.0f, (float) windowWidth, 0.0f, (float) windowHeight, -100.0f, 100.0f)),
 	  overlayStart(0),
+	  guiScale(1.0f),
 	  gameIsPaused(false)
 {   // This initialises everything
 	layers.reserve(2);
+	problemBootingUp = false;
 
 	if(!glfwInit())   // Initialises GLFW, and checks it was okay
 	{
 		Log::critical("GLFW failed to initialise", LOGINFO);   // Logs a critical error
+		problemBootingUp = true;
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);   // Sets the openGL version
@@ -41,6 +45,7 @@ Application::Application()
 	if(!window)   // Checks window is not a nullpointer
 	{
 		Log::critical("Window seems to be a nullptr, will now shutdown... I do not feel well", LOGINFO);
+		problemBootingUp = true;
 	}
 
 	glfwMakeContextCurrent(window);   // Makes context and makes it so that the program can only run at 60fps or lower (for a more constant framerate)
@@ -49,10 +54,11 @@ Application::Application()
 	if(glewInit() != GLEW_OK)   // Initialises GLEW
 	{
 		Log::critical("GLEW is not OK please send help", LOGINFO);
+		problemBootingUp = true;
 	}
 
 	// Logs the open GL version (from the graphics card)
-	Log::variable<const GLubyte *>("GL version", glGetString(GL_VERSION));
+	Log::variable("GL version", glGetString(GL_VERSION));
 
 	// Enables the default blending
 	GLCall(glEnable(GL_BLEND));
@@ -105,6 +111,7 @@ bool Application::setupImGui()   // Sets up ImGui
 	else
 	{
 		Log::critical("ImGUI failed", LOGINFO);
+		problemBootingUp = true;
 		return false;
 	}
 }
@@ -132,6 +139,7 @@ ImGuiIO *Application::getImGuiContext()
 	else
 	{
 		Log::critical("ImGUI failed while creating the context", LOGINFO);
+		problemBootingUp = true;
 		return nullptr;
 	}
 }
@@ -168,7 +176,6 @@ void Application::render()   // Renders all the layers
 		Render::render(layers[i]->getShaderEffects());
 	}
 
-	// TODO:: Make a layer for this or do something clever
 	MessageManager::render();
 	std::vector<uint16_t> temp;
 	Render::render(temp);
@@ -187,7 +194,7 @@ void Application::gameLoopImpl()
 	auto   lastTime = std::chrono::high_resolution_clock::now();
 	double delta    = 1.0f;
 
-	while(isWindowOpen())
+	while(isWindowOpen() && !problemBootingUp)
 	{
 #ifdef DEBUG
 		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));   // Sets the background to white if I am Debugging as it is easier to see if textures are not rendering
@@ -241,6 +248,13 @@ void Application::gameLoopImpl()
 #ifdef DEBUG
 void Application::imGuiRender()   // Renders ImGui in all the layers
 {
+	float bef = guiScale;
+	ImGui::SliderFloat("GUI Scale", &guiScale, 0.1f, 3.0f);
+	if(guiScale != bef)
+	{
+		Event::WindowResizeEvent e(getWidth(), getHeight(), getWidth(), getHeight());
+		callEvent(e, Event::CallType::Overlay);
+	}
 	for(int i = 0; i < layers.size(); i++)
 		layers[i]->imGuiRender();
 	camera.imGuiRender();
@@ -253,7 +267,7 @@ void Application::imGuiRender()   // Renders ImGui in all the layers
 void Application::setupLayersImpl()
 {
 	gameIsPaused = true;
-	// TODO: Put this in a separate function
+
 	for(Layer *layer : layers)
 		delete layer;
 	layers.clear();
@@ -318,11 +332,10 @@ void Application::removeLayerImpl(Layer *layer, bool deleteLayer)
 // SECTION: Events
 void Application::callEventImpl(const Event::Event &e, Event::CallType callType)   // Sends event through the layers
 {
-	// TODO: Make this multithreading
 	if(camera.eventCallback(e))
 		return;
 
-	uint16_t startVal;
+	int      startVal;
 	int      endVal;
 
 	switch(callType)
@@ -346,16 +359,23 @@ void Application::callEventImpl(const Event::Event &e, Event::CallType callType)
 		break;
 	}
 
-	for(int i = startVal - 1; i > endVal - 1; i--)
+	if(startVal < endVal)
 	{
-		if(layers[i])
+		Log::error("Incorrect format for applying effect on layer", LOGINFO);
+	}
+	else
+	{
+		for(int i = startVal - 1; i > endVal - 1; i--)
 		{
-			if(layers[i]->eventCallback(e))
+			if(layers[i])
+			{
+				if(layers[i]->eventCallback(e))
+					break;
+			}
+
+			if(gameIsPaused && i == overlayStart && !e.ignoreIfPaused())
 				break;
 		}
-
-		if(gameIsPaused && i == overlayStart && !e.ignoreIfPaused())
-			break;
 	}
 }
 // !SECTION
@@ -373,8 +393,11 @@ void Application::updateWindowSizeImpl(int width, int height)   // updates the w
 	}
 	else
 	{
-		Effect::UniformMat4 *e = static_cast<Effect::UniformMat4 *>(Effect::ShaderEffectsManager::getShaderEffect(projEffectID));   // TODO: Change this to a dynamic cast or make a function for it
-		e->setMat(proj);
+		Effect::UniformMat4 *e = dynamic_cast<Effect::UniformMat4 *>(Effect::ShaderEffectsManager::getShaderEffect(projEffectID));
+		if(e)
+			e->setMat(proj);
+		else
+			Log::error("Unable to convert projection effect!", LOGINFO);
 	}
 }
 
@@ -404,6 +427,15 @@ void Application::closeApplicationImpl()
 int       Application::getWidthImpl() { return windowWidth; }
 int       Application::getHeightImpl() { return windowHeight; }
 void *    Application::getWindowImpl() { return window; }
+
 Camera *  Application::getCameraImpl() { return &camera; }
 glm::mat4 Application::getProjImpl() { return proj; }
+
+void Application::changeGUIScaleImpl(float newScale)
+{
+	guiScale = newScale;
+
+	Event::WindowResizeEvent e(getWidth(), getHeight(), getWidth(), getHeight());
+	callEvent(e, Event::CallType::Overlay);
+}
 // !SECTION

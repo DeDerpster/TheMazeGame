@@ -6,12 +6,12 @@
 #include "Application.h"
 #include "KeyDefinitions.h"
 #include "RandomGen.h"
-#include "Utils.h"
 #include "layer/MessageManager.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 #include "Player.h"
 
+#include "item/potion/Potion.h"
 #include "item/weapon/general/Boomerang.h"
 #include "item/weapon/general/Bow.h"
 #include "item/weapon/general/Crossbow.h"
@@ -27,6 +27,7 @@
 #include "event/input/Mouse.h"
 #include "event/menu/ChangeGUIMenu.h"
 
+// Returns either 1, -1, or 0 to show what direction the NPC needs to walk in to get to a point
 static float getRatioForAttacking(float pos, float ePos, float buffer)
 {
 	float dist = ePos - pos;
@@ -36,6 +37,7 @@ static float getRatioForAttacking(float pos, float ePos, float buffer)
 		return 0.0f;
 }
 
+// Returns the sprite ID from a given race and type
 static Sprite::ID getSpriteID(NPC::Type type, NPC::Race race)
 {
 	Sprite::ID id;
@@ -74,12 +76,14 @@ static Sprite::ID getSpriteID(NPC::Type type, NPC::Race race)
 	return id;
 }
 
+// Generates a random sprite ID from a given race
 static Sprite::ID genSpriteID(NPC::Type type)
 {
-	int r = Random::getNum(0, 2);
+	int r = Random::uniformDist(0, 2);
 	return getSpriteID(type, static_cast<NPC::Race>(r));
 }
 
+// Gets the race from a type and spriteID
 static NPC::Race getRace(NPC::Type type, Sprite::ID spriteID)
 {
 	switch(type)
@@ -112,19 +116,19 @@ static NPC::Race getRace(NPC::Type type, Sprite::ID spriteID)
 }
 
 NPC::NPC()
-	: m_Name("Bob"), m_Attack(AttackMove::None), m_Center({0.0f, 0.0f}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), isRunningAway(false)
+	: m_Name("Bob"), m_Attack(AttackMove::None), m_Center({0.0f, 0.0f}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0)
 {
 	generateInventory(Race::Fire);
 }
 
 NPC::NPC(float x, float y, Level *level, Type type)
-	: Mob(x, y, level, genSpriteID(type)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), isRunningAway(false)
+	: Mob(x, y, level, genSpriteID(type)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0)
 {
 	generateInventory(getRace(type, m_SpriteID));
 }
 
 NPC::NPC(float x, float y, Level *level, Type type, Race race)
-	: Mob(x, y, level, getSpriteID(type, race)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0), isRunningAway(false)
+	: Mob(x, y, level, getSpriteID(type, race)), m_Name("Bob"), m_Attack(AttackMove::None), m_Center({x, y}), m_NextPos({0.0f, 0.0f}), m_NextPosActive(false), m_TimeSinceMoved(0), m_WaitFor(0)
 {
 	generateInventory(race);
 }
@@ -135,10 +139,12 @@ NPC::~NPC()
 
 void NPC::generateInventory(Race race)
 {
-	int r = Random::getNum(0, 2);
+	// Generates the inventory (just a weapon depending on the race)
+	int r = Random::uniformDist(0, 2);
 	if(r == 0)
 	{
-		int s = Random::getNum(0, 3);
+		// Has a 1/3rd chance for the enemy to have a regular weapon
+		int s = Random::uniformDist(0, 3);
 		switch(s)
 		{
 		case 0:
@@ -157,6 +163,7 @@ void NPC::generateInventory(Race race)
 	}
 	else
 	{
+		// Determines the weapon from the race
 		switch(race)
 		{
 		case Race::Frost:
@@ -178,33 +185,42 @@ void NPC::generateInventory(Race race)
 
 void NPC::findPath(Vec2f dest, float speed)
 {
-	Vec2f start = {x, y};
 	if(!m_Level)
+	{
 		Log::critical("Level is null", LOGINFO);
-	std::vector<Vec2f> *path = m_Level->getPath(start, dest, getMovingCollisionBox());
+		return;
+	}
 
-	// path->pop_back();
-	if(path->size() == 0 || (path->size() == 1 && distBetweenVec2f({x, y}, path->back()) < speed))
+	// Gets the path list from the level
+	Vec2f               start = {x, y};
+	std::vector<Vec2f> *path  = m_Level->getPath(start, dest, getMovingCollisionBox());
+
+	// Will return if in small range or the path size is 0
+	if(path->size() == 0 || (path->size() == 1 && distBetweenVec({x, y}, path->back()) < speed))
 	{
 		isMoving = false;
 		return;
 	}
 
-	float availiableDist = speed;
-	while(availiableDist > 0.0f && path->size() > 0)
+	// Will use all of the speed to get as far as possible
+	float availableDist = speed;
+	while(availableDist > 0.0f && path->size() > 0)
 	{
-		float distToNext = distBetweenVec2f({x, y}, path->back());
+		float distToNext = distBetweenVec({x, y}, path->back());
 		Vec2f distVec    = {path->back().x - x, path->back().y - y};
-		if(distToNext < availiableDist)
+
+		// If the distance to the next node is smaller than the available then it will pop the node from the list and continue to the next node
+		if(distToNext < availableDist)
 		{
-			availiableDist -= distToNext;
+			availableDist -= distToNext;
 			move(distVec.x, distVec.y);
 			path->pop_back();
 		}
 		else
 		{
-			availiableDist = 0.0f;
-			float timesBy  = speed / distToNext;
+			// If the distance to the next node is smaller than the available distance it will use all of it to get as close to the next node as possible
+			availableDist = 0.0f;
+			float timesBy = speed / distToNext;
 			move(distVec.x * timesBy, distVec.y * timesBy);
 		}
 	}
@@ -220,8 +236,11 @@ void NPC::follow()
 		return;
 	}
 
-	float minDistAway = (TILE_SIZE / 3) * 2;
-	if(distBetweenVec2f({m_Following->getX(), m_Following->getY()}, {x, y}) > minDistAway)
+	// Checks how far away it should be
+	float minDistAway = m_Following->getFollowDistance(this);
+
+	// Will find a path to its follower if the distance is greater than the minDist
+	if(distBetweenVec<Vec2f>({m_Following->getX(), m_Following->getY()}, {x, y}) > minDistAway)
 		findPath({m_Following->getX(), m_Following->getY()}, m_Speed);
 	else
 		isMoving = false;
@@ -229,12 +248,14 @@ void NPC::follow()
 
 void NPC::roam()
 {
+	// Generates the next position it will go to
 	if(!m_NextPosActive)
 		generateNextPos();
 
 	float minDistAway = TILE_SIZE / 3;
 
-	if(distBetweenVec2f(m_NextPos, {x, y}) > minDistAway)
+	// If it is further away than the minimum distance it will get the shortest path to that
+	if(distBetweenVec(m_NextPos, {x, y}) > minDistAway)
 		findPath({m_NextPos.x, m_NextPos.y}, m_Speed / 2);
 	else
 		isMoving = false;
@@ -247,13 +268,17 @@ void NPC::roam()
 
 void NPC::generateNextPos()
 {
-	m_TimeSinceMoved  = 0;
-	m_WaitFor         = Random::getNum(120, 500);
-	m_NextPosActive   = true;
+	// Resets variables
+	m_TimeSinceMoved = 0;
+	m_WaitFor        = Random::uniformDist(120, 500);
+	m_NextPosActive  = true;
+
+	// Generates random position in the room
 	float range       = TILE_SIZE * 2;
-	float xPercentage = Random::getNum(-100, 100) / 100.0f;
-	float yPercentage = Random::getNum(-100, 100) / 100.0f;
-	m_NextPos         = {m_Center.x + range * xPercentage, m_Center.y + range * yPercentage};
+	float xPercentage = Random::uniformDist(-100, 100) / 100.0f;
+	float yPercentage = Random::uniformDist(-100, 100) / 100.0f;
+
+	m_NextPos = {m_Center.x + range * xPercentage, m_Center.y + range * yPercentage};
 }
 
 void NPC::attack()
@@ -269,43 +294,41 @@ void NPC::attack()
 	if(m_TimeSinceMoved < 0)
 		return;
 
-	if(m_CurrentWeapon == -1 || distBetweenVec2f({x, y}, {m_Enemy->getX(), m_Enemy->getY()}) < TILE_SIZE && m_Attack != AttackMove::GoToPoint)
+	// If the NPC does not have a weapon or is too close to the enemy it will run away
+	if(m_CurrentWeapon == -1 || distBetweenVec<Vec2f>({x, y}, {m_Enemy->getX(), m_Enemy->getY()}) < TILE_SIZE && m_Attack != AttackMove::GoToPoint)
 		m_Attack = AttackMove::RunAway;
-	else if(getHealth() > 0.8 * getMaxHealth())
+	else if(m_Stats.getHealth() > 0.8 * m_Stats.getMaxHealth())   // If its health is at 80% it will continue to attack
 		m_Attack = AttackMove::Attack;
 	else if(m_TimeSinceMoved > m_WaitFor)
 	{
-		if(getStamina() < 0.2 * getMaxStamina() && getHealth() < 0.2 * getMaxHealth())
+		// If it has been using the same attack move for a while it will change up its tactic
+		// If the stamina and health is very low it will run away
+		if(m_Stats.getStamina() < 0.2 * m_Stats.getMaxStamina() && m_Stats.getHealth() < 0.2 * m_Stats.getMaxHealth())
 		{
-			m_Attack  = AttackMove::RunAway;   // TODO: Check for potions and use them
-			m_WaitFor = Random::getNum(150, 500);
+			m_Attack  = AttackMove::RunAway;
+			m_WaitFor = Random::uniformDist(150, 500);
 		}
-		else if(getStamina() < 0.2 * getMaxStamina())
+		else if(m_Stats.getStamina() < 0.2 * m_Stats.getMaxStamina())
 		{
+			// If the stamina is very low it will start to try and dodge oncoming attacks
 			m_Attack = AttackMove::Dodge;
 
-			m_WaitFor = Random::getNum(200, 500);
+			m_WaitFor = Random::uniformDist(200, 500);
 		}
-		else if(Random::getNum(0, 3) == 0)
+		else if(Random::uniformDist(0, 3) == 0)
 		{
-			m_Attack = AttackMove::GoToPoint;
-			// Sets the center of the room
-			m_Center = {(float) ((int) x / ROOM_PIXEL_SIZE) * ROOM_PIXEL_SIZE + ROOM_PIXEL_SIZE / 2, (float) ((int) y / ROOM_PIXEL_SIZE) * ROOM_PIXEL_SIZE + ROOM_PIXEL_SIZE / 2};
-
-			m_NextPosActive   = true;
-			float range       = TILE_SIZE * 1.5f;
-			float xPercentage = Random::getNum(-100, 100) / 100.0f;
-			float yPercentage = Random::getNum(-100, 100) / 100.0f;
-			m_NextPos         = {m_Center.x + range * xPercentage, m_Center.y + range * yPercentage};
-
-			m_WaitFor = 240;
+			// Will randomise if it will go to a different point in the room to change up its attack
+			goToPointInRoom();
 		}
 		else
 		{
+			// Otherwise it will continue to attack the player
 			m_Attack  = AttackMove::Attack;
-			m_WaitFor = Random::getNum(200, 500);
+			m_WaitFor = Random::uniformDist(200, 500);
 		}
-		m_TimeSinceMoved = -10;
+
+		// sets it to -10 to have a slight delay between changing strategies
+		m_TimeSinceMoved = -20;
 	}
 
 	isMoving = false;
@@ -315,11 +338,12 @@ void NPC::attack()
 	{
 	case AttackMove::Dodge:
 	{
-		// TODO: Take stamina into account etc
-		float range      = TILE_SIZE * 2;
-		auto [dir, proj] = m_Level->getDirOfProjInRange(x, y, range);
+		// Gets the closes projectile in range and will move in a direction to avoid it
+		float       range = TILE_SIZE * 2;
+		Projectile *proj  = m_Level->getProjInRange(x, y, range);
 		if(proj)
 		{
+			Direction dir = proj->getDirection();
 			float xa = 0;
 			float ya = 0;
 			if(dir == Direction::north || dir == Direction::south)
@@ -337,52 +361,112 @@ void NPC::attack()
 
 			move(xa, ya);
 		}
+
 		break;
 	}
 
 	case AttackMove::RunAway:
 	{
+		// If it is running away it will go in the opposite direction to the enemy
 		float difX = x - m_Enemy->getX();
 		float difY = y - m_Enemy->getY();
 		if(std::fabs(difX) < 10.0f)
 			difX += difX > 0 ? 20.0f : -20.0f;
 		if(std::fabs(difY) < 10.0f)
 			difY += difY > 0 ? 20.0f : -20.0f;
+
 		if(canMove({difX, difY}))
 			move({difX, difY});
 		else
 			goToPointInRoom();
+
+		if(m_TimeSinceMoved > 10 && m_TimeSinceMoved % 30 == 0)
+		{
+			// If the time since moved has been long enough it will look for any potions in its inventory and use them
+			for(Item *item : m_Inventory)
+			{
+				Potion *potion = dynamic_cast<Potion *>(item);
+
+				if(potion)
+				{
+					potion->useOn(this);
+					m_TimeSinceMoved += 30;
+
+					break;
+				}
+			}
+		}
+
 		break;
 	}
 
 	case AttackMove::RunAwayAlongX:
 	{
+		// If it is running away along the x axis it will move in that direction
 		float difX = x - m_Enemy->getX();
 		if(canMove({difX, 0.0f}))
 			move({difX, 0.0f});
 		else
 			goToPointInRoom();
+
+		if(m_TimeSinceMoved > 10 && m_TimeSinceMoved % 30 == 0)
+		{
+			// If the time since moved has been long enough it will look for any potions in its inventory and use them
+			for(Item *item : m_Inventory)
+			{
+				Potion *potion = dynamic_cast<Potion *>(item);
+
+				if(potion)
+				{
+					potion->useOn(this);
+					m_TimeSinceMoved += 30;
+
+					break;
+				}
+			}
+		}
+
 		break;
 	}
 
 	case AttackMove::RunAwayAlongY:
 	{
+		// Runs away from the player on the Y axis only
 		float difY = y - m_Enemy->getY();
 		if(canMove({0.0f, difY}))
 			move({0.0f, difY});
 		else
 			goToPointInRoom();
+
+		if(m_TimeSinceMoved > 10 && m_TimeSinceMoved % 30 == 0)
+		{
+			// If the time since moved has been long enough it will look for any potions in its inventory and use them
+			for(Item *item : m_Inventory)
+			{
+				Potion *potion = dynamic_cast<Potion *>(item);
+
+				if(potion)
+				{
+					potion->useOn(this);
+					m_TimeSinceMoved += 30;
+
+					break;
+				}
+			}
+		}
+
 		break;
 	}
 
 	case AttackMove::GoToPoint:
 	{
+		// Finds the shortest path to the point
 		float xDif        = m_NextPos.x - x;
 		float yDif        = m_NextPos.y - y;
 		float minDistAway = TILE_SIZE / 3;
 
-		if((xDif < -minDistAway || xDif > minDistAway || yDif < -minDistAway || yDif > minDistAway))
-			findPath({m_NextPos.x, m_NextPos.y}, m_Speed * (getStamina() / getMaxStamina()) / 2);
+		if(distBetweenVec(m_NextPos, {x, y}) > minDistAway)
+			findPath({m_NextPos.x, m_NextPos.y}, m_Speed * (m_Stats.getStamina() / m_Stats.getMaxStamina()) / 2);
 		else
 			m_Attack = AttackMove::None;
 
@@ -391,14 +475,16 @@ void NPC::attack()
 
 	default:   // Attack
 	{
-		// TODO: Check if friend is in line of fire
+		// Buffer stores how close it can be to the actual coordinates
 		float buffer = TILE_SIZE / 4.0f;
-		Vec2f ratio  = {getRatioForAttacking(x, m_Enemy->getX(), buffer), getRatioForAttacking(y, m_Enemy->getY(), buffer)};
+		// Stores the direction it has to go in
+		Vec2f ratio = {getRatioForAttacking(x, m_Enemy->getX(), buffer), getRatioForAttacking(y, m_Enemy->getY(), buffer)};
 
-		if((ratio.y == 0.0f || ratio.x == 0.0f))   // Attacks if can
+		if((ratio.y == 0.0f || ratio.x == 0.0f))   // Means it will be able to attack
 		{
-			if(m_Weapons[m_CurrentWeapon]->canUse())
+			if(m_Weapons[m_CurrentWeapon]->canUse())   // Checks if it can use its weapon
 			{
+				// Changes the direction so that it is facing the enemy
 				if(ratio.x == 0.0f)
 				{
 
@@ -415,11 +501,40 @@ void NPC::attack()
 						m_Dir = Direction::east;
 				}
 
-				useCurrentWeapon(true);
+				// Checks if the person the NPC is following is in the way (if it is it will cancel the attack and go to another point in the room)
+				// NOTE: Does not look at who is following it because it adds an interesting dynamic to the came, as tho the masters, if you will, do not care about their followers
+				bool cancel = false;
+				if(m_Following)
+				{
+					switch(m_Dir)
+					{
+					case Direction::north:
+						cancel = m_Following->getY() > y && fabs(x - m_Following->getX()) > TILE_SIZE / 2.0f;
+						break;
+					case Direction::south:
+						cancel = m_Following->getY() < y && fabs(x - m_Following->getX()) > TILE_SIZE / 2.0f;
+						break;
+					case Direction::east:
+						cancel = m_Following->getX() > x && fabs(y - m_Following->getY()) > TILE_SIZE / 2.0f;
+						break;
+					case Direction::west:
+						cancel = m_Following->getX() < x && fabs(y - m_Following->getY()) > TILE_SIZE / 2.0f;
+						break;
+
+					default:
+						break;
+					}
+				}
+
+				if(cancel)
+					goToPointInRoom();
+				else
+					useCurrentWeapon(true);   // Attacks using its weapon
 			}
 		}
 		else
 		{
+			// Walks in the direction to get to a position where it can attack
 			float distX = std::fabs(ratio.x - m_Enemy->getX());
 			float distY = std::fabs(ratio.y - m_Enemy->getX());
 
@@ -436,7 +551,7 @@ void NPC::attack()
 			}
 			else
 			{
-				if(distY < TILE_SIZE)
+				if(distY < TILE_SIZE)   // This checks that the distance is within a given range and corrects accordingly
 				{
 					m_TimeSinceMoved = 0;
 					m_WaitFor        = 60;
@@ -446,9 +561,11 @@ void NPC::attack()
 					ratio.y = 0.0f;
 			}
 
+			// Moves if it is attacking
 			if(m_Attack == AttackMove::Attack)
 				move(ratio);
 		}
+
 		break;
 	}
 	}
@@ -456,17 +573,20 @@ void NPC::attack()
 
 void NPC::update()
 {
+	// If in the same room as the enemy it will attack
 	if(m_Enemy && (int) m_Enemy->getX() / (TILE_SIZE * ROOM_SIZE) == (int) x / (TILE_SIZE * ROOM_SIZE) && (int) m_Enemy->getY() / (TILE_SIZE * ROOM_SIZE) == (int) y / (TILE_SIZE * ROOM_SIZE))
 		attack();
 	else
 	{
+		// Otherwise resets the attack move
 		if(m_Attack != AttackMove::None)
 			m_Attack = AttackMove::None;
 
+		// If it is following a mob it will follow the mob
 		if(m_Following)
 			follow();
 		else
-			roam();
+			roam();   // Otherwise it will rome the current room it is in
 	}
 
 	Mob::update();
@@ -486,21 +606,24 @@ void NPC::imGuiRender()
 
 void NPC::goToPointInRoom()
 {
-
+	// Sets the attack move to go to a point
 	m_Attack         = AttackMove::GoToPoint;
-	m_TimeSinceMoved = 0;
+	m_TimeSinceMoved = 0;   //Rests time since moved
+
 	// Sets the center of the room
 	m_Center = {(float) ((int) x / ROOM_PIXEL_SIZE) * ROOM_PIXEL_SIZE + ROOM_PIXEL_SIZE / 2, (float) ((int) y / ROOM_PIXEL_SIZE) * ROOM_PIXEL_SIZE + ROOM_PIXEL_SIZE / 2};
 
+	// Gets a random position in the room
 	m_NextPosActive   = true;
 	float range       = TILE_SIZE * 1.5f;
-	float xPercentage = Random::getNum(-100, 100) / 100.0f;
-	float yPercentage = Random::getNum(-100, 100) / 100.0f;
+	float xPercentage = Random::uniformDist(-100, 100) / 100.0f;
+	float yPercentage = Random::uniformDist(-100, 100) / 100.0f;
 	m_NextPos         = {m_Center.x + range * xPercentage, m_Center.y + range * yPercentage};
 }
 
 void NPC::setFollowing(Mob *following)
 {
+	// Updates the center and start following the given mob
 	m_Center = {x, y};
 	Mob::setFollowing(following);
 }
@@ -515,27 +638,30 @@ bool NPC::eventCallback(const Event::Event &e)
 
 		Vec2f convPos = Application::getCamera()->convertWindowToLevel(ne.pos);
 
-		Player *player = m_Level->getPlayer();
-		if(doesPointIntersectWithBox(convPos, {x, y}, {{-width / 2, -height / 2}, {width / 2, height / 2}}) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 5.0f * TILE_SIZE)
+		// Checks teh player is in range and the mouse is inside the visual hit box
+		Player *const player = m_Level->getPlayer();
+		if(doesPointIntersectWithBox(convPos, {x, y}, {{-width / 2, -height / 2}, {width / 2, height / 2}}) && distBetweenVec<Vec2f>({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 5.0f * TILE_SIZE)
 		{
+			// If it is a random NPC it will open a NPC interaction menu to allow the player to get them to follow them
 			if(!m_Enemy && !m_Following)
 			{
-				Event::ChangeGUIActiveLayerEvent e(InGameGUILayer::npcInteraction);
+				Event::ChangeGUIMenuEvent e(Event::ChangeGUIMenuEvent::Menu::NPCInteraction);
 				Application::callEvent(e, Event::CallType::Overlay);
 
 				MessageManager::sendMessage("NPC: Can I follow you?", MessageManager::Priority::Low);
 
 				return true;
 			}
-			else if(m_Following == m_Level->getPlayer())
+			else if(m_Following == player)
 			{
-				Event::ChangeGUIActiveLayerEvent e1(InGameGUILayer::npcInventory);
+				// If the NPC is following the player it opens an NPCInventory which allows the player to stores potions and different items in their inventory
+				Event::ChangeGUIMenuEvent e1(Event::ChangeGUIMenuEvent::Menu::NPCInventory);
 				Application::callEvent(e1, Event::CallType::Overlay);
 
-				Event::ChestOpenedEvent e2(&m_Inventory, nullptr, GUIInventoryIDCode::inventory);
+				Event::ChestOpenedEvent e2(&m_Inventory, nullptr);
 				Application::callEvent(e2, Event::CallType::Overlay);
 
-				Event::ChestOpenedEvent e3(&m_Weapons, &m_CurrentWeapon, GUIInventoryIDCode::weapons);
+				Event::ChestOpenedEvent e3(&m_Weapons, &m_CurrentWeapon);
 				Application::callEvent(e3, Event::CallType::Overlay);
 				return true;
 			}
@@ -548,18 +674,21 @@ bool NPC::eventCallback(const Event::Event &e)
 
 	case Event::EventType::PlayerResponse:
 	{
-		if(m_Following || m_Enemy)
+		if(m_Following || m_Enemy)   // Ignores if it is attacking or following another mob
 			return false;
 
 		const Event::PlayerResponseEvent &ne = static_cast<const Event::PlayerResponseEvent &>(e);
-		if(ne.response == Event::PlayerResponseEvent::Response::reject)
+		if(ne.response == Event::PlayerResponseEvent::Response::Reject)
 		{
-			int r = Random::getNum(0, 4);
+			// If the player has rejected will randomise whether it will attack the player
+			int r = Random::uniformDist(0, 4);
 
-			if(r == 1)
+			if(r == 0)
 			{
+				// Sets the enemy
 				m_Enemy = m_Level->getPlayer();
 
+				// Locks the room down
 				Event::ShowAltTileEvent e(true);
 				Application::callEvent(e);
 
@@ -570,35 +699,43 @@ bool NPC::eventCallback(const Event::Event &e)
 		}
 		else
 		{
+			// If the player has accepted it will start following the player if they can
 			if(m_Level->getPlayer()->addFollower(this))
 			{
 				MessageManager::sendMessage("NPC: Yay! I know we will be best buds!", MessageManager::Priority::Low);
 				m_Following = m_Level->getPlayer();
 			}
-			else
+			else   // If they cant follow the player it will display a message accordingly
 				MessageManager::sendMessage("NPC: Looks like you already have a follower", MessageManager::Priority::Medium);
 		}
 
-		Event::ChangeGUIActiveLayerEvent e(InGameGUILayer::overlay);
+		// Changes the menu back to the overlay
+		Event::ChangeGUIMenuEvent e(Event::ChangeGUIMenuEvent::Menu::Overlay);
 		Application::callEvent(e, Event::CallType::Overlay);
 
 		return true;
 	}
 
-	case Event::EventType::MazeMoved:
-	{
-		const Event::MazeMovedEvent &ne = static_cast<const Event::MazeMovedEvent &>(e);
-
-		m_Center.x += ne.changeX;
-		m_Center.y += ne.changeY;
-		if(m_NextPosActive)
-		{
-			m_NextPos.x += ne.changeX;
-			m_NextPos.y += ne.changeY;
-		}
-	}
-
 	default:
 		return Mob::eventCallback(e);
 	}
+}
+
+// Updates the center and next postion accordingly
+void NPC::changeX(float changeBy)
+{
+	m_Center.x += changeBy;
+	if(m_NextPosActive)
+		m_NextPos.x += changeBy;
+
+	Entity::changeX(changeBy);
+}
+
+void NPC::changeY(float changeBy)
+{
+	m_Center.y += changeBy;
+	if(m_NextPosActive)
+		m_NextPos.y += changeBy;
+
+	Entity::changeY(changeBy);
 }

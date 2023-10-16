@@ -8,8 +8,10 @@
 class MenuObject
 {
   protected:
-	float                                                   x, y;
-	float                                                   width, height;
+	// Stores position and size of the object
+	float x, y;
+	float width, height;
+
 	std::function<void(float *, float *, float *, float *)> positionFunc;
 
 	Layer *m_Layer;

@@ -1,7 +1,7 @@
 #include "Sling.h"
 
 #include "entity/movableEntity/mob/Mob.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 Sling::Sling()
 	: Weapon("Slingshot", 8.0f, 15, Sprite::ID::weaponSling) {}
@@ -18,6 +18,7 @@ void Sling::attack(Level *level, Entity &e, Direction dir, bool hold)
 		else
 			damage = 0.0f;
 
+		// Spawns an rock projectile
 		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Rock));
 		if(m)
 		{

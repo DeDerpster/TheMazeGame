@@ -58,6 +58,7 @@ Button::~Button()
 
 void Button::update()
 {
+	// Checks to see if the mouse is hovering over it
 	Vec2f mousePos = Event::getMousePos();
 	if(mousePos.x > x - width / 2 && mousePos.x < x + width / 2 && mousePos.y > y - height / 2 && mousePos.y < y + height / 2)
 		m_State = State::Hover;
@@ -67,13 +68,22 @@ void Button::update()
 
 void Button::render()
 {
+	// Renders a rectangle with the specific colour of what state it is in
 	uint8_t layer = 7;
-	if(m_State == State::None)
-		Render::rectangle(x, y, width, height, m_BackgroundColour, 2.0f, m_BorderColour, layer, true, true);
-	else if(m_State == State::Hover)
-		Render::rectangle(x, y, width, height, m_HoverColour, 2.0f, m_BorderColour, layer, true, true);
-	else
+
+	switch(m_State)
+	{
+	case State::Press:
 		Render::rectangle(x, y, width, height, m_PressColour, 2.0f, m_BorderColour, layer, true, true);
+		break;
+	case State::Hover:
+		Render::rectangle(x, y, width, height, m_HoverColour, 2.0f, m_BorderColour, layer, true, true);
+		break;
+
+	default:
+		Render::rectangle(x, y, width, height, m_BackgroundColour, 2.0f, m_BorderColour, layer, true, true);
+		break;
+	}
 
 	m_Text.render(x, y, layer);
 }
@@ -84,10 +94,12 @@ bool Button::eventCallback(const Event::Event &e)
 	{
 	case Event::EventType::MouseClicked:
 	{
+		// Checks if mouse has been clicked
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
 		if(m_State == State::Hover && ne.action == Event::Action::Press)
 		{
+			// If it is over the button it will change its state and call the button press function
 			m_State = State::Press;
 			buttonPressFunc();
 

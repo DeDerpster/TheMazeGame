@@ -8,13 +8,13 @@
 class WorldItem : public Entity
 {
   protected:
-	Item *        m_Item;
-	Button::State m_State;
+	Item *        m_Item;    // Stores the item
+	Button::State m_State;   // Stores its state
 
   public:
 	WorldItem(Item *item);
-	WorldItem(float x, float y, float size, Item *item);
-	WorldItem(float x, float y, float size, Level *level, Item *item);
+	WorldItem(float x, float y, Item *item);
+	WorldItem(float x, float y, Level *level, Item *item);
 	virtual ~WorldItem() override;
 
 	virtual void render() override;
@@ -25,11 +25,13 @@ class WorldItem : public Entity
 	virtual void imGuiRender() override;
 #endif
 
+	// Returns the item and removes it from the world
 	Item *pickUp();
 
 	virtual bool deleteMe() override;
 
 	virtual bool hasCollidedWith(float xs, float ys, CollisionBox box) override { return false; }
 
+	// Allows viewing the item without picking it up
 	Item *peak();
 };

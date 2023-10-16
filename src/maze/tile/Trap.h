@@ -5,13 +5,11 @@
 class Trap : public Tile
 {
   protected:
-	uint16_t m_AttackCooldown;
-	uint16_t m_AttackCooldownMax;
-	uint16_t m_AttackTrapTimer;
-	Sprite::ID m_AttackSpriteID;
-	uint32_t m_Damage;
-
-	CollisionBox getCollisionBox();
+	uint16_t   m_AttackCooldown;      // Stores the timer for the cooldown
+	uint16_t   m_AttackCooldownMax;   // Stores the max value of the cool down
+	uint16_t   m_AttackTrapTimer;     // Stores the attack trap timer
+	Sprite::ID m_AttackSpriteID;      // Stores the sprite ID of the attack position
+	uint32_t   m_Damage;              // Stores the damage it does
 
   public:
 	Trap();

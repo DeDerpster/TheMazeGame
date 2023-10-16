@@ -4,12 +4,13 @@
 
 namespace Event
 {
+	// Event for when a player responded to whether they want a npc to follower them
 	struct PlayerResponseEvent : Event
 	{
-		enum Response
+		enum class Response : uint8_t
 		{
-			reject,
-			accept
+			Reject,
+			Accept
 		};
 
 		Response response;

@@ -1,10 +1,9 @@
 #pragma once
 
-#include "ItemContainer.h"
 #include "Tile.h"
-#include "Utils.h"
+
+#include "ItemContainer.h"
 #include "gui/object/Button.h"
-#include "item/Item.h"
 
 class Chest : public Tile
 {
@@ -12,11 +11,9 @@ class Chest : public Tile
 	ItemContainer m_Inventory;   // This stores the inventory of the
 	Button::State m_State;       // Stores the state it is in (uses button state for simplicity)
 	bool          m_IsDud;       // This is to tell if it should be a real chest (used for traps)
+	bool          m_HasOpened;   // Stores whether the chest has been opened or not
 
 	void generateInventory();
-
-	// This is just an easy wait to get the collision box of a chest
-	static CollisionBox getCollisionBox();
 
   public:
 	Chest();

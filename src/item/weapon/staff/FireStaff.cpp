@@ -1,7 +1,7 @@
 #include "FireStaff.h"
 
 #include "entity/movableEntity/mob/Mob.h"
-#include "level/Level.h"
+#include "layer/level/Level.h"
 
 FireStaff::FireStaff()
 	: Weapon("Fire Staff", 10.0f, 20, Sprite::ID::weaponFireStaff) {}
@@ -18,6 +18,7 @@ void FireStaff::attack(Level *level, Entity &e, Direction dir, bool hold)
 		else
 			damage = 0.0f;
 
+		// Spawns a fire projectile
 		level->addProjectile(new Projectile(e.getX(), e.getY(), damage, dir, &e, level, Projectile::Type::Fire));
 		if(m)
 		{

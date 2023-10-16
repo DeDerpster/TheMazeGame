@@ -6,7 +6,7 @@
 
 class Image : public MenuObject
 {
-  private:
+  private:   // Stores the image's sprite id
 	Sprite::ID m_SpriteID;
 
   public:

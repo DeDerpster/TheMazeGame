@@ -4,8 +4,10 @@
 
 namespace Event
 {
+	// Event for when a maze has moved
 	struct MazeMovedEvent : Event
 	{
+		// Stores the change in x and y
 		float changeX, changeY;
 
 		MazeMovedEvent(float changeX, float changeY)

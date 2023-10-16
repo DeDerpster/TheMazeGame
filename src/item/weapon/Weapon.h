@@ -4,11 +4,13 @@
 
 #include "entity/Entity.h"
 
+#include "Direction.h"
+
 class Weapon : public Item
 {
   protected:
-	float    m_Damage;
-	uint16_t m_Cooldown;
+	float    m_Damage;     // Stores the base damage of the weapon
+	uint16_t m_Cooldown;   // Stores the cooldown and max cooldown
 	uint16_t m_CooldownMax;
 
   public:
@@ -19,6 +21,7 @@ class Weapon : public Item
 
 	virtual void update();
 
+	// Function for an entity attacking on a level
 	virtual void attack(Level *level, Entity &e, Direction dir, bool hold) = 0;
 
 	bool canUse() { return m_Cooldown == 0; }

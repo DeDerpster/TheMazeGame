@@ -5,15 +5,21 @@
 #include "Camera.h"
 #include "KeyDefinitions.h"
 
-class Level;   // FIXME
+#include "CollisionBox.h"
+
+class Level;
+
 class Tile
 {
   protected:
-	Sprite::ID m_SpriteID;
-	float      x, y;
-	double     rotation;
-	bool       m_IsSolid;
-	Level *    m_Level;
+	Sprite::ID m_SpriteID;   // Stores the sprite ID of the tile
+	float      x, y;         // Stores the position of the tile
+	double     rotation;     // Stores the rotation of the tile
+	bool       m_IsSolid;    // Stores whether it is a solid tile or not
+	Level *    m_Level;      // Stores the level it is in
+
+	// This is just an easy wait to get the collision box of a tile
+	static CollisionBox getCollisionBox();
 
   public:
 	Tile();
@@ -27,7 +33,7 @@ class Tile
 	virtual void imGuiRender();
 #endif
 
-	virtual bool isSolid()
+	virtual bool const isSolid() const
 	{
 		return m_IsSolid;
 	}

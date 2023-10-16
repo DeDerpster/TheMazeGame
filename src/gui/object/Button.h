@@ -3,7 +3,6 @@
 #include "MenuObject.h"
 
 #include <GLM.h>
-#include <functional>
 #include <string>
 
 #include "Text.h"
@@ -11,7 +10,8 @@
 class Button : public MenuObject
 {
   public:
-	enum State
+	// Simple enum to differentiate between whether it is pressed or if the mouse is hovering over it
+	enum class State : uint8_t
 	{
 		None = 0,
 		Hover,
@@ -19,8 +19,10 @@ class Button : public MenuObject
 	};
 
   protected:
+	// Stores the text of the button
 	Text m_Text;
 
+	// Stores the different colours of the button
 	glm::vec4 m_BackgroundColour;
 	glm::vec4 m_HoverColour;
 	glm::vec4 m_PressColour;
@@ -28,6 +30,7 @@ class Button : public MenuObject
 
 	State m_State;
 
+	// Stores the function that is called
 	std::function<void()> buttonPressFunc;
 
   public:

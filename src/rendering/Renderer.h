@@ -14,8 +14,9 @@
 #include "rendering/glInterface/Texture.h"
 #include "rendering/glInterface/VertexArray.h"
 
+#include "2dVec.h"
+#include "CollisionBox.h"
 #include "ShaderEffectsManager.h"
-#include "Utils.h"
 
 // Render is a singleton and handles all the rendering
 // all the static functions are there so you can call Render::rectangle(...) instead of Render::get().rectangle(...)
@@ -105,7 +106,7 @@ class Render
 
 	// Functions for adding objects to buffers
 	void spriteImpl(float x, float y, double rotation, float width, float height, Sprite::ID spriteID, uint8_t layer, bool isOverlay);
-	void textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, uint8_t layer, bool isCentered, bool isOverlay);   // TODO: Make this order better
+	void textImpl(std::string &text, float x, float y, float scale, glm::vec4 colour, uint8_t layer, bool isCentered, bool isOverlay);
 	void hoverTextImpl(std::string &inpText, float x, float y, float scale, glm::vec4 textColour, glm::vec4 backgroundColour, uint8_t layer, bool isOverlay);
 	void rectangleImpl(float x, float y, double rotation, float width, float height, glm::vec4 colour, uint8_t layer, bool isCentered, bool isOverlay);
 	void rectangleImpl(float x, float y, float width, float height, glm::vec4 colour, float borderWidth, glm::vec4 borderColour, uint8_t layer, bool isCentered, bool isOverlay);
