@@ -118,6 +118,7 @@
             "resurrectionem",
             "stbi"
         ],
-        "editor.defaultFormatter": "ms-vscode.cpptools"
+        "editor.defaultFormatter": "ms-vscode.cpptools",
+        "commentAnchors.tagHighlights.enabled": true
     }
 }

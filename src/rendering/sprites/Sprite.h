@@ -6,35 +6,10 @@
 #include "Log.h"
 #include "Renderer.h"
 #include "Texture.h"
-
-#define BASIC_WALL            0
-#define BASIC_FLOOR           1
-#define BASIC_OUTWARDS_CORNER 2
-#define BASIC_INWARDS_CORNER  3
-#define PLAYER_NORTH          4
-#define PLAYER_NORTH_1        5
-#define PLAYER_NORTH_2        6
-#define PLAYER_SOUTH          7
-#define PLAYER_SOUTH_1        8
-#define PLAYER_SOUTH_2        9
-#define PLAYER_EAST           10
-#define PLAYER_EAST_1         11
-#define PLAYER_EAST_2         12
-#define PLAYER_WEST           13
-#define PLAYER_WEST_1         14
-#define PLAYER_WEST_2         15
-#define NUM_OF_SPRITES        16
+#include "Utils.h"
 
 namespace Sprite
 {
-	struct Object
-	{
-		float  x;
-		float  y;
-		double rotation;
-		float  size;
-	};
-
 	class Sprite
 	{
 	  private:
@@ -83,3 +58,22 @@ namespace Sprite
 		}
 	};
 }   // namespace Sprite
+
+// This is a definition for every sprite there is
+#define BASIC_WALL            0
+#define BASIC_FLOOR           1
+#define BASIC_OUTWARDS_CORNER 2
+#define BASIC_INWARDS_CORNER  3
+#define PLAYER_NORTH          4
+#define PLAYER_NORTH_1        5
+#define PLAYER_NORTH_2        6
+#define PLAYER_SOUTH          7
+#define PLAYER_SOUTH_1        8
+#define PLAYER_SOUTH_2        9
+#define PLAYER_EAST           10
+#define PLAYER_EAST_1         11
+#define PLAYER_EAST_2         12
+#define PLAYER_WEST           13
+#define PLAYER_WEST_1         14
+#define PLAYER_WEST_2         15
+#define NUM_OF_SPRITES        16

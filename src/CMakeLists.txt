@@ -1,6 +1,4 @@
 add_executable(${PROJECT_NAME} MazeGame.cpp
-                               RandomGen.cpp
-                               Log.cpp
                                Camera.cpp
                                Application.cpp
                                Event.cpp)
@@ -20,6 +18,7 @@ add_subdirectory(vendor/imgui)
 add_subdirectory(layers)
 add_subdirectory(entity)
 add_subdirectory(levels)
+add_subdirectory(utils)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                             maze
@@ -28,4 +27,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                             vendor
                             entity
                             layers
-                            levels)
+                            levels
+                            utils)

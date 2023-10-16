@@ -11,11 +11,6 @@
 
 #include "Player.h"
 
-struct VecInt2
-{
-	int x, y;
-};
-
 class Maze : public Level
 {
   private:
@@ -26,19 +21,11 @@ class Maze : public Level
 	int                 yoffset = 0;   // instead this allows keeps track of how "offset" the coordinates are
 
 	// This is for multithreading - and are the variables that allow threads to communicate
-	// int  addRoomAtX = -1, addRoomAtY = -1;
-	// bool addRoomEntrances[4] = {false, false, false, false};
 	bool finishedGenerating = true;
 
-	std::vector<VecInt2> currentPaths;
+	std::vector<Vec2i> currentPaths;   // This stores the current possible paths
 
-	bool pathsNorth[BOARD_SIZE];
-	bool pathsSouth[BOARD_SIZE];
-	bool pathsEast[BOARD_SIZE];
-	bool pathsWest[BOARD_SIZE];
-
-	Player m_Player;
-
+	// This stores the entrance state, allowing the possibility of forcing an entrance later on after generatings
 	enum EntranceState
 	{
 		couldOpen = 0,
@@ -46,37 +33,48 @@ class Maze : public Level
 		isClosed  = 2
 	};
 
+	bool pathsNorth[BOARD_SIZE];   // This stores the avaliable paths for each direction, allowing generation when the player moves
+	bool pathsSouth[BOARD_SIZE];
+	bool pathsEast[BOARD_SIZE];
+	bool pathsWest[BOARD_SIZE];
+
+	Player m_Player;
+
 #ifdef DEBUG
 	bool renderAll = false;
 #endif
 
-	int           coordsToIndex(int x, int y);
-	void          addRoom(int x, int y, bool north, bool south, bool east, bool west, bool isInSubThread);
-	void          removeRoom(int y, int x);
-	void          updatePaths();
+	int coordsToIndex(int x, int y);
+
+	void addRoom(int x, int y, bool north, bool south, bool east, bool west, bool isInSubThread);
+	void removeRoom(int y, int x);
+	void updatePaths();
+
+	void multithreadGenerating(int layerMax, int startMax);
+	void generatePaths(int layerMax, int startMax, bool isInSubThread);
+
 	EntranceState shouldBeOpen(Room *room, int nextEntrance, int prob, int *pathCount);
 	void          forceEntrance(EntranceState *north, EntranceState *south, EntranceState *east, EntranceState *west);
-	void          multithreadGenerating(int layerMax, int startMax);
-	void          generatePaths(int layerMax, int startMax, bool isInSubThread);
-
-	virtual bool eventCallback(const Application::Event &e) override;
-	virtual bool setEffect(const Effect::RenderEffect &e) override;
 
   public:
 	Maze();
 	~Maze();
+
 	virtual void render() override;
 	virtual void update() override;
 #ifdef DEBUG
 	virtual void imGuiRender() override;
 #endif
-	virtual void updateMVP(glm::mat4 &view) override;
+	virtual bool eventCallback(const Application::Event &e) override;
+	virtual bool setEffect(const Effect::RenderEffect &e) override;
 
-	void          generate();
-	void          moveNorth();
-	void          moveSouth();
-	void          moveEast();
-	void          moveWest();
-	Room *        get(int y, int x);
-	virtual Tile *getTile(int x, int y) override;
+	void generate();
+	void moveNorth();
+	void moveSouth();
+	void moveEast();
+	void moveWest();
+
+	Room *          get(int y, int x);
+	virtual Tile *  getTile(int x, int y) override;
+	virtual Player *getPlayer() override { return &m_Player; }
 };

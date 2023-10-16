@@ -2,14 +2,14 @@
 
 #include "ImGui.h"
 
+#include "Application.h"
 #include "Log.h"
 #include "RandomGen.h"
 
 #include "EmptyRoom.h"
+#include "Tile.h"
 
-#include "Application.h"
-
-static const int LAYER_MAX_FOR_DIRECTIONS = 4;
+#define LAYER_MAX_FOR_DIRECTIONS 4
 
 Maze::Maze()
 	: m_Player(4500.0f, 4500.0f, this)
@@ -47,6 +47,7 @@ Maze::~Maze()
 	Log::info("Maze destroyed");
 }
 
+// Level overrides
 void Maze::render()
 {
 	float multiple = ROOM_SIZE * Tile::TILE_SIZE;
@@ -92,25 +93,10 @@ void Maze::render()
 		get(midpoint, midpoint + 1)->render((midpoint + 1) * multiple, midpoint * multiple);
 	if(mid->isOpen(3))
 		get(midpoint, midpoint - 1)->render((midpoint - 1) * multiple, midpoint * multiple);
-		/*for(int i = midpoint - 1; i < midpoint + 2; i++)
-	{
-		for(int j = midpoint - 1; j < midpoint + 2; j++)
-		{
-			Room *room = get(i, j);
-			if(room)
-				room->render(j * multiple, i * multiple);
-		}
-	}*/
 
 #endif
 	m_Player.render();
 	m_Shader->bind();
-}
-
-void Maze::updateMVP(glm::mat4 &view)
-{
-	glm::mat4 mvp = Application::getProj() * view;
-	m_Shader->SetUniformMat4f("u_MVP", mvp);
 }
 
 void Maze::update()
@@ -178,6 +164,18 @@ void Maze::imGuiRender()
 }
 #endif
 
+bool Maze::eventCallback(const Application::Event &e)
+{
+	return false;
+}
+
+bool Maze::setEffect(const Effect::RenderEffect &e)
+{
+	e.setEffect(*m_Shader);
+	return false;
+}
+
+// SECTION: Rooms
 int Maze::coordsToIndex(int x, int y)
 {
 	if(x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE)
@@ -230,56 +228,8 @@ void Maze::removeRoom(int y, int x)
 	board[coordsToIndex(x, y)] = nullptr;
 }
 
-Maze::EntranceState Maze::shouldBeOpen(Room *room, int nextEntrance, int prob, int *pathCount)
-{
-	if(room)
-	{
-		if(room->isOpen(nextEntrance))
-		{   // If the opposite entrance is open then it needs to have the entrance open
-			(*pathCount)++;
-			return EntranceState::isOpen;
-		}
-		else   // If it is closed then there cannot be an entrance
-			return EntranceState::isClosed;
-	}
-	else
-	{   // Randomly generates whether the entrance will be open
-		int r = Random::getNum(0, prob);
-		if(r == 0)
-		{
-			(*pathCount)++;
-			return EntranceState::isOpen;
-		}
-		return EntranceState::couldOpen;
-	}
-}
-
-void Maze::forceEntrance(Maze::EntranceState *north, Maze::EntranceState *south, Maze::EntranceState *east, Maze::EntranceState *west)
-{
-	std::vector<EntranceState *> entrances;   // This will store the pointers to the entrance values
-	entrances.reserve(3);
-
-	// This checks if another entrance can be made - if so it adds it to the list
-	if(!(*north))
-		entrances.push_back(north);
-	if(!(*south))
-		entrances.push_back(south);
-	if(!(*east))
-		entrances.push_back(east);
-	if(!(*west))
-		entrances.push_back(west);
-
-	if(entrances.size() == 1)   // This just makes sure that random
-	{
-		*entrances[0] = EntranceState::isOpen;
-	}
-	else if(entrances.size() > 0)
-	{
-		int r         = Random::getNum(0, entrances.size() - 1);
-		*entrances[r] = EntranceState::isOpen;
-	}
-}
-
+// !SECTION
+// SECTION: Generation
 void Maze::generatePaths(int layerMax, int startMax, bool isInSubThread)
 {
 	// Log::info("Generating paths");
@@ -300,13 +250,13 @@ void Maze::generatePaths(int layerMax, int startMax, bool isInSubThread)
             TODO: Add the ability to go back, if not many rooms have been created and look for spaces some can be
         */
 
-	std::vector<VecInt2> newPaths;   // This stores the newPaths for the next layer
-	newPaths.reserve(BOARD_SIZE);    // Reserves space because, not all spaces may be used
+	std::vector<Vec2i> newPaths;    // This stores the newPaths for the next layer
+	newPaths.reserve(BOARD_SIZE);   // Reserves space because, not all spaces may be used
 	while(currentPaths.size() > 0)
 	{
 		for(int i = 0; i < currentPaths.size(); i++)
 		{   // This goes through all the current path options and generates the options for the rooms
-			VecInt2 pos = currentPaths[i];
+			Vec2i pos = currentPaths[i];
 
 			if(get(pos.y, pos.x))   // Checks that the pointer is a nullptr - so it doesn't overwrite any rooms
 				continue;
@@ -388,24 +338,6 @@ void Maze::generatePaths(int layerMax, int startMax, bool isInSubThread)
 	finishedGenerating = true;
 }
 
-void Maze::updatePaths()
-{
-	/* NOTE: Probably don't even try to change where this is calculated! This must go here, because if it doesn't you would have to do something special with the paths variables or realise that you actually have to check at
-        some point if the player is stuck.*/
-
-	for(int i = 0; i < BOARD_SIZE; i++)
-	{
-		if(get(BOARD_SIZE - 1, i) && get(BOARD_SIZE - 1, i)->isOpen(NORTH_ENTRANCE))
-			pathsNorth[i] = true;
-		if(get(0, i) && get(0, i)->isOpen(SOUTH_ENTRANCE))
-			pathsSouth[i] = true;
-		if(get(i, BOARD_SIZE - 1) && get(i, BOARD_SIZE - 1)->isOpen(EAST_ENTRANCE))
-			pathsEast[i] = true;
-		if(get(i, 0) && get(i, 0)->isOpen(WEST_ENTRANCE))
-			pathsWest[i] = true;
-	}
-}
-
 void Maze::multithreadGenerating(int layerMax, int startMax)
 {
 	/*addRoomAtX          = -1;   // TODO: should probably change this to a struct or something
@@ -432,7 +364,6 @@ void Maze::multithreadGenerating(int layerMax, int startMax)
 	t1.join();   // This waits for the thread to be done*/
 }
 
-// ANCHOR: Generation
 void Maze::generate()
 {
 	for(int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
@@ -533,23 +464,81 @@ void Maze::moveWest()
 		updatePaths();
 }
 
+Maze::EntranceState Maze::shouldBeOpen(Room *room, int nextEntrance, int prob, int *pathCount)
+{
+	if(room)
+	{
+		if(room->isOpen(nextEntrance))
+		{   // If the opposite entrance is open then it needs to have the entrance open
+			(*pathCount)++;
+			return EntranceState::isOpen;
+		}
+		else   // If it is closed then there cannot be an entrance
+			return EntranceState::isClosed;
+	}
+	else
+	{   // Randomly generates whether the entrance will be open
+		int r = Random::getNum(0, prob);
+		if(r == 0)
+		{
+			(*pathCount)++;
+			return EntranceState::isOpen;
+		}
+		return EntranceState::couldOpen;
+	}
+}
+
+void Maze::forceEntrance(Maze::EntranceState *north, Maze::EntranceState *south, Maze::EntranceState *east, Maze::EntranceState *west)
+{
+	std::vector<EntranceState *> entrances;   // This will store the pointers to the entrance values
+	entrances.reserve(3);
+
+	// This checks if another entrance can be made - if so it adds it to the list
+	if(!(*north))
+		entrances.push_back(north);
+	if(!(*south))
+		entrances.push_back(south);
+	if(!(*east))
+		entrances.push_back(east);
+	if(!(*west))
+		entrances.push_back(west);
+
+	if(entrances.size() == 1)   // This just makes sure that random
+	{
+		*entrances[0] = EntranceState::isOpen;
+	}
+	else if(entrances.size() > 0)
+	{
+		int r         = Random::getNum(0, entrances.size() - 1);
+		*entrances[r] = EntranceState::isOpen;
+	}
+}
+
+void Maze::updatePaths()
+{
+	/* NOTE: Probably don't even try to change where this is calculated! This must go here, because if it doesn't you would have to do something special with the paths variables or realise that you actually have to check at
+        some point if the player is stuck.*/
+
+	for(int i = 0; i < BOARD_SIZE; i++)
+	{
+		if(get(BOARD_SIZE - 1, i) && get(BOARD_SIZE - 1, i)->isOpen(NORTH_ENTRANCE))
+			pathsNorth[i] = true;
+		if(get(0, i) && get(0, i)->isOpen(SOUTH_ENTRANCE))
+			pathsSouth[i] = true;
+		if(get(i, BOARD_SIZE - 1) && get(i, BOARD_SIZE - 1)->isOpen(EAST_ENTRANCE))
+			pathsEast[i] = true;
+		if(get(i, 0) && get(i, 0)->isOpen(WEST_ENTRANCE))
+			pathsWest[i] = true;
+	}
+}
+
+// !SECTION
+// SECTION: Getters
 Room *Maze::get(int y, int x)
 {
 	if(x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE)
 		return nullptr;
 	return board[coordsToIndex(x, y)];
-}
-
-// ANCHOR callbacks
-bool Maze::eventCallback(const Application::Event &e)
-{
-	return false;
-}
-
-bool Maze::setEffect(const Effect::RenderEffect &e)
-{
-	e.setEffect(*m_Shader);
-	return false;
 }
 
 Tile *Maze::getTile(int x, int y)

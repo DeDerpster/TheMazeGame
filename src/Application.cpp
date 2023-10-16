@@ -13,18 +13,19 @@
 
 namespace Application   // I've used a namespace here as I know there will only be one version of the application
 {
-	GLFWwindow *window;   // Stores the GLFW winodow
+	// SECTION: Variables
+	GLFWwindow *      window;   // Stores the GLFW winodow
+	Camera            camera(4500.0f, 4500.0f);
+	Render::Renderer *renderer;
 
 	glm::mat4 proj;   // Stores the projection mapping for the window
+	int       windowWidth, windowHeight;
 
-	int windowWidth, windowHeight;
-
-	Camera               camera(4500.0f, 4500.0f);
 	int                  overlayStart;
 	std::vector<Layer *> layers;   // This will store all the layers needed (I don't have to use a vector here as I know what is the maximum layers that will be used at one time)
 
-	Render::Renderer *renderer;
-
+	// !SECTION
+	// SECTION: Initialises
 	bool init()
 	{   // This initialises everything
 		windowWidth  = 940;
@@ -97,138 +98,6 @@ namespace Application   // I've used a namespace here as I know there will only 
 		glfwTerminate();   // Terminates glfw
 	}
 
-	void update()   // Updates all the layers
-	{
-		for(int i = 0; i < 2; i++)
-		{
-			if(layers[i])
-				layers[i]->update();
-		}
-		camera.update();
-	}
-
-	void render()   // Renders all the layers
-	{
-		for(int i = 0; i < 2; i++)
-		{
-			if(layers[i])
-			{
-				layers[i]->render();
-				renderer->render();
-			}
-		}
-	}
-#ifdef DEBUG
-	void imGuiRender()   // Renders ImGui in all the layers
-	{
-		for(int i = 0; i < 2; i++)
-		{
-			if(layers[i])
-				layers[i]->imGuiRender();
-		}
-		camera.imGuiRender();
-	}
-#endif
-
-	// Get functions
-	int       getWidth() { return windowWidth; }
-	int       getHeight() { return windowHeight; }
-	void *    getWindow() { return window; }
-	Camera *  getCamera() { return &camera; }
-	glm::mat4 getProj() { return proj; }
-
-	void addLayer(Layer *layer)   // Inserts a layer before the background
-	{
-		layers.insert(layers.begin() + overlayStart, layer);
-		overlayStart++;
-	}
-
-	void addLayer(Layer *layer, int index)   // Adds layer at a given index
-	{
-		layers.insert(layers.begin() + index, layer);
-		if(index < overlayStart)
-			overlayStart++;
-	}
-
-	void addOverlay(Layer *layer)   // Adds an overlay to the layer stack, meaning it is appended to the end of the vector
-	{
-		layers.push_back(layer);
-	}
-
-	void removeLayer(int index)   // Removes layer
-	{
-		layers.erase(layers.begin() + index);
-	}
-
-	void removeLayer(Layer *layer)
-	{
-		for(int i = 0; i < layers.size(); i++)
-		{
-			if(layer == layers[i])
-			{
-				delete layers[i];
-				layers.erase(layers.begin() + i);
-				if(i < overlayStart)
-					overlayStart--;
-			}
-		}
-	}
-
-	void updateWindowSize(int width, int height)   // updates the window size and projection matrix
-	{
-		windowWidth  = width;
-		windowHeight = height;
-		proj         = glm::ortho(0.0f, (float) width, 0.0f, (float) height, -100.0f, 100.0f);
-	}
-
-	bool isWindowOpen()   // Returns if the window is still open
-	{
-		return !glfwWindowShouldClose(window);
-	}
-
-	void swapBuffers()   // Swaps the buffers
-	{
-		glfwSwapBuffers(window);
-	}
-
-	void callEvent(const Event &e, bool includeOverlay)   // Sends event through the layers
-	{
-		int endVal;
-		if(includeOverlay)
-			endVal = layers.size();
-		else
-			endVal = overlayStart;
-
-		camera.eventCallback(e);
-
-		for(int i = 0; i < endVal; i++)
-		{
-			if(layers[i])
-				layers[i]->eventCallback(e);
-		}
-	}
-
-	void setEffect(const Effect::RenderEffect &e, bool includeOverlay)   // Sends an effect through the layers
-	{
-		int endVal;
-		if(includeOverlay)
-			endVal = layers.size();
-		else
-			endVal = overlayStart;
-
-		for(int i = 0; i < endVal; i++)
-		{
-			if(layers[i])
-				layers[i]->setEffect(e);
-		}
-	}
-
-	void updateMVP(glm::mat4 &view)   // updates the MVP for the foreground layers
-	{
-		for(int i = 0; i < overlayStart; i++)
-			layers[i]->updateMVP(view);
-	}
-
 #ifdef DEBUG
 	// ImGuiIO &io;
 	bool setupImGui()   // Sets up ImGui
@@ -285,9 +154,142 @@ namespace Application   // I've used a namespace here as I know there will only 
 	}
 #endif
 
+	void update()   // Updates all the layers
+	{
+		for(int i = 0; i < 2; i++)
+		{
+			if(layers[i])
+				layers[i]->update();
+		}
+		camera.update();
+	}
+
+	void render()   // Renders all the layers
+	{
+		for(int i = 0; i < 2; i++)
+		{
+			if(layers[i])
+			{
+				layers[i]->render();
+				renderer->render();
+			}
+		}
+	}
+
+#ifdef DEBUG
+	void imGuiRender()   // Renders ImGui in all the layers
+	{
+		for(int i = 0; i < 2; i++)
+		{
+			if(layers[i])
+				layers[i]->imGuiRender();
+		}
+		camera.imGuiRender();
+	}
+#endif
+
+	// !SECTION
+	// SECTION: Layers
+	void addLayer(Layer *layer)   // Inserts a layer before the background
+	{
+		layers.insert(layers.begin() + overlayStart, layer);
+		overlayStart++;
+	}
+
+	void addLayer(Layer *layer, int index)   // Adds layer at a given index
+	{
+		layers.insert(layers.begin() + index, layer);
+		if(index < overlayStart)
+			overlayStart++;
+	}
+
+	void addOverlay(Layer *layer)   // Adds an overlay to the layer stack, meaning it is appended to the end of the vector
+	{
+		layers.push_back(layer);
+	}
+
+	void removeLayer(int index)   // Removes layer
+	{
+		layers.erase(layers.begin() + index);
+	}
+
+	void removeLayer(Layer *layer)
+	{
+		for(int i = 0; i < layers.size(); i++)
+		{
+			if(layer == layers[i])
+			{
+				delete layers[i];
+				layers.erase(layers.begin() + i);
+				if(i < overlayStart)
+					overlayStart--;
+			}
+		}
+	}
+
+	// !SECTION
+	// SECTION: Events & Effects
+	void callEvent(const Event &e, bool includeOverlay)   // Sends event through the layers
+	{
+		int endVal;
+		if(includeOverlay)
+			endVal = layers.size();
+		else
+			endVal = overlayStart;
+
+		camera.eventCallback(e);
+
+		for(int i = 0; i < endVal; i++)
+		{
+			if(layers[i])
+				layers[i]->eventCallback(e);
+		}
+	}
+
+	void setEffect(const Effect::RenderEffect &e, bool includeOverlay)   // Sends an effect through the layers
+	{
+		int endVal;
+		if(includeOverlay)
+			endVal = layers.size();
+		else
+			endVal = overlayStart;
+
+		for(int i = 0; i < endVal; i++)
+		{
+			if(layers[i])
+				layers[i]->setEffect(e);
+		}
+	}
+
+	// !SECTION
+	// SECTION: Window stuff
+	void updateWindowSize(int width, int height)   // updates the window size and projection matrix
+	{
+		windowWidth  = width;
+		windowHeight = height;
+		proj         = glm::ortho(0.0f, (float) width, 0.0f, (float) height, -100.0f, 100.0f);
+	}
+
+	bool isWindowOpen()   // Returns if the window is still open
+	{
+		return !glfwWindowShouldClose(window);
+	}
+
+	void swapBuffers()   // Swaps the buffers
+	{
+		glfwSwapBuffers(window);
+	}
+
 	bool isInFrame(float x, float y)
 	{
 		return camera.isInFrame(x, y);
 	}
 
+	// !SECTION
+	// SECTION: Getters
+	int       getWidth() { return windowWidth; }
+	int       getHeight() { return windowHeight; }
+	void *    getWindow() { return window; }
+	Camera *  getCamera() { return &camera; }
+	glm::mat4 getProj() { return proj; }
 };   // namespace Application
