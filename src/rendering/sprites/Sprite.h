@@ -23,10 +23,13 @@
 #define BASIC_FLOOR           BASIC_WALL + 1
 #define BASIC_OUTWARDS_CORNER BASIC_FLOOR + 1
 #define BASIC_INWARDS_CORNER  BASIC_OUTWARDS_CORNER + 1
-#define CHEST                 BASIC_INWARDS_CORNER + 1
+#define BASIC_CHEST           BASIC_INWARDS_CORNER + 1
+#define BASIC_TRAP_HIDDEN     BASIC_CHEST + 1
+#define BASIC_TRAP_EXPOSED    BASIC_TRAP_HIDDEN + 1
+#define BASIC_TRAPDOOR        BASIC_TRAP_EXPOSED + 1
 
 // Mobs
-#define SPRITE_PLAYER  CHEST + 1
+#define SPRITE_PLAYER  BASIC_TRAPDOOR + 1
 #define PLAYER_NORTH   SPRITE_PLAYER + SPRITE_NORTH
 #define PLAYER_NORTH_1 SPRITE_PLAYER + SPRITE_ANIM_1
 #define PLAYER_NORTH_2 SPRITE_PLAYER + SPRITE_ANIM_2
@@ -79,7 +82,10 @@ class Sprite
 		  sprites[BASIC_FLOOR]           = std::make_unique<Sprite>("res/textures/tiles/BasicFloor.png");
 		  sprites[BASIC_OUTWARDS_CORNER] = std::make_unique<Sprite>("res/textures/tiles/BasicCorner.png");
 		  sprites[BASIC_INWARDS_CORNER]  = std::make_unique<Sprite>("res/textures/tiles/BasicCorner2.png");
-		  sprites[CHEST]                 = std::make_unique<Sprite>("res/textures/tiles/Chest.png");
+		  sprites[BASIC_CHEST]           = std::make_unique<Sprite>("res/textures/tiles/BasicChest.png");
+		  sprites[BASIC_TRAP_HIDDEN]     = std::make_unique<Sprite>("res/textures/tiles/BasicTrapHidden.png");
+		  sprites[BASIC_TRAP_EXPOSED]    = std::make_unique<Sprite>("res/textures/tiles/BasicTrapExposed.png");
+		  sprites[BASIC_TRAPDOOR]        = std::make_unique<Sprite>("res/textures/tiles/BasicTrapdoor.png");
 
 		  // Mobs
 		  sprites[PLAYER_NORTH]   = std::make_unique<Sprite>("res/textures/entities/Player-heir-north.png");

@@ -1,4 +1,4 @@
-#include "Chest.h"
+#include "Trapdoor.h"
 
 #include "Application.h"
 #include "FireStaff.h"
@@ -6,51 +6,40 @@
 #include "Sprite.h"
 #include "Utils.h"
 
-Chest::Chest()
+Trapdoor::Trapdoor()
 	: Tile(), m_State(Button::State::None)
 {
 }
 
-Chest::Chest(float x, float y, double rotation, Level *level, bool isDud)
-	: Tile(x, y, rotation, BASIC_CHEST, true, level), m_State(Button::State::None), m_IsDud(isDud)
+Trapdoor::Trapdoor(float x, float y, double rotation, Level *level)
+	: Tile(x, y, rotation, BASIC_TRAPDOOR, false, level), m_State(Button::State::None)
 {
-	if(!m_IsDud)
-		generateInventory();
 }
 
-Chest::~Chest()
+Trapdoor::~Trapdoor()
 {
-	for(Item *item : m_Inventory)
-		delete item;
 }
 
-void Chest::generateInventory()
-{
-	m_Inventory.push_back(new FireStaff());
-	m_Inventory.push_back(new FireStaff());
-	m_Inventory.push_back(new FireStaff());
-}
-
-CollisionBox Chest::getCollisionBox()
+CollisionBox Trapdoor::getCollisionBox()
 {
 	return {{-TILE_SIZE / 2, -TILE_SIZE / 2}, {TILE_SIZE / 2, TILE_SIZE / 2}};
 }
 
-void Chest::render()
+void Trapdoor::render()
 {
 	Render::sprite(x, y, rotation, TILE_SIZE, m_SpriteID);
 	if(m_State == Button::State::Hover)
 	{
 		float        scale    = 35.0f;
 		Vec2f        mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
-		std::string  name     = "Chest";
+		std::string  name     = "Trapdoor";
 		CollisionBox box      = Render::getTextCollisionBox(name, scale);
 		Render::rectangle(mousePos.x, mousePos.y + 4.0f + box.upperBound.y / 2, 0.0f, box.upperBound.x + 2.0f, box.upperBound.y + 4.0f, {0.3f, 0.3f, 0.3f, 0.7f});
 		Render::text(name, mousePos.x, mousePos.y + 5.0f + box.upperBound.y / 2, scale, {1.0f, 1.0f, 1.0f, 1.0f}, true);
 	}
 }
 
-void Chest::update()
+void Trapdoor::update()
 {
 	Vec2f mousePos = Application::getCamera()->convertWindowToLevel(Event::getMousePos());
 
@@ -60,9 +49,9 @@ void Chest::update()
 		m_State = Button::State::None;
 }
 
-bool Chest::eventCallback(const Event::Event &e)
+bool Trapdoor::eventCallback(const Event::Event &e)
 {
-	if(e.getType() == Event::EventType::mouseClicked && m_Level && !m_IsDud)
+	if(e.getType() == Event::EventType::mouseClicked && m_Level)
 	{
 		const Event::MouseClickedEvent &ne = static_cast<const Event::MouseClickedEvent &>(e);
 
@@ -71,7 +60,7 @@ bool Chest::eventCallback(const Event::Event &e)
 		Player *player = m_Level->getPlayer();
 		if(doesPointIntersectWithBox(Application::getCamera()->convertWindowToLevel(ne.pos), {x, y}, getCollisionBox()) && distBetweenVec2f({player->getX(), player->getY() - player->getWidth() / 2}, {x, y}) < 1.5f * TILE_SIZE)
 		{
-			m_Level->openChest(m_Inventory);
+			m_Level->endLevel();
 			return true;
 		}
 	}
@@ -80,7 +69,7 @@ bool Chest::eventCallback(const Event::Event &e)
 }
 
 #ifdef DEBUG
-void Chest::imGuiRender()
+void Trapdoor::imGuiRender()
 {
 }
 #endif

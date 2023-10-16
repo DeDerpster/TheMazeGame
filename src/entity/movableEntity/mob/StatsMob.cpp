@@ -63,6 +63,11 @@ void StatsMob::changeHealth(float changeBy)
 		m_Stat_Health += changeBy;
 }
 
+void StatsMob::changeMaxHealth(float changeBy)
+{
+	m_Stat_MaxHealth += changeBy;
+}
+
 void StatsMob::changeStamina(float changeBy)
 {
 	if(changeBy < 0 && m_Stat_Stamina < -changeBy)

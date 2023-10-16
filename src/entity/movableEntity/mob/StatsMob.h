@@ -25,6 +25,7 @@ class StatsMob
 
 	void  dealDamage(float damage);
 	void  changeHealth(float changeBy);
+	void  changeMaxHealth(float changeBy);
 	void  changeStamina(float changeBy);
 	void  changeConfidence(float changeBy);
 	void  changeBoredom(float changeBy);

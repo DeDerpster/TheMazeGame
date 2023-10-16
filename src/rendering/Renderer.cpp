@@ -209,6 +209,7 @@ void Render::simpleRender(std::vector<RenderColouredObject *> &buffer)
 
 void Render::spriteRender()
 {
+	// FIXME
 	if(m_SpriteBuffer.size() == 0)
 		return;
 	if(!m_VertexBuffer->isEmpty())   // If the buffer is not empty, it empties it
@@ -221,32 +222,33 @@ void Render::spriteRender()
 	uint8_t currentTexSlot = 0;   // This stores the slot the current texture is bound to, so it can set the texID part of the vertex
 	for(TexturedObject *obj : m_SpriteBuffer)
 	{
-		// Gets the texture slot
-		uint8_t texSlot = Texture::getBoundSlot(Sprite::getSprite(obj->spriteID)->getTexture());
-		if(texSlot == 32)   // This means the texture is not bound, so it gets bound
-		{
-			texSlot = currentTexSlot;
-			currentTexSlot++;
-			if(currentTexSlot == 32)
-			{
-				draw(*m_SpriteVAO);
-				m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
-				currentTexSlot = 0;                  // resets this as all the textures have been rendered
-				Texture::clearBufferSlots();
-			}
-			Sprite::getSprite(obj->spriteID)->bind(texSlot);
-		}
-
-		auto vertices = obj->convertToTexturedVertices(texSlot);   // Creates the vertices
-
 		// Checks if the buffer is full or the buffer is too big and draws what there is
 		if(!m_VertexBuffer->canStore(obj->getSizeOfVertices()))
 		{
 			draw(*m_SpriteVAO);
 			m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
-			currentTexSlot = 0;                  // resets this as all the textures have been rendered
 			Texture::clearBufferSlots();
+			currentTexSlot = 0;   // resets this as all the textures have been rendered
 		}
+
+		// Gets the texture slot
+		uint8_t texSlot = Texture::getBoundSlot(Sprite::getSprite(obj->spriteID)->getTexture());
+		if(texSlot == 32)   // This means the texture is not bound, so it gets bound
+		{
+			if(currentTexSlot == 32)
+			{
+				draw(*m_SpriteVAO);
+				m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
+				Texture::clearBufferSlots();
+				currentTexSlot = 0;   // resets this as all the textures have been rendered
+			}
+			texSlot = currentTexSlot;
+			currentTexSlot++;
+			Sprite::getSprite(obj->spriteID)->bind(texSlot);
+		}
+
+		auto vertices = obj->convertToTexturedVertices(texSlot);   // Creates the vertices
+
 		// Adds the current object to the buffer by creating its quad (this is for memory efficiency)
 		m_VertexBuffer->addToBuffer((void *) &vertices, obj->getSizeOfVertices());
 
@@ -285,34 +287,34 @@ void Render::textRender()
 		{
 			Character *ch = &characters[*c];
 
+			// Checks if the buffer can store the new vertices
+			if(!m_VertexBuffer->canStore(text->getSizeOfVertices()))
+			{
+				draw(*m_SpriteVAO);
+				m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
+				Texture::clearBufferSlots();
+				currentTexSlot = 0;   // resets this as all the textures have been rendered
+			}
+
 			// Gets the textures slot
 			uint8_t texSlot = Texture::getBoundSlot(ch->texture);
 			if(texSlot == 32)   // This means it is not bound so it gets bound
 			{
-				texSlot = currentTexSlot;
-				currentTexSlot++;
 				if(currentTexSlot == 32)   // This means the it cannot render anymore textures
 				{
 					draw(*m_TextVAO);
 					m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
-					currentTexSlot = 0;                  // resets this as all the textures have been rendered
-					texSlot        = 0;
 					Texture::clearBufferSlots();
+					currentTexSlot = 0;   // resets this as all the textures have been rendered
 				}
+				texSlot = currentTexSlot;
+				currentTexSlot++;
 				ch->texture->bind(texSlot);
 			}
 
 			// Gets the vertices
 			auto vertices = text->convertCharacterToVertices(ch, xOffset, texSlot);
 
-			// Checks if the buffer can store the new vertices
-			if(!m_VertexBuffer->canStore(text->getSizeOfVertices()))
-			{
-				draw(*m_SpriteVAO);
-				m_VertexBuffer->clearBufferData();   // Resets the buffer so it can draw again
-				currentTexSlot = 0;                  // resets this as all the textures have been rendered
-				Texture::clearBufferSlots();
-			}
 			m_VertexBuffer->addToBuffer((const void *) &vertices, text->getSizeOfVertices());
 
 			// now advance cursors for next glyph (note that advance is number of 1/64 pixels)

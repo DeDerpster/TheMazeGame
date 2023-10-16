@@ -78,4 +78,5 @@ class Level : public Layer
 	virtual Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox box);
 
 	virtual void openChest(std::vector<Item *> &items) = 0;
+	virtual void endLevel()                            = 0;
 };

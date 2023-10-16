@@ -33,6 +33,16 @@ class NPC : public Mob
 	virtual void imGuiRender() override;
 #endif
 
+	const Entity *getFollowing() const
+	{
+		return following;
+	}
+
+	const Entity *getAttacking() const
+	{
+		return attacking;
+	}
+
 	void setFollower(Entity *e)
 	{
 		following = e;

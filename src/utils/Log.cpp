@@ -56,14 +56,14 @@ Log::Log()
 	strftime(buffer, sizeof(buffer), "%d-%m-%Y %H-%M-%S", timeinfo);
 	std::string currentTime(buffer);
 
-	if(!std::filesystem::exists("Logs"))
+	if(!std::filesystem::exists("logs"))
 	{
 		std::cout << "Logs directory doesn't exist... creating one\n";
-		std::filesystem::create_directory("Logs");
-		if(std::filesystem::exists("Logs"))
+		std::filesystem::create_directory("logs");
+		if(std::filesystem::exists("logs"))
 			std::cout << "Created directory\n";
 	}
-	logFile = "Logs/" + currentTime + ".log";
+	logFile = "logs/" + currentTime + ".log";
 
 	variableImpl("Initialised logging system", logFile);
 }

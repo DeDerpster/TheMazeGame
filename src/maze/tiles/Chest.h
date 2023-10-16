@@ -10,6 +10,7 @@ class Chest : public Tile
   protected:
 	std::vector<Item *> m_Inventory;
 	Button::State       m_State;
+	bool                m_IsDud;
 
 	void generateInventory();
 
@@ -17,7 +18,7 @@ class Chest : public Tile
 
   public:
 	Chest();
-	Chest(float x, float y, double rotation, Level *level);
+	Chest(float x, float y, double rotation, Level *level, bool isDud);
 	virtual ~Chest() override;
 
 	virtual void render() override;

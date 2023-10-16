@@ -15,6 +15,7 @@
 #include "VertexArray.h"
 #include "ShaderEffect.h"
 
+// FIXME
 // Render is a singleton and handles all the rendering
 // all the static functions are there so you can call Render::rectangle(...) instead of Render::get().rectangle(...)
 class Render

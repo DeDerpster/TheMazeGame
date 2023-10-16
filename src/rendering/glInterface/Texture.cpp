@@ -100,10 +100,17 @@ void Texture::unbind() const
 
 uint8_t Texture::getBoundSlot(Texture *tex)
 {
+	if(!tex)
+	{
+		Log::warning("Nullptr");
+		return 32;
+	}
 	// Does a simple linear search to find where a texture is bound to
 	for(uint8_t i = 0; i < 32; i++)
 	{
-		if(bufferStorage[i] == tex)
+		if(!bufferStorage[i])
+			continue;
+		if(bufferStorage[i]->getID() == tex->getID())
 			return i;
 	}
 	return 32;

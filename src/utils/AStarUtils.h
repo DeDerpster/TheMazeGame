@@ -201,7 +201,7 @@ inline std::vector<Vec2f> *aStarAlgorithm(Vec2i startPos, Vec2i destPos, Collisi
 			{
 				if(!hasWarned)
 				{
-					Log::warning("Cannot find route to destination");
+					// Log::warning("Cannot find route to destination");
 					hasWarned = true;
 					// std::stringstream filenameStream;
 					// filenameStream << "A Star Log " << fileCount << ".log";

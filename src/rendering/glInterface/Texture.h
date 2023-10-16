@@ -24,6 +24,7 @@ class Texture
 
 	inline int getWidth() const { return m_Width; }
 	inline int getHeight() const { return m_Height; }
+	inline uint32_t getID() const { return m_RendererID; }
 
 	// Functions for interacting with the bufferStorage cache
 	static const Texture *getTextureInBuffer(uint16_t slot) { return bufferStorage[slot]; }

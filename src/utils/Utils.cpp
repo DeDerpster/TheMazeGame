@@ -48,3 +48,13 @@ bool doesPointIntersectWithBox(Vec2f point, Vec2f pos, CollisionBox box)
 
 	return point.x > lowerX && point.y > lowerY && point.x < upperX && point.y < upperY;
 }
+
+bool doesBoxIntersectWithBox(Vec2f pos1, CollisionBox box1, Vec2f pos2, CollisionBox box2)
+{
+	bool lowerLeft  = doesPointIntersectWithBox({pos1.x + box1.lowerBound.x, pos1.y + box1.lowerBound.y}, pos2, box2);
+	bool lowerRight = doesPointIntersectWithBox({pos1.x + box1.upperBound.x, pos1.y + box1.lowerBound.y}, pos2, box2);
+	bool upperLeft  = doesPointIntersectWithBox({pos1.x + box1.lowerBound.x, pos1.y + box1.upperBound.y}, pos2, box2);
+	bool upperRight = doesPointIntersectWithBox({pos1.x + box1.upperBound.x, pos1.y + box1.upperBound.y}, pos2, box2);
+
+	return lowerLeft || lowerRight || upperLeft || upperRight;
+}

@@ -1,7 +1,5 @@
 #include "Tile.h"
 
-#include "ImGui.h"
-
 #include "Application.h"
 #include "Log.h"
 #include "Sprite.h"
@@ -10,7 +8,7 @@ Tile::Tile()
 	: m_SpriteID(0), x(0.0f), y(0.0f), rotation(0.0f), m_IsSolid(false), m_Level(nullptr)
 {
 }
-Tile::Tile(float x, float y, double rotation, int texID, bool isSolid, Level *level)
+Tile::Tile(float x, float y, double rotation, uint32_t texID, bool isSolid, Level *level)
 	: m_SpriteID(texID), x(x), y(y), rotation(rotation), m_IsSolid(isSolid), m_Level(level)
 {
 }

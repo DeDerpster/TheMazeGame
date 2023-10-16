@@ -9,7 +9,7 @@
 class Tile
 {
   protected:
-	int    m_SpriteID;
+	uint32_t m_SpriteID;
 	float  x, y;
 	double rotation;
 	bool   m_IsSolid;
@@ -17,7 +17,7 @@ class Tile
 
   public:
 	Tile();
-	Tile(float x, float y, double rotation, int texID, bool isSolid, Level *level);
+	Tile(float x, float y, double rotation, uint32_t texID, bool isSolid, Level *level);
 	virtual ~Tile();
 
 	virtual void render();
@@ -27,7 +27,7 @@ class Tile
 	virtual void imGuiRender();
 #endif
 
-	bool isSolid()
+	virtual bool isSolid()
 	{
 		return m_IsSolid;
 	}

@@ -75,5 +75,6 @@ class Maze : public Level
 
 	// Functions for interaction with gui layers
 	virtual void openChest(std::vector<Item *> &items) override;
+	virtual void endLevel() override;
 	void         returnToGame();
 };

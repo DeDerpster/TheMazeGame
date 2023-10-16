@@ -558,7 +558,8 @@ Entity *Level::entityCollisionDetection(float nextX, float nextY, CollisionBox b
 		if(e->hasCollidedWith(nextX, nextY, box))
 			return e;
 	}
-	return nullptr;
+
+	return getMidRoom()->entityCollisionDetection(nextX, nextY, box);
 }
 
 bool Level::lineCollisionDetection(float x, float y, float xs, float ys)

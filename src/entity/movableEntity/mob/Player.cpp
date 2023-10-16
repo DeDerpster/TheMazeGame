@@ -3,7 +3,7 @@
 #include "Projectile.h"
 #include "Tile.h"
 
-#include "Weapon.h"
+#include "FireStaff.h"
 
 Player::Player()
 {
@@ -17,6 +17,10 @@ Player::Player(float x, float y)
 Player::Player(float x, float y, Level *level)
 	: Mob(x, y, level)
 {
+	changeMaxHealth(1000);
+	changeHealth(1000);
+	m_Weapons.push_back(new FireStaff());
+	m_CurrentWeapon = 0;
 }
 
 Player::~Player()

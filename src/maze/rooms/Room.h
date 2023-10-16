@@ -1,24 +1,27 @@
 #pragma once
 
 #include "Camera.h"
+#include "Entity.h"
+#include "Event.h"
+#include "KeyDefinitions.h"
+#include "Level.h"
 #include "Renderer.h"
 #include "Tile.h"
-#include "Level.h"
-#include "Event.h"
 #include "Utils.h"
-#include "KeyDefinitions.h"
 
 #include <array>
-
-
+#include <vector>
 
 class Room
 {
   protected:
-	float               x, y;
+	float             x, y;
 	bool              m_Entrances[4];   // 0: North 1: South 2: East 3: West
-	RoomType                                m_Type;
-	Level *                                 m_Level;
+	bool               isLocked;
+	RoomType           m_Type;
+	Level *            m_Level;
+
+	std::vector<Entity *> m_Entities;
 
 	std::array<Tile *, ROOM_SIZE * ROOM_SIZE> m_Tiles;   // NOTE: Please do not store this class on the stack!
 
@@ -33,7 +36,11 @@ class Room
 	virtual void imGuiRender();
 #endif
 
+	Entity *entityCollisionDetection(float nextX, float nextY, CollisionBox box);
+
 	virtual bool isOpen(Direction entrance);
+
+	virtual void active();
 
 	Tile *getTile(int x, int y);
 };

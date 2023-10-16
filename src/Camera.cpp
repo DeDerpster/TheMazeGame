@@ -23,7 +23,7 @@ void Camera::update()
 {
 	if(m_Anchor && lockOnAnchor)
 	{
-		if(m_Anchor->getIsMoving() || updateView)
+		if(m_Anchor->getX() != x || m_Anchor->getY() != y || updateView)
 		{
 			updateView = true;
 			x          = m_Anchor->getX();

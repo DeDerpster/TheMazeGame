@@ -45,12 +45,12 @@ Maze::Maze()
 	// follower->setFollower(&m_Player);
 	m_Entities.push_back(enemy);
 
-	Item *     item      = new FireStaff();
-	WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, TILE_SIZE / 2, this, item);
-	m_Entities.push_back(worldItem);
-	Item *     item2      = new FireStaff();
-	WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, TILE_SIZE / 2, this, item2);
-	m_Entities.push_back(worldItem2);
+	// Item *     item      = new FireStaff();
+	// WorldItem *worldItem = new WorldItem(3800.0f, 3800.0f, TILE_SIZE / 2, this, item);
+	// m_Entities.push_back(worldItem);
+	// Item *     item2      = new FireStaff();
+	// WorldItem *worldItem2 = new WorldItem(3900.0f, 3800.0f, TILE_SIZE / 2, this, item2);
+	// m_Entities.push_back(worldItem2);
 
 	auto healthPotionFunc = [](Mob *mob) {
 		mob->changeHealth(100);
@@ -208,24 +208,28 @@ void Maze::update()
 		Log::info("Player moved North");
 
 		moveNorth();
+		getMidRoom()->active();
 	}
 	else if(playerPos.y < getMidPoint() * TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved South");
 
 		moveSouth();
+		getMidRoom()->active();
 	}
 	if(playerPos.x > (getMidPoint() + 1) * TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved East");
 
 		moveEast();
+		getMidRoom()->active();
 	}
 	else if(playerPos.x < getMidPoint() * TILE_SIZE * ROOM_SIZE)
 	{
 		Log::info("Player moved West");
 
 		moveWest();
+		getMidRoom()->active();
 	}
 	Level::update();
 }
@@ -265,6 +269,65 @@ bool Maze::eventCallback(const Event::Event &e)
 			return true;
 		}
 	}
+	else if(e.getType() == Event::EventType::showAltTileEvent)
+	{
+		const Event::ShowAltTileEvent &ne = static_cast<const Event::ShowAltTileEvent &>(e);
+		if(ne.showAlt)
+		{
+			auto dirToVec = [](Direction dir) -> Vec2f {
+				Vec2f vec;
+				switch(dir)
+				{
+				case Direction::north:
+					vec = {ROOM_SIZE / 2 * TILE_SIZE, (ROOM_SIZE - 2) * TILE_SIZE};
+					break;
+				case Direction::south:
+					vec = {ROOM_SIZE / 2 * TILE_SIZE, TILE_SIZE};
+					break;
+				case Direction::east:
+					vec = {(ROOM_SIZE - 2) * TILE_SIZE, ROOM_SIZE / 2 * TILE_SIZE};
+					break;
+				case Direction::west:
+					vec = {TILE_SIZE, ROOM_SIZE / 2 * TILE_SIZE};
+					break;
+				default:
+					vec = {0.0f, 0.0f};
+					break;
+				}
+				return vec;
+			};
+			auto getChangeBy = [this, dirToVec](Vec2f startPos) -> Vec2f {
+				// float relX   = convertToRelativeX(startPos.x) - getMidPoint() * ROOM_PIXEL_SIZE;
+				// float relY   = convertToRelativeX(startPos.y) - getMidPoint() * ROOM_PIXEL_SIZE;
+				Vec2f relPos = convertToRelativePos(startPos) - getMidPoint() * ROOM_PIXEL_SIZE;
+
+				Direction shortestDir  = Direction::north;
+				float     shortestDist = distBetweenVec2f(relPos, dirToVec(shortestDir));
+				for(int dir = Direction::south; dir <= Direction::west; dir++)
+				{
+					float dist = distBetweenVec2f(relPos, dirToVec(static_cast<Direction>(dir)));
+					if(dist < shortestDist)
+					{
+						shortestDir  = static_cast<Direction>(dir);
+						shortestDist = dist;
+					}
+				}
+				Vec2f pos = dirToVec(shortestDir);
+				return pos - relPos;
+			};
+			// TODO: Put this in level?
+			Vec2f changeBy = getChangeBy({m_Player.getX(), m_Player.getY()});
+			m_Player.changeX(changeBy.x);
+			m_Player.changeY(changeBy.y);
+
+			for(Entity *e : m_Entities)
+			{
+				Vec2f changeBy = getChangeBy({e->getX(), e->getY()});
+				e->changeX(changeBy.x);
+				e->changeY(changeBy.y);
+			}
+		}
+	}
 	else if(e.getType() == Event::EventType::windowResize)
 	{
 		if(activeGUI != m_OverlayGUI)
@@ -282,6 +345,8 @@ void Maze::playerDeath()
 {
 	Log::info("Player has died");
 	m_Player.resetStats();
+	m_Player.changeX(3800.0f - m_Player.getX());
+	m_Player.changeY(3800.0f - m_Player.getY());
 	resetMaze();
 }
 
@@ -314,8 +379,18 @@ void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west)
 	// TODO: Add more randomization for the different types of rooms as well as entities and objects
 	bool entrances[4]          = {north, south, east, west};
 	RoomType type                  = RoomType::Empty;
-	if(x == 6 && y == 5)
+
+	int num = Random::getNum(0, 100);
+	if(num == 0)
+		type = RoomType::Exit;
+	else if(num < 6)
+		type = RoomType::Enemy;
+	else if(num < 11)
+		type = RoomType::NPC;
+	else if(num < 21)
 		type = RoomType::Chest;
+	else if(num < 31)
+		type = RoomType::Trap;
 	Level::addRoom(x, y, entrances, type);
 }
 // !SECTION
@@ -452,7 +527,8 @@ void Maze::generate()
 	int midpoint    = MAZE_SIZE / 2;
 	// NOTE: MUST DELETE ALL ROOMS!
 
-	addRoom(midpoint, midpoint, true, true, true, true);
+	bool entrances[4] = {true, true, true, true};
+	Level::addRoom(midpoint, midpoint, entrances, RoomType::Empty);
 	currentPaths.push_back({midpoint - 1, midpoint});
 	currentPaths.push_back({midpoint, midpoint - 1});
 	currentPaths.push_back({midpoint + 1, midpoint});
@@ -606,6 +682,12 @@ void Maze::openChest(std::vector<Item *> &items)
 	setChestToMenu(items);
 	activeGUI = m_ChestGUI;
 	Application::setIsPaused(true);
+}
+
+void Maze::endLevel()
+{
+	// TODO: Change this so it actually does something
+	playerDeath();
 }
 
 void Maze::returnToGame()

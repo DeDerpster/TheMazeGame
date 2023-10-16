@@ -27,7 +27,8 @@ namespace Event
 		mouseMove,
 		mouseClicked,
 		windowResize,
-		mazeMovedEvent
+		mazeMovedEvent,
+		showAltTileEvent
 	};
 
 	struct Event
@@ -80,6 +81,15 @@ namespace Event
 		MazeMovedEvent(float changeX, float changeY)
 			: changeX(changeX), changeY(changeY) {}
 		virtual EventType const getType() const override { return EventType::mazeMovedEvent; }
+	};
+
+	struct ShowAltTileEvent : Event
+	{
+		bool showAlt;
+
+		ShowAltTileEvent(bool showAlt)
+			: showAlt(showAlt) {}
+		virtual EventType const getType() const override { return EventType::showAltTileEvent; }
 	};
 }   // namespace Application
 
