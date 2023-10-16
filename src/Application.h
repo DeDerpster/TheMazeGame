@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Layer.h"
 #include "RenderEffect.h"
+#include "Log.h"
 
 #include "Event.h"
 

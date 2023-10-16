@@ -19,8 +19,6 @@ enum LogColour
 class Log
 {
   private:
-	static Log s_Instance;
-
 	Log();
 
 	std::string logFile         = "Logs/Default.log";

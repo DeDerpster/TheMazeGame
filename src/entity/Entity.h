@@ -28,17 +28,15 @@ class Entity
 	float        getX() const;
 	float        getY() const;
 	virtual bool getIsMoving();
-
+	CollisionBox &getCollisionBox() { return m_CollisionBox; }
 	bool doesIntersectWith(Vec2f pos);
-
+	bool hasCollidedWith(float xs, float ys, CollisionBox box);
 	virtual bool deleteMe();
 
 	virtual void changeX(float changeBy);
 	virtual void changeY(float changeBy);
 	void         setLevel(Level *level);
-	CollisionBox &getCollisionBox() { return m_CollisionBox; }
 
-	bool hasCollidedWith(float xs, float ys, CollisionBox box);
 
 #ifdef DEBUG
 	virtual void imGuiRender();

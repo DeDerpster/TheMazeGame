@@ -46,12 +46,12 @@ class Maze : public Level
 
 	int coordsToIndex(int x, int y);
 
-	void addRoom(int x, int y, bool north, bool south, bool east, bool west, bool isInSubThread);
+	void addRoom(int x, int y, bool north, bool south, bool east, bool west);
 	void removeRoom(int y, int x);
 	void updatePaths();
 
 	void multithreadGenerating(int layerMax, int startMax);
-	void generatePaths(int layerMax, int startMax, bool isInSubThread);
+	void generatePaths(int layerMax, int startMax);
 
 	EntranceState shouldBeOpen(Room *room, int nextEntrance, int prob, int *pathCount);
 	void          forceEntrance(EntranceState *north, EntranceState *south, EntranceState *east, EntranceState *west);

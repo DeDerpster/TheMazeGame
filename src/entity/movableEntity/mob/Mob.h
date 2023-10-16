@@ -25,6 +25,8 @@ class Mob : public MovableEntity, public StatsMob
 
 	bool isInControl = false;
 
+	void setupAnimations();
+
   public:
 	Mob();
 	Mob(float x, float y);
@@ -33,8 +35,7 @@ class Mob : public MovableEntity, public StatsMob
 	Mob(float x, float y, float speed, Level *level, uint16_t spriteID);
 	virtual ~Mob();
 
-	void pickUp(Item *item);
-	void setupAnimations();
+	void pickUp(Item *item);   // TODO: Make this into a bool to tell it whether it can pick it up
 
 	virtual void render();
 	virtual void update();

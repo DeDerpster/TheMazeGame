@@ -36,7 +36,7 @@ Maze::Maze()
 	Application::getCamera()->setAnchor(&m_Player);
 
 	NPC *enemy = new NPC(3800.0f, 4500.0f, this);
-	enemy->setFollower(&m_Player);
+	enemy->setAttacking(&m_Player);
 	// follower->setFollower(&m_Player);
 	m_Entities.push_back(enemy);
 
@@ -324,7 +324,7 @@ int Maze::coordsToIndex(int x, int y)
 	return yCoord * BOARD_SIZE + xCoord;
 }
 
-void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west, bool isInSubThread)
+void Maze::addRoom(int x, int y, bool north, bool south, bool east, bool west)
 {
 	// TODO: Add more randomization for the different types of rooms as well as entities and objects
 	bool entrances[4]          = {north, south, east, west};
@@ -454,7 +454,7 @@ std::vector<Vec2f> *Maze::getPath(Vec2f startPos, Vec2f dest, CollisionBox colli
 // !SECTION
 
 // SECTION: Generation
-void Maze::generatePaths(int layerMax, int startMax, bool isInSubThread)
+void Maze::generatePaths(int layerMax, int startMax)
 {
 	// Log::info("Generating paths");
 	int layer = 0;
@@ -548,8 +548,7 @@ void Maze::generatePaths(int layerMax, int startMax, bool isInSubThread)
 					north == EntranceState::isOpen,
 					south == EntranceState::isOpen,
 					east == EntranceState::isOpen,
-					west == EntranceState::isOpen,
-					isInSubThread);
+					west == EntranceState::isOpen);
 		}
 		currentPaths = newPaths;
 		newPaths.clear();
@@ -567,7 +566,7 @@ void Maze::multithreadGenerating(int layerMax, int startMax)
 	if(!finishedGenerating)
 		Log::critical("Stacked maze generating!!", LOGINFO);
 	finishedGenerating = false;
-	std::thread t1(&Maze::generatePaths, this, layerMax, startMax, true);   // This starts the multithreading
+	std::thread t1(&Maze::generatePaths, this, layerMax, startMax);   // This starts the multithreading
 	t1.detach();
 }
 
@@ -586,7 +585,7 @@ void Maze::generate()
 	int midpoint = BOARD_SIZE / 2 + 1;
 	// NOTE: MUST DELETE ALL ROOMS!
 
-	addRoom(midpoint, midpoint, true, true, true, true, false);
+	addRoom(midpoint, midpoint, true, true, true, true);
 	currentPaths.push_back({midpoint - 1, midpoint});
 	currentPaths.push_back({midpoint, midpoint - 1});
 	currentPaths.push_back({midpoint + 1, midpoint});

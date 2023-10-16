@@ -8,7 +8,7 @@
 #define X_STEP 50
 #define Y_STEP 50
 
-class Tile;   // TODO: PLEASE FIX THIS STUPID ERROR!!
+class Tile;   // FIXME
 // These are here so I don't have to import the files and cause a infinite loop
 class Player;
 class Entity;

@@ -14,8 +14,6 @@
 class Random
 {
   private:
-	static Random s_Instance;
-
 	std::default_random_engine generator;
 
 	int getNumImpl(int min, int max);

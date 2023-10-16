@@ -130,7 +130,7 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f dest, CollisionBox coll
 		{
 			for(int ys = -1; ys < 2; ys++)
 			{
-
+				if(xs == 0 && ys == 0) continue;
 				Vec2i nextPos = {currentPos.x + xs, currentPos.y + ys};
 				if(nextPos.x > nodeMap->size() || nextPos.x < 0 || nextPos.y > (*nodeMap)[0].size() || nextPos.y < 0)
 					continue;
@@ -146,26 +146,33 @@ std::vector<Vec2f> *Level::getPath(Vec2f startPos, Vec2f dest, CollisionBox coll
 				float gCost = currentNode->gCost + distBetweenVec2i(currentNode->vec, currentVec);
 				float hCost = distBetweenVec2i(currentVec, destination);
 				float fCost = gCost + hCost;
-				if((*nodeMap)[nextPos.x][nextPos.y].vec.x != -1)
+
+				Node &nextNode = (*nodeMap)[nextPos.x][nextPos.y];
+				if(nextNode.vec.x != -1)
 				{
-					if(fCost >= (*nodeMap)[currentPos.x + xs][currentPos.y + ys].fCost)
+					if(fCost >= nextNode.fCost)
 						continue;
-					(*nodeMap)[nextPos.x][nextPos.y].parent = currentPos;
-					(*nodeMap)[nextPos.x][nextPos.y].fCost  = fCost;
-					(*nodeMap)[nextPos.x][nextPos.y].gCost  = gCost;
-					(*nodeMap)[nextPos.x][nextPos.y].hCost  = hCost;
+					nextNode.parent = currentPos;
+					nextNode.fCost  = fCost;
+					nextNode.gCost  = gCost;
+					nextNode.hCost  = hCost;
 					openList.erase(std::remove(openList.begin(), openList.end(), nextPos), openList.end());
 				}
 				else
 				{
-					(*nodeMap)[currentPos.x + xs][currentPos.y + ys].vec    = currentVec;
-					(*nodeMap)[currentPos.x + xs][currentPos.y + ys].parent = currentPos;
-					(*nodeMap)[currentPos.x + xs][currentPos.y + ys].fCost  = fCost;
-					(*nodeMap)[currentPos.x + xs][currentPos.y + ys].gCost  = gCost;
-					(*nodeMap)[currentPos.x + xs][currentPos.y + ys].hCost  = hCost;
+					nextNode.vec    = currentVec;
+					nextNode.parent = currentPos;
+					nextNode.fCost  = fCost;
+					nextNode.gCost  = gCost;
+					nextNode.hCost  = hCost;
 				}
 
 				int insertIndex = getIndexOfInsertion(openList, (*nodeMap), nextPos);
+				if(insertIndex == -1)
+				{
+					path->push_back(dest);
+					return path;
+				}
 
 				openList.insert(openList.begin() + insertIndex, nextPos);
 			}

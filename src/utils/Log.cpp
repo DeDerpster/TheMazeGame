@@ -66,22 +66,30 @@ Log::Log()
 }
 
 #ifdef IS_ON_WINDOWS
-void setConsoleColour(LogColour c)
+void Log::setConsoleColour(LogColour c)
 {
 	#ifdef DEBUG
 	WORD colour = 7;
-	if(c == LogColour::critical)
-		colour = FOREGROUND_RED | FOREGROUND_INTENSITY;
-	else if(c == LogColour::error)
-		colour = FOREGROUND_RED;
-	else if(c == LogColour::warning)
-		colour = 14;
-	else if(c == LogColour::info)
-		colour = 7;
-	else if(c == LogColour::debug)
-		colour = FOREGROUND_GREEN;
-	else if(c == LogColour::variable)
-		colour = FOREGROUND_INTENSITY | 13;
+	switch(c) {
+		case LogColour::critical:
+			colour = FOREGROUND_RED | FOREGROUND_INTENSITY;
+			break;
+		case LogColour::error:
+			colour = FOREGROUND_RED;
+			break;
+		case LogColour::warning:
+			colour = 14;
+			break;
+		case LogColour::debug:
+			colour = FOREGROUND_GREEN;
+			break;
+		case LogColour::variable:
+			colour = FOREGROUND_INTENSITY | 13;
+			break;
+		default:
+			colour = 7;
+			break;
+	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colour);
 	#endif
 }
@@ -89,20 +97,29 @@ void setConsoleColour(LogColour c)
 void Log::setConsoleColour(LogColour c)
 {
 	#ifdef DEBUG
-	if(c == LogColour::critical)
-		std::cout << BOLDRED;
-	else if(c == LogColour::error)
-		std::cout << RED;
-	else if(c == LogColour::warning)
-		std::cout << YELLOW;
-	else if(c == LogColour::info)
-		std::cout << BOLDRED;
-	else if(c == LogColour::debug)
-		std::cout << GREEN;
-	else if(c == LogColour::variable)
-		std::cout << BOLDMAGENTA;
-	else
-		std::cout << RESET;
+	switch(c) {
+		case LogColour::critical:
+			std::cout << BOLDRED;
+			break;
+		case LogColour::error:
+			std::cout << RED;
+			break;
+		case LogColour::warning:
+			std::cout << YELLOW;
+			break;
+		case LogColour::info:
+			std::cout << BOLDRED;
+			break;
+		case LogColour::debug:
+			std::cout << GREEN;
+			break;
+		case LogColour::variable:
+			std::cout << BOLDMAGENTA;
+			break;
+		default:
+			std::cout << RESET;
+			break;
+	}
 	#endif
 }
 #endif
