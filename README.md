@@ -22,3 +22,4 @@ This has not been tested since being written (2021)... :(
 ## Known issues
 
 * Issues with AMD graphics cards while swapping buffers
+* LaTeX no longer compiling
